@@ -42,4 +42,6 @@ struct link_desc<auto (PORT) -> NODE_LIKE> : private link {
 
 GRAPH_DSL_NS_END
 
+#define __port(name) auto (name)
+
 #endif //GRAPH_LINK_H

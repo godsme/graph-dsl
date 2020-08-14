@@ -8,6 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
+#include <graph/core/link.h>
 #include <tuple>
 #include <vector>
 #include <boost/hana.hpp>
@@ -19,12 +20,10 @@ namespace hana = boost::hana;
 
 struct link;
 
-template<bool ROOT, typename NODE, typename ... LINKS>
+template<typename NODE, typename ... LINKS>
 struct node_desc final {
    constexpr static auto direct_decedents =
-      unique(hana::fold_left
-         ( hana::make_tuple(LINKS::node_list...)
-         , hana::concat));
+      unique(hana::flatten(hana::make_tuple(link_desc<LINKS>::node_list...)));
 
 //private:
 //   using link_set = std::vector<link*>;
@@ -60,7 +59,7 @@ struct node_desc final {
 
 GRAPH_DSL_NS_END
 
-#define __node(...) GRAPH_DSL_NS::node_desc<false, __VA_ARGS__>
+#define __node(...) GRAPH_DSL_NS::node_desc<__VA_ARGS__>
 #define __root(...) GRAPH_DSL_NS::node_desc<true,  __VA_ARGS__>
 
 #endif //GRAPH_NODE_DESC_H
