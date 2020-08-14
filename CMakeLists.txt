@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(graph_dsl)
+project(graph)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -8,14 +8,4 @@ include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
 )
 
-add_executable(graph_dsl
-        include/type-list/TypeList.h
-        include/type-list/Elem.h
-        include/type-list/Unique.h
-        include/type-list/Fold.h
-        include/dsl/NodeTrait.h
-        include/dsl/Link.h
-        include/dsl/Node.h
-        include/dsl/Graph.h
-        ut/TestSort.cpp
-        ut/catch.cpp)
+add_executable(graph main.cpp include/graph/core/graph.h include/graph/graph_ns.h include/graph/core/node.h include/graph/status.h include/graph/core/graph_context.h include/graph/util/assertion.h)
