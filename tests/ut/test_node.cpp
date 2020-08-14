@@ -37,12 +37,12 @@ namespace {
          , __port(port_4) -> __fork(node_4, node_2, node_5));
 
    using node_def_2 =
-   __node( node_3
+   __node( node_5
          , __port(port_5) -> node_2
-         , __port(port_6) -> __fork(node_4, node_5));
+         , __port(port_6) -> __fork(node_4, node_3));
 
    using node_def_3 =
-   __node( node_5
+   __node( node_3
          , __port(port_7) -> node_4
          , __port(port_8) -> __fork(node_2, node_6)
          , __port(port_9) -> node_7);
@@ -58,7 +58,7 @@ namespace {
 
 
    TEST_CASE("graph_desc") {
-      auto result = grap_def::all_decedents_map;
-      //BOOST_HANA_CONSTANT_CHECK(result == boost::hana::make_tuple());
+      auto result = grap_def::all_sorted_nodes;
+      BOOST_HANA_CONSTANT_CHECK(boost::hana::tuple_t<node_1, node_5, node_3, node_2,node_4, node_6, node_7> == result);
    }
 }

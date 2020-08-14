@@ -32,6 +32,24 @@ struct graph_desc {
    constexpr static auto all_decedents_map = hana::transform(nodes_map, [](auto elem) {
       return hana::make_pair(hana::first(elem), unique(get_all_decedents(hana::second(elem))));
    });
+
+   constexpr static auto sorted_map = hana::sort(all_decedents_map, [](auto l, auto r) {
+      return hana::contains(hana::second(r), hana::first(l));
+   });
+
+   constexpr static auto sorted_nodes = hana::reverse(hana::transform(sorted_map, [](auto elem) {
+      return hana::first(elem);
+   }));
+
+   constexpr static auto all_decedents = hana::remove_if(unique(
+      hana::fold_left(all_decedents_map, hana::tuple_t<>, [](auto acc, auto elem){
+         return hana::concat(acc, hana::second(elem));
+      })),
+      [](auto elem) {
+         return hana::contains(sorted_nodes, elem);
+      });
+
+   constexpr static auto all_sorted_nodes = hana::concat(sorted_nodes, all_decedents);
 };
 
 GRAPH_DSL_NS_END
