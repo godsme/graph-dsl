@@ -22,6 +22,7 @@ struct link;
 
 template<typename NODE, typename ... LINKS>
 struct node_desc final {
+   using node_type = NODE;
    constexpr static auto direct_decedents =
       unique(hana::flatten(hana::make_tuple(link_desc<LINKS>::node_list...)));
 
