@@ -21,66 +21,7 @@ namespace hana = boost::hana;
 template<typename NODE, typename = void>
 struct node_like_trait;
 
-//////////////////////////////////////////////////////////////////////////////
-template<typename COND, typename NODE_LIKE>
-struct maybe {
-   using decorated_node = typename node_like_trait<NODE_LIKE>::type;
-   constexpr static auto node_list = decorated_node::node_list;
 
-   template<typename TUPLE>
-   struct instance_type {
-      auto build(graph_context& context) -> status_t {
-         return COND(context).with_value([&](auto satisfied) {
-            if(satisfied) {
-               GRAPH_EXPECT_SUCC(node_.build(context));
-               satisfied_ = true;
-            } else {
-               node_.release(context);
-               satisfied_ = false;
-            }
-            return status_t::Ok;
-         });
-      }
-
-      auto release(graph_context& context) {
-         if(satisfied_) {
-            node_.release(context);
-            satisfied_ = false;
-         }
-      }
-   private:
-      typename decorated_node::template instance_type<TUPLE> node_;
-      bool satisfied_{false};
-   };
-};
-
-template<typename COND, typename NODE_LIKE>
-struct node_like_trait<maybe<COND, NODE_LIKE>, void> {
-   using type = maybe<COND, NODE_LIKE>;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
-struct exclusive {
-   constexpr static auto node_list = \
-      hana::concat
-         ( node_like_trait<NODE_LIKE_1>::type::node_list
-         , node_like_trait<NODE_LIKE_2>::type::node_list);
-
-   static auto enabled(graph_context& context) -> result_t<bool> {
-      auto result = COND(context);
-      if(!result.is_ok()) return result;
-
-      return *result ?
-         node_like_trait<NODE_LIKE_1>::type::enabled(context) :
-         node_like_trait<NODE_LIKE_2>::type::enabled(context);
-   }
-};
-
-template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
-struct node_like_trait<exclusive<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
-   using type = exclusive<COND, NODE_LIKE_1, NODE_LIKE_2>;
-};
 
 //////////////////////////////////////////////////////////////////////////////
 template<typename ... NODEs_LIKE>

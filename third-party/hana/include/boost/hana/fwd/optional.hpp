@@ -373,7 +373,7 @@ BOOST_HANA_NAMESPACE_BEGIN
     //! result.
     //! @relates hana::optional
     //!
-    //! Specifically, `maybe` takes a default value, a function and an
+    //! Specifically, `node_like_maybe` takes a default value, a function and an
     //! optional value. If the optional value is `nothing`, the default
     //! value is returned. Otherwise, the function is applied to the
     //! content of the `just`.
@@ -384,7 +384,7 @@ BOOST_HANA_NAMESPACE_BEGIN
     //!
     //! @param f
     //! A function called as `f(x)` if and only if `m` is an optional value
-    //! of the form `just(x)`. In that case, the result returend by `maybe`
+    //! of the form `just(x)`. In that case, the result returend by `node_like_maybe`
     //! is the result of `f`.
     //!
     //! @param m
@@ -393,9 +393,9 @@ BOOST_HANA_NAMESPACE_BEGIN
     //!
     //! Example
     //! -------
-    //! @include example/optional/maybe.cpp
+    //! @include example/optional/node_like_maybe.cpp
 #ifdef BOOST_HANA_DOXYGEN_INVOKED
-    constexpr auto maybe = [](auto&& default_, auto&& f, auto&& m) -> decltype(auto) {
+    constexpr auto node_like_maybe = [](auto&& default_, auto&& f, auto&& m) -> decltype(auto) {
         if (m is a just(x)) {
             return forwarded(f)(forwarded(x));
         else
