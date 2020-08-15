@@ -37,10 +37,10 @@ class graph_trait final {
       return hana::contains(hana::second(r), hana::first(l));
    });
 
-   constexpr static auto sorted_non_leaf_nodes = \
-      hana::reverse(hana::transform(sorted_map, [](auto elem) {
-            return hana::first(elem);
-         }));
+   constexpr static auto sorted_non_leaf_nodes = hana::reverse(
+      hana::transform(sorted_map, [](auto elem) {
+         return hana::first(elem);
+      }));
 
    constexpr static auto all_decedents = unique(
       hana::fold_left(all_decedents_map, hana::tuple_t<>, [](auto acc, auto elem){
