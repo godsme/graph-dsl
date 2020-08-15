@@ -8,16 +8,16 @@
 #include <graph/status.h>
 
 #define GRAPH_EXPECT_SUCC(call) do { \
-   auto status = call;              \
-   if(status != status_t::Ok) {     \
-      return status;                \
-   }                                \
+   auto status = call;               \
+   if(status != status_t::Ok) {      \
+      return status;                 \
+   }                                 \
 } while(0)
 
-#define GRPAH_EXPECT_TRUE(cond) do {      \
-   if(!(cond)) {                    \
-      return status_t::Failed;      \
-   }                                \
+#define GRAPH_EXPECT_TRUE(cond) do { \
+   if(!(cond)) {                     \
+      return status_t::Failed;       \
+   }                                 \
 } while(0)
 
 #endif //GRAPH_ASSERTION_H

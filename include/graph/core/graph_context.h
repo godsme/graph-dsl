@@ -14,9 +14,9 @@ struct graph_context {
    template<typename NODES>
    graph_context(NODES& nodes) : nodes_{reinterpret_cast<void*>(&nodes)} {}
 
-   template<typename NODES, int Index>
-   inline auto get_nodes() -> decltype(auto) {
-      return (std::get<Index>(*reinterpret_cast<NODES*>(nodes_)));
+   template<typename NODE, int Index>
+   inline auto get_node() -> decltype(auto) {
+      return (std::get<Index>(*reinterpret_cast<NODE*>(nodes_)));
    }
 private:
    void* nodes_{};

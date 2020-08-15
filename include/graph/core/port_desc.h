@@ -35,4 +35,6 @@ private:
 
 GRAPH_DSL_NS_END
 
+#define __port(name) auto (name)
+
 #endif //GRAPH_PORT_DESC_H
