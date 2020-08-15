@@ -14,7 +14,7 @@
 
 GRAPH_DSL_NS_BEGIN
 
-struct link;
+struct link_desc;
 struct node_cb {};
 
 template<typename T>
@@ -30,7 +30,7 @@ struct node_impl {
       return context.get_nodes<NODES, Index>().build(context);
    }
 
-   auto build(graph_context& context, std::vector<link*>& links) -> status_t {
+   auto build(graph_context& context, std::vector<link_desc*>& links) -> status_t {
       return context.get_nodes<NODES, Index>().build(context, links);
    }
 };

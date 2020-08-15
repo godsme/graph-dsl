@@ -24,5 +24,4 @@ private:
 
 GRAPH_DSL_NS_END
 
-
 #endif //GRAPH_GRAPH_CONTEXT_H
