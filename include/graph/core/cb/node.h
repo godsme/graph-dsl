@@ -20,7 +20,6 @@ struct node_cb {};
 template<typename T>
 struct generic_node_cb : node_cb {};
 
-
 template<typename NODE, typename NODES>
 struct node_impl {
    constexpr static int Index = tuple_element_by_type<generic_node_cb<NODE>, NODES>::Index;
