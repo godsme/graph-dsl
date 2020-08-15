@@ -10,8 +10,9 @@
 #include <graph/core/graph_context.h>
 #include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
-#include <graph/core/node_like_trait.h>
+#include <graph/core/node_like_trait_decl.h>
 #include <boost/hana/fwd/tuple.hpp>
+#include <boost/hana/concat.hpp>
 #include <vector>
 
 GRAPH_DSL_NS_BEGIN
@@ -76,5 +77,7 @@ struct node_like_trait<node_like_either<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
 };
 
 GRAPH_DSL_NS_END
+
+#define __either(...) GRAPH_DSL_NS::node_like_either<__VA_ARGS__>
 
 #endif //GRAPH_NODE_LIKE_EITHER_H

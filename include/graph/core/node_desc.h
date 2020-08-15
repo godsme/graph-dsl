@@ -26,7 +26,7 @@ struct node_desc final {
 
    struct node : subgraph_node<NODE> {
       auto build(graph_context& context) -> status_t {
-         return build_links(context, std::make_index_sequence<sizeof...(LINKS)...>{});
+         return build_links(context, std::make_index_sequence<sizeof...(LINKS)>{});
       }
 
    private:

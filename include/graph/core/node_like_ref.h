@@ -2,17 +2,14 @@
 // Created by Darwin Yuan on 2020/8/16.
 //
 
-#ifndef GRAPH_NODE_REF_H
-#define GRAPH_NODE_REF_H
+#ifndef GRAPH_NODE_LIKE_REF_H
+#define GRAPH_NODE_LIKE_REF_H
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
-#include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
-#include <graph/core/node_like_trait.h>
-#include <boost/hana/fwd/tuple.hpp>
-#include <vector>
+#include <graph/core/node_like_trait_decl.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -21,7 +18,7 @@ namespace hana = boost::hana;
 struct node_signature {};
 
 template <typename NODE>
-struct node_ref {
+struct node_like_ref {
    constexpr static auto node_list = hana::tuple_t<NODE>;
 
    template<typename TUPLE>
@@ -47,9 +44,9 @@ struct node_ref {
 
 template<typename NODE>
 struct node_like_trait<NODE, std::enable_if_t<std::is_base_of_v<node_signature, NODE>>> {
-   using type = node_ref<NODE>;
+   using type = node_like_ref<NODE>;
 };
 
 GRAPH_DSL_NS_END
 
-#endif //GRAPH_NODE_REF_H
+#endif //GRAPH_NODE_LIKE_REF_H

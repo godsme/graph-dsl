@@ -10,7 +10,7 @@
 #include <graph/core/graph_context.h>
 #include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
-#include <graph/core/node_like_trait.h>
+#include <graph/core/node_like_trait_decl.h>
 #include <boost/hana/fwd/tuple.hpp>
 #include <vector>
 
@@ -65,5 +65,7 @@ struct node_like_trait<node_like_maybe<COND, NODE_LIKE>, void> {
 };
 
 GRAPH_DSL_NS_END
+
+#define __maybe(...) GRAPH_DSL_NS::node_like_maybe<__VA_ARGS__>
 
 #endif //GRAPH_NODE_LIKE_MAYBE_H

@@ -33,7 +33,7 @@ namespace {
    __node( node_1
          , __port(port_1) -> node_2
          , __port(port_2) -> __maybe(cond_1, node_3)
-         , __port(port_3) -> __exclusive(cond_1, node_2, node_3)
+         , __port(port_3) -> __either(cond_1, node_2, node_3)
          , __port(port_4) -> __fork(node_4, node_2, node_5));
 
    using node_def_2 =
