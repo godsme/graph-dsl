@@ -24,7 +24,7 @@ class graph_trait final {
          if constexpr(hana::is_nothing(entry)) {
             return hana::append(acc, elem);
          } else {
-            return hana::concat(acc, hana::append(get_all_decedents(hana::second(entry.value())), elem));
+            return hana::concat(acc, hana::append(get_all_decedents(hana::second(*entry)), elem));
          }
       });
    }
