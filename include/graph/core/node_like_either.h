@@ -66,6 +66,10 @@ struct node_like_either {
             default: break;
          }
       }
+
+      auto enabled() const -> bool {
+         return node_.index() != 0;
+      }
    private:
       std::variant<std::monostate, node_1, node_2> node_;
    };

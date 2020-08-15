@@ -22,7 +22,41 @@ struct node_like_fork {
    constexpr static auto node_list =
       hana::flatten(hana::make_tuple(node_like_trait<NODEs_LIKE>::type::node_list...));
 
+   constexpr static auto sequence = std::make_index_sequence<sizeof...(NODEs_LIKE)>{};
+   template<typename TUPLE>
+   struct instance_type {
+      auto build(graph_context& context) -> status_t {
+         return build(context, sequence);
+      }
 
+      auto release(graph_context& context) {
+         release(context, sequence);
+      }
+
+      auto enabled() const -> bool {
+         return enabled(sequence);
+      }
+   private:
+      template<size_t ... I>
+      auto build(graph_context& context, std::index_sequence<I...>) -> status_t {
+         status_t status = status_t::Ok;
+         (((status = std::get<I>(nodes_).build(context)) == status_t::Ok) && ...);
+         return status;
+      }
+
+      template<size_t ... I>
+      auto release(graph_context& context, std::index_sequence<I...>) {
+         (std::get<I>(nodes_).release(context), ...);
+      }
+
+      template<size_t ... I>
+      auto enabled(std::index_sequence<I...>) {
+         return (std::get<I>(nodes_).enabled() || ...);
+      }
+
+   private:
+      std::tuple<typename node_like_trait<NODEs_LIKE>::type::template instance_type<TUPLE>...> nodes_;
+   };
 };
 
 template<typename ... NODEs_LIKE>

@@ -37,6 +37,10 @@ struct node_like_ref {
          enabled_ = false;
       }
 
+      auto enabled() const -> bool {
+         return enabled_;
+      }
+
    private:
       bool enabled_{false};
    };

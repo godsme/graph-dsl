@@ -44,6 +44,10 @@ struct node_like_maybe {
          }
       }
 
+      auto enabled() const -> bool {
+         return satisfied_;
+      }
+
    private:
       auto build_(graph_context& context) -> status_t {
          if(!satisfied_) {
