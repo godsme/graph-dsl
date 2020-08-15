@@ -9,8 +9,7 @@
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
 #include <graph/core/node_like_trait.h>
-#include <tuple>
-#include <vector>
+#include <graph/core/port_desc.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -19,7 +18,12 @@ struct link_desc;
 
 template<typename PORT, typename NODE_LIKE>
 struct link_desc<auto (PORT) -> NODE_LIKE> {
-   constexpr static auto node_list = node_like_trait<NODE_LIKE>::node_list;
+   using node_like_type = typename node_like_trait<NODE_LIKE>::type;
+   constexpr static auto node_list = node_like_type::node_list;
+
+private:
+   port_desc<PORT> port_;
+   node_like_type  down_stream_node_;
 };
 
 GRAPH_DSL_NS_END

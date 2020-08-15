@@ -21,20 +21,26 @@ struct node_signature {};
 template<typename NODE, typename = void>
 struct node_like_trait;
 
+//////////////////////////////////////////////////////////////////////////////
+template <typename NODE>
+struct down_stream_node {
+   constexpr static auto node_list = hana::tuple_t<NODE>;
+};
+
 template<typename NODE>
 struct node_like_trait<NODE, std::enable_if_t<std::is_base_of_v<node_signature, NODE>>> {
-   constexpr static auto node_list = hana::tuple_t<NODE>;
+   using type = down_stream_node<NODE>;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 template<typename COND, typename NODE_LIKE>
 struct maybe {
-   constexpr static auto node_list = node_like_trait<NODE_LIKE>::node_list;
+   constexpr static auto node_list = node_like_trait<NODE_LIKE>::type::node_list;
 };
 
 template<typename COND, typename NODE_LIKE>
 struct node_like_trait<maybe<COND, NODE_LIKE>, void> {
-   constexpr static auto node_list = maybe<COND, NODE_LIKE>::node_list;
+   using type = maybe<COND, NODE_LIKE>;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,25 +48,25 @@ template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
 struct exclusive {
    constexpr static auto node_list = \
       hana::concat
-         ( node_like_trait<NODE_LIKE_1>::node_list
-         , node_like_trait<NODE_LIKE_2>::node_list);
+         ( node_like_trait<NODE_LIKE_1>::type::node_list
+         , node_like_trait<NODE_LIKE_2>::type::node_list);
 };
 
 template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
 struct node_like_trait<exclusive<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
-   constexpr static auto node_list = exclusive<COND, NODE_LIKE_1, NODE_LIKE_2>::node_list;
+   using type = exclusive<COND, NODE_LIKE_1, NODE_LIKE_2>;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 template<typename ... NODEs_LIKE>
 struct fork {
    constexpr static auto node_list =
-      hana::flatten(hana::make_tuple(node_like_trait<NODEs_LIKE>::node_list...));
+      hana::flatten(hana::make_tuple(node_like_trait<NODEs_LIKE>::type::node_list...));
 };
 
 template<typename ... NODEs_LIKE>
 struct node_like_trait<fork<NODEs_LIKE...>, void> {
-   constexpr static auto node_list = fork<NODEs_LIKE...>::node_list;
+   using type = fork<NODEs_LIKE...>;
 };
 
 GRAPH_DSL_NS_END
