@@ -24,7 +24,8 @@ struct node_desc final {
    constexpr static auto direct_decedents =
       unique(hana::flatten(hana::make_tuple(link_desc<LINKS>::node_list...)));
 
-   struct node : subgraph_node<NODE> {
+   template<typename TUPLE>
+   struct instance_type {
       auto build(graph_context& context) -> status_t {
          return build_links(context, std::make_index_sequence<sizeof...(LINKS)>{});
       }
@@ -38,7 +39,7 @@ struct node_desc final {
       }
 
    private:
-      std::tuple<typename link_desc<LINKS>::link ...> links_;
+      std::tuple<typename link_desc<LINKS>::template instance_type<TUPLE> ...> links_;
    };
 };
 

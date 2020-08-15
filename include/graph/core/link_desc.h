@@ -21,14 +21,15 @@ struct link_desc<auto (PORT) -> NODE_LIKE> {
    using node_like_type = typename node_like_trait<NODE_LIKE>::type;
    constexpr static auto node_list = node_like_type::node_list;
 
-   struct link {
+   template<typename TUPLE>
+   struct instance_type {
       auto build(graph_context& context) -> status_t {
          return down_stream_node_.build(context);
       }
 
    private:
       port_desc<PORT> port_;
-      node_like_type  down_stream_node_;
+      typename node_like_type::template instance_type<TUPLE>  down_stream_node_;
    };
 };
 

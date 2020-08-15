@@ -18,6 +18,9 @@ struct subgraph_node {
    inline auto release() -> void {
       refs_--;
    }
+   inline auto enabled() -> bool {
+      return refs_ > 0;
+   }
 private:
    uint8_t refs_{0};
    bool    running{false};

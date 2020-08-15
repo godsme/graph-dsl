@@ -18,6 +18,7 @@ struct graph_context {
    inline auto get_node() -> decltype(auto) {
       return (std::get<Index>(*reinterpret_cast<NODE*>(nodes_)));
    }
+
 private:
    void* nodes_{};
 };
