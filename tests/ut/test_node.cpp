@@ -50,15 +50,10 @@ namespace {
    using grap_def = __graph(node_def, node_def_2, node_def_3);
 
    TEST_CASE("node_desc") {
-      auto result = node_def::direct_decedents;
-      static_assert(result == boost::hana::tuple_t<node_2, node_3, node_4, node_5>);
+      static_assert(boost::hana::tuple_t<node_2, node_3, node_4, node_5> == node_def::direct_decedents);
    }
 
-   template<typename T> struct S;
-
-
    TEST_CASE("graph_desc") {
-      auto result = grap_def::all_sorted_nodes;
-      BOOST_HANA_CONSTANT_CHECK(boost::hana::tuple_t<node_1, node_5, node_3, node_2,node_4, node_6, node_7> == result);
+      static_assert(boost::hana::tuple_t<node_1, node_5, node_3, node_2,node_4, node_6, node_7> == grap_def::all_sorted_nodes);
    }
 }
