@@ -12,6 +12,8 @@
 
 GRAPH_DSL_NS_BEGIN
 
+using port_id_t = uint8_t;
+
 enum class image_type : uint8_t {
    RGB,
    YUV
@@ -30,7 +32,13 @@ struct actor_port {
    actor_handle_set actor_handles_;
 };
 
+struct root_actor_port {
+   port_id_t port_id;
+   actor_handle_set handles;
+};
+
 using actor_ports = std::vector<actor_port>;
+using root_actor_ports = std::vector<root_actor_port>;
 
 GRAPH_DSL_NS_END
 

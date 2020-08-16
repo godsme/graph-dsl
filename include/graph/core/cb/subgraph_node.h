@@ -48,12 +48,31 @@ struct subgraph_node;
 template<typename NODE>
 struct subgraph_node<NODE, node_category::Root> {
    using node_type = NODE;
+
 private:
-   using parent = subgraph_node_base<NODE>;
+   template<typename T>
+   struct desc_node_type {
+      using type = typename T::node_type;
+   };
 
 public:
    template<typename NODE_DESC_TUPLE>
-   auto start(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
+   auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
+      constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
+      static_assert(Index >= 0, "");
+
+      auto root_node = context.get_root_node(NODE::root_id);
+      GRAPH_EXPECT_TRUE(root_node != nullptr);
+
+      if(root_node->present()) {
+         return status_t::Ok;
+      }
+
+      auto ports = std::make_unique<root_actor_ports>();
+      GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
+
+      GRAPH_EXPECT_SUCC(root_node->connect(std::move(ports)));
+
       return status_t::Ok;
    }
 
@@ -92,14 +111,14 @@ private:
 public:
    template<typename NODE_DESC_TUPLE>
    auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
-      if(!parent::enabled()) return status_t::Ok;
       constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
-      auto ports = std::make_shared<actor_ports>();
+      if(!parent::enabled()) return status_t::Ok;
+      auto ports = std::make_unique<actor_ports>();
       GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
       if(!parent::running_) {
-         parent::actor_handle_ = NODE::spawn(context, ports);
+         parent::actor_handle_ = NODE::spawn(context, std::move(ports));
          GRAPH_EXPECT_TRUE(parent::actor_handle_.exists());
          parent::running_ = true;
       } else {

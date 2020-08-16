@@ -46,6 +46,14 @@ struct node_desc final {
          return collect_actor_ports(context, ports, sequence);
       }
 
+      auto collect_actor_ports(graph_context& context, root_actor_ports& ports) -> status_t {
+         if constexpr (is_root) {
+            return collect_actor_ports(context, ports, sequence);
+         } else {
+            return status_t::Failed;
+         }
+      }
+
    private:
       template<size_t ... I>
       auto build_links(graph_context& context, std::index_sequence<I...>) -> status_t {
@@ -56,6 +64,13 @@ struct node_desc final {
 
       template<size_t ... I>
       auto collect_actor_ports(graph_context& context, actor_ports& ports, std::index_sequence<I...>) -> status_t {
+         status_t status = status_t::Ok;
+         return (((status = std::get<I>(links_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
+                status_t::Ok : status;
+      }
+
+      template<size_t ... I>
+      auto collect_actor_ports(graph_context& context, root_actor_ports& ports, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
          return (((status = std::get<I>(links_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
                 status_t::Ok : status;

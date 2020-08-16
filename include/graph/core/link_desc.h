@@ -36,6 +36,15 @@ struct link_desc<auto (PORT) -> NODE_LIKE> {
          return status_t::Ok;
       }
 
+      auto collect_actor_port(graph_context& context, root_actor_ports& ports) -> status_t {
+         if(down_stream_node_.enabled()) {
+            actor_handle_set handles;
+            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, handles));
+            ports.push_back({PORT::root_port_id, handles});
+         }
+         return status_t::Ok;
+      }
+
    private:
       typename node_like_type::template instance_type<TUPLE>  down_stream_node_;
    };

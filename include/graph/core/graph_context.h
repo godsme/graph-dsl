@@ -8,15 +8,23 @@
 #include <graph/graph_ns.h>
 #include <nano-caf/core/actor_system.h>
 #include <tuple>
+#include <graph/core/cb/root_node.h>
 
 GRAPH_DSL_NS_BEGIN
 
 struct graph_context {
-   graph_context(nano_caf::actor_context& context) : actor_context_(context) {}
+   graph_context(nano_caf::actor_context& context, root_node_set& root_nodes)
+      : actor_context_{context}
+      , roots_{root_nodes}
+   {}
 
    template<typename NODES, int Index>
    inline auto get_node() -> decltype(auto) {
       return (std::get<Index>(*reinterpret_cast<NODES*>(subgraph_nodes_)));
+   }
+
+   inline auto get_root_node(size_t index) -> root_node* {
+      return roots_.get_root_node(index);
    }
 
    template<typename NODES>
@@ -31,6 +39,7 @@ struct graph_context {
 private:
    void* subgraph_nodes_{};
    nano_caf::actor_context& actor_context_;
+   root_node_set& roots_;
 };
 
 GRAPH_DSL_NS_END

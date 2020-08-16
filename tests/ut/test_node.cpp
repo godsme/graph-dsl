@@ -16,7 +16,7 @@ struct image_buf {
 CAF_def_message(image_buf_msg, (buf, std::shared_ptr<const image_buf>));
 
 struct node_5_actor : nano_caf::behavior_based_actor {
-   node_5_actor(std::shared_ptr<GRAPH_DSL_NS::actor_ports> ports) : ports_(ports) {
+   node_5_actor(std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) : ports_(std::move(ports)) {
       std::cout << "created" << std::endl;
    }
    nano_caf::behavior get_behavior() {
@@ -38,7 +38,7 @@ struct node_5_actor : nano_caf::behavior_based_actor {
    }
 
 private:
-   std::shared_ptr<GRAPH_DSL_NS::actor_ports> ports_;
+   std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports_;
 };
 
 struct node_8_actor : nano_caf::behavior_based_actor {
@@ -56,12 +56,37 @@ struct node_8_actor : nano_caf::behavior_based_actor {
    }
 };
 
+struct node_0_actor : nano_caf::behavior_based_actor {
+   node_0_actor() {
+      std::cout << "leaf created" << std::endl;
+   }
+   nano_caf::behavior get_behavior() {
+      return {
+         [](const graph_dsl::subgraph_connect_msg& msg) {
+            std::cout << "subgraph_connect_msg" << std::endl;
+         },
+
+         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
+      };
+   }
+};
+
 struct node_1 : graph_dsl::node_signature{
-   constexpr static auto id = 1;
+   constexpr static auto root_id = 0;
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_0_actor>(std::forward<Args>(args)...);
+   }
 };
+
 struct node_2 : graph_dsl::node_signature{
-   constexpr static auto id = 2;
+   constexpr static auto root_id = 1;
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_0_actor>(std::forward<Args>(args)...);
+   }
 };
+
 struct node_3 : graph_dsl::node_signature{
    constexpr static auto id = 3;
    template<typename ... Args>
@@ -69,6 +94,7 @@ struct node_3 : graph_dsl::node_signature{
       return context.get_actor_context().spawn<node_5_actor>(std::forward<Args>(args)...);
    }
 };
+
 struct node_4 : graph_dsl::node_signature{
    constexpr static auto id = 4;
 
@@ -112,24 +138,28 @@ struct node_8 : graph_dsl::node_signature{
 };
 
 struct port_1 {
+   constexpr static graph_dsl::port_id_t root_port_id = 1;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_2 {
+   constexpr static graph_dsl::port_id_t root_port_id = 2;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_3 {
+   constexpr static graph_dsl::port_id_t root_port_id = 3;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_4 {
+   constexpr static graph_dsl::port_id_t root_port_id = 4;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
@@ -224,7 +254,13 @@ namespace {
    TEST_CASE("graph_desc build") {
       nano_caf::actor_system actor_system;
       actor_system.start(1);
-      GRAPH_DSL_NS::graph_context context{actor_system};
+      GRAPH_DSL_NS::root_nodes<node_1, node_2> roots;
+
+      GRAPH_DSL_NS::graph_context context{actor_system, roots};
+
+      REQUIRE(GRAPH_DSL_NS::status_t::Ok == roots.get<0>().start(context));
+      REQUIRE(GRAPH_DSL_NS::status_t::Ok == roots.get<1>().start(context));
+
       grap_def graph;
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));
