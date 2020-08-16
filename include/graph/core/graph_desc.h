@@ -27,11 +27,8 @@ private:
    template<size_t ... I>
    auto build(graph_context& context, std::index_sequence<I...>) {
       status_t status = status_t::Ok;
-      auto result = (((status = std::get<I>(nodes_desc_).build(context)) == status_t::Ok) && ...);
-      if(!result) {
-         return status;
-      }
-      return status_t::Ok;
+      return (((status = std::get<I>(nodes_desc_).build(context)) == status_t::Ok) && ...) ?
+         status_t::Ok : status;
    }
 private:
    template<typename ... Ts>

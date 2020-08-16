@@ -43,8 +43,8 @@ struct node_desc final {
       template<size_t ... I>
       auto build_links(graph_context& context, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
-         auto result = (((status = std::get<I>(links_).build(context)) == status_t::Ok) && ...);
-         return result ? status_t::Ok : status;
+         return (((status = std::get<I>(links_).build(context)) == status_t::Ok) && ...) ?
+            status_t::Ok : status;
       }
 
    private:
