@@ -42,6 +42,18 @@ class graph_trait final {
          return hana::first(elem);
       }));
 
+   constexpr static auto root_nodes = hana::transform(
+      hana::remove_if(hana::tuple_t<NODES...>, [](auto elem){
+         return decltype(elem)::type::is_root != hana::bool_c<true>;
+      }), [](auto elem){
+         return hana::type_c<typename decltype(elem)::type::node_type>;
+      });
+
+   constexpr static auto sorted_intermediate_nodes = \
+      hana::remove_if(sorted_non_leaf_nodes, [](auto elem) {
+         return hana::contains(root_nodes, elem);
+      });
+
    constexpr static auto all_decedents = unique(
       hana::fold_left(all_decedents_map, hana::tuple_t<>, [](auto acc, auto elem){
          return hana::concat(acc, hana::second(elem));
@@ -52,7 +64,7 @@ class graph_trait final {
    });
 
 public:
-   constexpr static auto all_sorted_nodes = hana::concat(sorted_non_leaf_nodes, leaf_nodes);
+   constexpr static auto all_sorted_nodes = hana::concat(sorted_intermediate_nodes, leaf_nodes);
 };
 
 GRAPH_DSL_NS_END

@@ -18,8 +18,9 @@ GRAPH_DSL_NS_BEGIN
 
 namespace hana = boost::hana;
 
-template<typename NODE, typename ... LINKS>
+template<bool ROOT, typename NODE, typename ... LINKS>
 struct node_desc final {
+   constexpr static auto is_root = hana::bool_c<ROOT>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
       unique(hana::flatten(hana::make_tuple(link_desc<LINKS>::node_list...)));
@@ -45,7 +46,7 @@ struct node_desc final {
 
 GRAPH_DSL_NS_END
 
-#define __node(...) GRAPH_DSL_NS::node_desc<__VA_ARGS__>
+#define __node(...) GRAPH_DSL_NS::node_desc<false, __VA_ARGS__>
 #define __root(...) GRAPH_DSL_NS::node_desc<true,  __VA_ARGS__>
 
 #endif //GRAPH_NODE_DESC_H
