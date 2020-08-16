@@ -124,15 +124,15 @@ public:
 template<typename NODE>
 struct subgraph_node<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
 private:
-   using parent = subgraph_node_base<NODE>;
+   using self = subgraph_node_base<NODE>;
 
 public:
    template<typename NODE_DESC_TUPLE>
    auto start(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
-      if(parent::enabled() && !parent::running_) {
-         parent::actor_handle_ = NODE::spawn(context);
-         GRAPH_EXPECT_TRUE(parent::actor_handle_.exists());
-         parent::running_ = true;
+      if(self::enabled() && !self::running_) {
+         self::actor_handle_ = NODE::spawn(context);
+         GRAPH_EXPECT_TRUE(self::actor_handle_.exists());
+         self::running_ = true;
       }
 
       return status_t::Ok;
@@ -142,7 +142,7 @@ public:
 template<typename NODE>
 struct subgraph_node<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
 private:
-   using parent = subgraph_node_base<NODE>;
+   using self = subgraph_node_base<NODE>;
 
    template<typename T>
    struct desc_node_type {
@@ -155,13 +155,13 @@ public:
       constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
-      if(!parent::enabled()) return status_t::Ok;
+      if(!self::enabled()) return status_t::Ok;
       auto ports = std::make_unique<actor_ports>();
       GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
-      if(!parent::running_) {
-         parent::actor_handle_ = NODE::spawn(context, std::move(ports));
-         GRAPH_EXPECT_TRUE(parent::actor_handle_.exists());
-         parent::running_ = true;
+      if(!self::running_) {
+         self::actor_handle_ = NODE::spawn(context, std::move(ports));
+         GRAPH_EXPECT_TRUE(self::actor_handle_.exists());
+         self::running_ = true;
       } else {
          //parent::actor_handle_.request<>()
       }

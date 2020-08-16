@@ -45,14 +45,14 @@ private:
    template<size_t ... I>
    auto build(graph_context& context, std::index_sequence<I...>) {
       status_t status = status_t::Ok;
-      return (((status = std::get<I>(nodes_desc_).build(context)) == status_t::Ok) && ...) ?
+      return (((status = std::get<I>(nodes_links_).build(context)) == status_t::Ok) && ...) ?
          status_t::Ok : status;
    }
 
    template<size_t ... I>
    auto start(graph_context& context, std::index_sequence<I...>) {
       status_t status = status_t::Ok;
-      return (... && ((status = std::get<sizeof...(I) - 1 - I>(nodes_cb_).start(context, nodes_desc_)) == status_t::Ok)) ?
+      return (... && ((status = std::get<sizeof...(I) - 1 - I>(nodes_cb_).start(context, nodes_links_)) == status_t::Ok)) ?
              status_t::Ok : status;
    }
 
@@ -67,11 +67,11 @@ private:
 
    template<typename ... Ts>
    using desc_container  = std::tuple<typename Ts::template instance_type<nodes_cb>...>;
-   using nodes_desc = hana_tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
+   using nodes_links = hana_tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
 
 private:
-   nodes_cb   nodes_cb_;
-   nodes_desc nodes_desc_;
+   nodes_cb    nodes_cb_;
+   nodes_links nodes_links_;
 };
 
 GRAPH_DSL_NS_END
