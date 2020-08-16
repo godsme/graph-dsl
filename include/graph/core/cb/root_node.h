@@ -68,6 +68,7 @@ struct root_node_cb : root_node {
    auto get_handle() {
       return actor_handle_;
    }
+
 private:
    auto connect(std::unique_ptr<root_actor_ports> ports) -> status_t override {
       GRAPH_EXPECT_TRUE(present());
@@ -93,24 +94,24 @@ struct root_nodes : root_node_set {
          return nullptr;
       }
 
-      return containers[index];
+      return containers_[index];
    }
 
    template <size_t I>
    auto get() -> decltype(auto) {
       static_assert(I <= sizeof...(Ts), "");
-      return (std::get<I>(nodes));
+      return (std::get<I>(nodes_));
    }
 
 private:
    template <size_t ... I>
    auto push_to_container(std::index_sequence<I...>) {
-      ((containers.push_back(static_cast<root_node*>(&std::get<I>(nodes)))), ...);
+      ((containers_.push_back(static_cast<root_node*>(&std::get<I>(nodes_)))), ...);
    }
 
 private:
-   std::vector<root_node*> containers;
-   std::tuple<root_node_cb<Ts>...> nodes;
+   std::vector<root_node*> containers_;
+   std::tuple<root_node_cb<Ts>...> nodes_;
 };
 
 GRAPH_DSL_NS_END
