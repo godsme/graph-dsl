@@ -35,11 +35,13 @@ set(graph_dsl
         include/graph/core/down-stream/node_like_either.h
         include/graph/core/down-stream/node_like_fork.h
         include/graph/core/down-stream/node_like_trait_decl.h
-        include/graph/util/hana_tuple_trait.h)
+        include/graph/util/hana_tuple_trait.h include/graph/core/actor_ports.h)
 
 add_executable(graph_ut
         tests/ut/test_hana.cpp
         tests/ut/test_node.cpp
         tests/ut/catch.cpp
         ${graph_dsl})
+
+target_link_libraries(graph_ut ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
 

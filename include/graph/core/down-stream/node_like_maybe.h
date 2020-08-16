@@ -44,6 +44,11 @@ struct node_like_maybe {
          }
       }
 
+      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
+         GRAPH_EXPECT_TRUE(enabled());
+         return node_.collect_actor_handle(context, actor_handles);
+      }
+
       auto enabled() const -> bool {
          return satisfied_;
       }

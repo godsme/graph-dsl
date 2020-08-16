@@ -12,27 +12,6 @@
 
 GRAPH_DSL_NS_BEGIN
 
-enum class image_type : uint8_t {
-   RGB,
-   YUV
-};
-
-struct port_format {
-   uint32_t   width_;
-   uint32_t   height_;
-   image_type image_type_;
-};
-
-template <typename PORT>
-struct port_desc {
-   auto build(graph_context& context) -> status_t {
-      return PORT::get_format(context, format_);
-   }
-
-private:
-   port_format format_{};
-};
-
 GRAPH_DSL_NS_END
 
 #define __port(name) auto (name)

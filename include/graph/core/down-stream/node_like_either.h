@@ -67,6 +67,14 @@ struct node_like_either {
          }
       }
 
+      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
+         switch(node_.index()) {
+            case 1: return std::get<1>(node_).collect_actor_handle(context, actor_handles);
+            case 2: return std::get<2>(node_).collect_actor_handle(context, actor_handles);
+            default: return status_t::Failed;
+         }
+      }
+
       auto enabled() const -> bool {
          return node_.index() != 0;
       }

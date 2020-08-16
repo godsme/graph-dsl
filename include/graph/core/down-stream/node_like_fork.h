@@ -54,6 +54,26 @@ struct node_like_fork {
          return (std::get<I>(nodes_).enabled() || ...);
       }
 
+      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
+         return collect_actor_handle(context, actor_handles, sequence);
+      }
+
+   private:
+      template <size_t ... I>
+      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles, std::index_sequence<I...>) -> status_t {
+         status_t status = status_t::Ok;
+         return (((status = collect_actor_handle(std::get<I>(nodes_), context, actor_handles)) == status_t::Ok) && ...) ?
+                status_t::Ok : status;
+      }
+
+      template<typename NODE>
+      auto collect_actor_handle(NODE& node, graph_context& context, actor_handle_set& actor_handles) -> status_t {
+         if(node.enabled()) {
+            return node.collect_actor_handle(context, actor_handles);
+         }
+         return status_t::Ok;
+      }
+
    private:
       std::tuple<typename node_like_trait<NODEs_LIKE>::type::template instance_type<TUPLE>...> nodes_;
    };

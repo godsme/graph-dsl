@@ -29,8 +29,10 @@ struct node_desc final {
    template<typename TUPLE>
    struct instance_type {
       constexpr static auto is_root = ROOT;
+      using node_type = NODE;
       auto build(graph_context& context) -> status_t {
          if constexpr (!is_root) {
+            // skip all nodes whose ref count is 0
             if(!node_index<NODE, TUPLE>::get_node(context).enabled()) {
                return status_t::Ok;
             }

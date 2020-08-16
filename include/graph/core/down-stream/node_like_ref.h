@@ -10,6 +10,7 @@
 #include <graph/core/graph_context.h>
 #include <graph/core/node_index.h>
 #include <graph/core/down-stream/node_like_trait_decl.h>
+#include <graph/core/actor_ports.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -35,6 +36,14 @@ struct node_like_ref {
       auto release(graph_context& context) {
          node_index<NODE, TUPLE>::get_node(context).release();
          enabled_ = false;
+      }
+
+      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
+         GRAPH_EXPECT_TRUE(enabled());
+         auto handle = node_index<NODE, TUPLE>::get_node(context).actor_handle_;
+         GRAPH_EXPECT_TRUE(handle.exists());
+         actor_handles.emplace_back(handle);
+         return status_t::Ok;
       }
 
       auto enabled() const -> bool {

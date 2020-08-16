@@ -10,6 +10,7 @@
 #include <graph/core/graph_context.h>
 #include <graph/core/down-stream/node_like_trait.h>
 #include <graph/core/port_desc.h>
+#include <graph/core/actor_ports.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -27,8 +28,16 @@ struct link_desc<auto (PORT) -> NODE_LIKE> {
          return down_stream_node_.build(context);
       }
 
+      auto collect_actor_port(graph_context& context, actor_ports& ports) -> status_t {
+         if(down_stream_node_.enabled()) {
+            actor_handle_set actor_handles;
+            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, actor_handles));
+            ports.emplace_back(PORT::get_port_format(), actor_handles);
+         }
+         return status_t::Ok;
+      }
+
    private:
-      port_desc<PORT> port_;
       typename node_like_type::template instance_type<TUPLE>  down_stream_node_;
    };
 };
