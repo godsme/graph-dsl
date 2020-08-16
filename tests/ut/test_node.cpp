@@ -87,11 +87,18 @@ namespace {
    }
 
    TEST_CASE("graph_desc") {
-      static_assert(boost::hana::tuple_t<node_5, node_3, node_8, node_4, node_6, node_7> == grap_def::all_sorted_nodes);
+      static_assert(boost::hana::tuple_t<
+         GRAPH_DSL_NS::node_trait<node_5, false>,
+         GRAPH_DSL_NS::node_trait<node_3, false>,
+         GRAPH_DSL_NS::node_trait<node_8, true>,
+         GRAPH_DSL_NS::node_trait<node_4, true>,
+         GRAPH_DSL_NS::node_trait<node_6, true>,
+         GRAPH_DSL_NS::node_trait<node_7, true>> == grap_def::all_sorted_nodes);
    }
 
    TEST_CASE("graph_desc build") {
-      GRAPH_DSL_NS::graph_context context;
+      nano_caf::actor_system actor_system;
+      GRAPH_DSL_NS::graph_context context{actor_system};
       grap_def graph;
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));

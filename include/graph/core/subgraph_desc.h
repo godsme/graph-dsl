@@ -43,7 +43,7 @@ private:
 
 private:
    template<typename ... Ts>
-   using cb_container = std::tuple<subgraph_node<Ts>...>;
+   using cb_container = std::tuple<subgraph_node<typename Ts::node_type, Ts::is_leaf>...>;
    using nodes_cb = hana_tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
 
    constexpr static auto sorted_nodes_desc = graph_trait<NODES...>::sorted_nodes_desc;

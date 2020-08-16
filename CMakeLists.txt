@@ -23,8 +23,6 @@ set(graph_dsl
         include/graph/function/unique.h
         include/graph/function/group.h
         include/graph/core/graph_trait.h
-        include/graph/core/port_desc.h
-        include/graph/core/cb/actor_handle.h
         include/graph/util/result_t.h
         include/graph/util/ptr_trait.h
         include/graph/util/either.h

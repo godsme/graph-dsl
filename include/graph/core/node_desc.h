@@ -25,6 +25,7 @@ struct node_desc final {
    using node_type = NODE;
    constexpr static auto direct_decedents =
       unique(hana::flatten(hana::make_tuple(link_desc<LINKS>::node_list...)));
+   constexpr static auto sequence = std::make_index_sequence<sizeof...(LINKS)>{};
 
    template<typename TUPLE>
    struct instance_type {
@@ -38,7 +39,11 @@ struct node_desc final {
             }
          }
 
-         return build_links(context, std::make_index_sequence<sizeof...(LINKS)>{});
+         return build_links(context, sequence);
+      }
+
+      auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
+         return collect_actor_ports(context, ports, sequence);
       }
 
    private:
@@ -47,6 +52,13 @@ struct node_desc final {
          status_t status = status_t::Ok;
          return (((status = std::get<I>(links_).build(context)) == status_t::Ok) && ...) ?
             status_t::Ok : status;
+      }
+
+      template<size_t ... I>
+      auto collect_actor_ports(graph_context& context, actor_ports& ports, std::index_sequence<I...>) -> status_t {
+         status_t status = status_t::Ok;
+         return (((status = std::get<I>(links_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
+                status_t::Ok : status;
       }
 
    private:

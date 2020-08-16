@@ -9,7 +9,6 @@
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
 #include <graph/core/down-stream/node_like_trait.h>
-#include <graph/core/port_desc.h>
 #include <graph/core/actor_ports.h>
 
 GRAPH_DSL_NS_BEGIN
@@ -43,5 +42,7 @@ struct link_desc<auto (PORT) -> NODE_LIKE> {
 };
 
 GRAPH_DSL_NS_END
+
+#define __port(name) auto (name)
 
 #endif //GRAPH_LINK_DESC_H

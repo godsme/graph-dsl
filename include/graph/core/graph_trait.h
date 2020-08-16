@@ -12,6 +12,12 @@ GRAPH_DSL_NS_BEGIN
 
 namespace hana = boost::hana;
 
+template <typename T, bool LEAF>
+struct node_trait {
+   using node_type = T;
+   constexpr static bool is_leaf = LEAF;
+};
+
 template<typename ... NODES>
 class graph_trait final {
    constexpr static auto nodes_map = hana::make_tuple(
@@ -54,9 +60,12 @@ class graph_trait final {
          return hana::type_c<typename decltype(elem)::type::node_type>;
       });
 
-   constexpr static auto sorted_intermediate_nodes = \
+   constexpr static auto sorted_intermediate_nodes = hana::transform(
       hana::remove_if(sorted_non_leaf_nodes, [](auto elem) {
          return hana::contains(root_nodes, elem);
+      }),
+      [](auto elem) {
+         return hana::type_c<node_trait<typename decltype(elem)::type, false>>;
       });
 
    constexpr static auto all_decedents = unique(
@@ -64,9 +73,13 @@ class graph_trait final {
          return hana::concat(acc, hana::second(elem));
       }));
 
-   constexpr static auto leaf_nodes = hana::remove_if(all_decedents, [](auto elem) {
-      return hana::contains(sorted_non_leaf_nodes, elem);
-   });
+   constexpr static auto leaf_nodes = hana::transform(
+      hana::remove_if(all_decedents, [](auto elem) {
+         return hana::contains(sorted_non_leaf_nodes, elem);
+      }),
+      [](auto elem) {
+         return hana::type_c<node_trait<typename decltype(elem)::type, true>>;
+      });
 
 public:
    constexpr static auto all_sorted_nodes = hana::concat(sorted_intermediate_nodes, leaf_nodes);
