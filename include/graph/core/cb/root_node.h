@@ -59,6 +59,15 @@ struct root_node_cb : root_node {
       }
    }
 
+   auto wait_for_exit() {
+      if(running_) {
+         actor_handle_.wait_for_exit();
+      }
+   }
+
+   auto get_handle() {
+      return actor_handle_;
+   }
 private:
    auto connect(std::unique_ptr<root_actor_ports> ports) -> status_t override {
       GRAPH_EXPECT_TRUE(present());

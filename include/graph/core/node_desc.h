@@ -84,6 +84,6 @@ struct node_desc final {
 GRAPH_DSL_NS_END
 
 #define __node(...) GRAPH_DSL_NS::node_desc<false, __VA_ARGS__>
-#define __root(...) GRAPH_DSL_NS::node_desc<true,  __VA_ARGS__>
+#define __source(...) GRAPH_DSL_NS::node_desc<true,  __VA_ARGS__>
 
 #endif //GRAPH_NODE_DESC_H

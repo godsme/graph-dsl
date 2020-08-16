@@ -13,7 +13,7 @@
 GRAPH_DSL_NS_BEGIN
 
 CAF_def_message(subgraph_connect_msg,
-    (handles, std::unique_ptr<root_actor_ports>));
+    (ports, std::shared_ptr<root_actor_ports>));
 
 GRAPH_DSL_NS_END
 

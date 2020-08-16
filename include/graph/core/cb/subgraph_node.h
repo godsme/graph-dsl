@@ -35,7 +35,7 @@ public:
       std::cout << NODE::id << ": refs = " << (int)refs_ << std::endl;
    }
 
-   nano_caf::actor_handle actor_handle_;
+   nano_caf::actor_handle actor_handle_{};
 
 protected:
    uint8_t refs_{0};
@@ -64,7 +64,7 @@ public:
       auto root_node = context.get_root_node(NODE::root_id);
       GRAPH_EXPECT_TRUE(root_node != nullptr);
 
-      if(root_node->present()) {
+      if(!root_node->present()) {
          return status_t::Ok;
       }
 

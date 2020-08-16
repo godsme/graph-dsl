@@ -8,6 +8,8 @@
 #include <graph/core/subgraph_desc.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <iostream>
+#include <map>
+#include <unordered_map>
 
 struct image_buf {
    char buf[1024];
@@ -17,12 +19,13 @@ CAF_def_message(image_buf_msg, (buf, std::shared_ptr<const image_buf>));
 
 struct node_5_actor : nano_caf::behavior_based_actor {
    node_5_actor(std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) : ports_(std::move(ports)) {
-      std::cout << "created" << std::endl;
+      std::cout << "intermediate created" << std::endl;
    }
    nano_caf::behavior get_behavior() {
       return {
          [&](const image_buf_msg& msg) {
-            forward(msg);
+            std::cout << "1 image buf received" << std::endl;
+            //forward(msg);
          },
 
          [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
@@ -32,7 +35,7 @@ struct node_5_actor : nano_caf::behavior_based_actor {
    void forward(const image_buf_msg& msg) {
       for(auto& port : *ports_) {
          for(auto& handle : port.actor_handles_) {
-            handle.send<image_buf_msg>(msg);
+            nano_caf::actor_handle(handle).send<image_buf_msg>(msg);
          }
       }
    }
@@ -47,7 +50,7 @@ struct node_8_actor : nano_caf::behavior_based_actor {
    }
    nano_caf::behavior get_behavior() {
       return {
-         [](image_buf_msg_atom, const std::shared_ptr<const image_buf>& buf) {
+         [](image_buf_msg) {
             std::cout << "image buf received" << std::endl;
          },
 
@@ -58,17 +61,41 @@ struct node_8_actor : nano_caf::behavior_based_actor {
 
 struct node_0_actor : nano_caf::behavior_based_actor {
    node_0_actor() {
-      std::cout << "leaf created" << std::endl;
+      std::cout << "root created" << std::endl;
    }
    nano_caf::behavior get_behavior() {
       return {
-         [](const graph_dsl::subgraph_connect_msg& msg) {
+         [this](const graph_dsl::subgraph_connect_msg& msg) {
             std::cout << "subgraph_connect_msg" << std::endl;
-         },
+            for(auto& port : *msg.ports) {
+               for(auto& handle : port.handles) {
+                  ports_[port.port_id].push_back(std::move(handle));
+               }
+            }
 
+            //send();
+         },
+         [this](image_buf_msg_atom, const std::shared_ptr<const image_buf>& buf) {
+            std::cout << "msg" << std::endl;
+            //send();
+         },
          [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
       };
    }
+
+   void send() {
+      for(auto& [port, handles] : ports_) {
+         for(auto handle : handles) {
+            auto msg = std::make_shared<const image_buf>();
+            if(handle.send<image_buf_msg>(msg) != nano_caf::status_t::ok) {
+               std::cout << "send failed" << std::endl;
+            }
+         }
+      }
+   }
+
+private:
+   std::unordered_map<GRAPH_DSL_NS::port_id_t, std::vector<nano_caf::actor_handle>> ports_{};
 };
 
 struct node_1 : graph_dsl::node_signature{
@@ -210,24 +237,24 @@ struct cond_2 {
 namespace {
 
    using root_node =
-   __root( node_1
+   __source(node_1
          , __port(port_1) -> node_8
          , __port(port_2) -> __maybe(cond_2, node_3)
          , __port(port_3) -> __either(cond_1, node_8, node_3)
          , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8)));
 
    using grap_def = __sub_graph(
-   __root( node_1
-      , __port(port_1) -> node_8
-      , __port(port_2) -> __maybe(cond_2, node_3)
-      , __port(port_3) -> __either(cond_1, node_8, node_3)
-      , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8))),
-   __root( node_2
+      __source( node_1
+         , __port(port_1) -> node_8
+         , __port(port_2) -> __maybe(cond_2, node_3)
+         , __port(port_3) -> __either(cond_1, node_8, node_3)
+         , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8))),
+      __source( node_2
          , __port(port_1) -> node_7 ),
-   __node( node_5
+      __node( node_5
          , __port(port_5) -> node_8
          , __port(port_6) -> __fork(node_4, __maybe(cond_2, node_3))),
-   __node( node_3
+      __node( node_3
          , __port(port_7) -> node_4
          , __port(port_8) -> __fork(node_8, node_6)
          , __port(port_9) -> node_7));
@@ -253,7 +280,7 @@ namespace {
 
    TEST_CASE("graph_desc build") {
       nano_caf::actor_system actor_system;
-      actor_system.start(1);
+      actor_system.start(10);
       GRAPH_DSL_NS::root_nodes<node_1, node_2> roots;
 
       GRAPH_DSL_NS::graph_context context{actor_system, roots};
@@ -266,10 +293,18 @@ namespace {
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.start(context));
 
-      graph.dump();
+      //graph.dump();
 
       std::cout << actor_system.get_num_of_actors() << std::endl;
       std::cout.flush();
+
+      auto handle = roots.get<0>().get_handle();
+      for(int i = 0; i<1000; i++) {
+         auto msg = std::make_shared<const image_buf>();
+         handle.send<image_buf_msg>(msg);
+      }
+
+      //roots.get<0>().wait_for_exit();
       //actor_system.shutdown();
    }
 
