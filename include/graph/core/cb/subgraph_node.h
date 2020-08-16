@@ -31,11 +31,20 @@ struct subgraph_node_base {
    }
 
    template<typename NODE_DESC_TUPLE>
-   auto cleanup(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
-      if(!enabled() && running_) {
+   auto stop(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
+      if(running_) {
          actor_handle_.send<nano_caf::exit_msg>(nano_caf::exit_reason::normal);
          actor_handle_.release();
          running_ = false;
+      }
+
+      return status_t::Ok;
+   }
+
+   template<typename NODE_DESC_TUPLE>
+   auto cleanup(graph_context& context, NODE_DESC_TUPLE& desc) -> status_t {
+      if(!enabled()) {
+         return stop(context, desc);
       }
 
       return status_t::Ok;
