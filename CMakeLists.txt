@@ -33,7 +33,7 @@ set(graph_dsl
         include/graph/core/down-stream/node_like_either.h
         include/graph/core/down-stream/node_like_fork.h
         include/graph/core/down-stream/node_like_trait_decl.h
-        include/graph/util/hana_tuple_trait.h include/graph/core/actor_ports.h)
+        include/graph/util/hana_tuple_trait.h include/graph/core/actor_ports.h include/graph/core/cb/root_node.h)
 
 add_executable(graph_ut
         tests/ut/test_hana.cpp

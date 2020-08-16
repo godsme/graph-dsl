@@ -7,11 +7,11 @@
 
 #include <graph/graph_ns.h>
 #include <nano-caf/core/actor/actor_handle.h>
-#include <cstdint>
-#include <iostream>
 #include <graph/util/tuple_element_by_type.h>
 #include <graph/core/graph_context.h>
 #include <graph/status.h>
+#include <cstdint>
+#include <iostream>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -52,7 +52,7 @@ private:
 
 public:
    template<typename NODE_DESC_TUPLE>
-   auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
+   auto start(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
       if(parent::enabled() && !parent::running_) {
          parent::actor_handle_ = NODE::spawn(context);
          GRAPH_EXPECT_TRUE(parent::actor_handle_.exists());
