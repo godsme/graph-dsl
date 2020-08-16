@@ -1,9 +1,7 @@
 //
-// Created by Darwin Yuan on 2020/8/15.
+// Created by Darwin Yuan on 2020/8/16.
 //
 
-#include <catch.hpp>
-#include <boost/hana.hpp>
 #include <graph/core/node_desc.h>
 #include <graph/core/subgraph_desc.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
@@ -239,44 +237,75 @@ struct cond_2 {
 namespace {
 
    using root_node =
-   __source(node_1
-         , __port(port_1) -> node_8
-         , __port(port_2) -> __maybe(cond_2, node_3)
-         , __port(port_3) -> __either(cond_1, node_8, node_3)
-         , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8)));
+   __source(node_1,
+            __port(port_1) -> node_8,
+            __port(port_2) -> __maybe(cond_2, node_3),
+            __port(port_3) -> __either(cond_1, node_8, node_3),
+            __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8)));
 
    using grap_def = __sub_graph(
       __source( node_1
-         , __port(port_1) -> node_8
-         , __port(port_2) -> __maybe(cond_2, node_3)
-         , __port(port_3) -> __either(cond_1, node_8, node_3)
-         , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8))),
+              , __port(port_1) -> node_8
+              , __port(port_2) -> __maybe(cond_2, node_3)
+              , __port(port_3) -> __either(cond_1, node_8, node_3)
+              , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8))),
       __source( node_2
-         , __port(port_1) -> node_7 ),
-      __node( node_5
-         , __port(port_5) -> node_8
-         , __port(port_6) -> __fork(node_4, __maybe(cond_2, node_3))),
-      __node( node_3
-         , __port(port_7) -> node_4
-         , __port(port_8) -> __fork(node_8, node_6)
-         , __port(port_9) -> node_7));
+              , __port(port_1) -> node_7),
+        __node( node_5
+              , __port(port_5) -> node_8
+              , __port(port_6) -> __fork(node_4, __maybe(cond_2, node_3))),
+        __node( node_3
+              , __port(port_7) -> node_4
+              , __port(port_8) -> __fork(node_8, node_6)
+              , __port(port_9)->node_7));
 
    template<typename T>
    struct S;
 
-   TEST_CASE("node_desc") {
-      static_assert(boost::hana::tuple_t<node_8, node_3, node_5, node_4> == root_node::direct_decedents);
+}
+
+int main() {
+   nano_caf::actor_system actor_system;
+   actor_system.start(10);
+   GRAPH_DSL_NS::root_nodes<node_1, node_2> roots;
+
+   GRAPH_DSL_NS::graph_context context{actor_system, roots};
+
+   if(auto status = roots.get<0>().start(context); status != GRAPH_DSL_NS::status_t::Ok) {
+      return -1;
    }
 
-   TEST_CASE("graph_desc") {
-      static_assert(boost::hana::tuple_t<
-         GRAPH_DSL_NS::node_trait<node_1, GRAPH_DSL_NS::node_category::Root>,
-         GRAPH_DSL_NS::node_trait<node_2, GRAPH_DSL_NS::node_category::Root>,
-         GRAPH_DSL_NS::node_trait<node_5, GRAPH_DSL_NS::node_category::Intermediate>,
-         GRAPH_DSL_NS::node_trait<node_3, GRAPH_DSL_NS::node_category::Intermediate>,
-         GRAPH_DSL_NS::node_trait<node_8, GRAPH_DSL_NS::node_category::Leaf>,
-         GRAPH_DSL_NS::node_trait<node_4, GRAPH_DSL_NS::node_category::Leaf>,
-         GRAPH_DSL_NS::node_trait<node_6, GRAPH_DSL_NS::node_category::Leaf>,
-         GRAPH_DSL_NS::node_trait<node_7, GRAPH_DSL_NS::node_category::Leaf>> == grap_def::all_sorted_nodes);
+   if(auto status = roots.get<1>().start(context); status != GRAPH_DSL_NS::status_t::Ok) {
+      return -1;
    }
+
+
+   grap_def graph;
+
+   if(auto status = graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) {
+      return -1;
+   }
+
+   if(auto status = graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) {
+      return -1;
+   }
+
+   graph.dump();
+
+   std::cout << actor_system.get_num_of_actors() << std::endl;
+   std::cout.flush();
+
+   auto handle = roots.get<0>().get_handle();
+   for(int i = 0; i<100; i++) {
+      auto msg = std::make_shared<const image_buf>();
+      handle.send<image_buf_msg>(msg);
+   }
+
+   //std::cout << actor_system.get_num_of_actors() << std::endl;
+
+   //roots.get<0>().wait_for_exit();
+   actor_system.shutdown();
+
+   return 0;
 }
+

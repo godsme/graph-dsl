@@ -11,6 +11,7 @@
 #include <graph/core/node_index.h>
 #include <graph/core/down-stream/node_like_trait_decl.h>
 #include <graph/core/actor_ports.h>
+#include <boost/hana.hpp>
 
 GRAPH_DSL_NS_BEGIN
 

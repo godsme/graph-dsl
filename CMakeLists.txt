@@ -10,6 +10,17 @@ include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/include"
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+    -Wold-style-cast \
+    -fsanitize=address \
+    -fno-omit-frame-pointer \
+    -fsanitize=alignment \
+    -fsanitize=function \
+    -fsanitize=return \
+    -fsanitize=nullability \
+    -fsanitize=unreachable \
+    -fsanitize=null")
+
 set(graph_dsl
         include/graph/core/subgraph_desc.h
         include/graph/graph_ns.h
@@ -33,7 +44,11 @@ set(graph_dsl
         include/graph/core/down-stream/node_like_either.h
         include/graph/core/down-stream/node_like_fork.h
         include/graph/core/down-stream/node_like_trait_decl.h
-        include/graph/util/hana_tuple_trait.h include/graph/core/actor_ports.h include/graph/core/cb/root_node.h include/graph/core/node_category.h include/graph/core/msgs/graph_msgs.h)
+        include/graph/util/hana_tuple_trait.h
+        include/graph/core/actor_ports.h
+        include/graph/core/cb/root_node.h
+        include/graph/core/node_category.h
+        include/graph/core/msgs/graph_msgs.h)
 
 add_executable(graph_ut
         tests/ut/test_hana.cpp
@@ -41,5 +56,13 @@ add_executable(graph_ut
         tests/ut/catch.cpp
         ${graph_dsl})
 
-target_link_libraries(graph_ut ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
+add_executable(graph_ft
+        tests/ft/test_graph.cpp
+        ${graph_dsl})
+
+target_link_libraries(graph_ut
+        ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
+
+target_link_libraries(graph_ft
+        ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
 
