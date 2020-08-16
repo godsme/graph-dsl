@@ -7,15 +7,16 @@
 
 #include <graph/graph_ns.h>
 #include <boost/hana.hpp>
+#include <graph/core/node_category.h>
 
 GRAPH_DSL_NS_BEGIN
 
 namespace hana = boost::hana;
 
-template <typename T, bool LEAF>
+template <typename T, node_category CATEGORY>
 struct node_trait {
    using node_type = T;
-   constexpr static bool is_leaf = LEAF;
+   constexpr static node_category category = CATEGORY;
 };
 
 template<typename ... NODES>
@@ -60,12 +61,17 @@ class graph_trait final {
          return hana::type_c<typename decltype(elem)::type::node_type>;
       });
 
-   constexpr static auto sorted_intermediate_nodes = hana::transform(
+   constexpr static auto sorted_tagged_intermediate_nodes = hana::transform(
       hana::remove_if(sorted_non_leaf_nodes, [](auto elem) {
          return hana::contains(root_nodes, elem);
       }),
       [](auto elem) {
-         return hana::type_c<node_trait<typename decltype(elem)::type, false>>;
+         return hana::type_c<node_trait<typename decltype(elem)::type, node_category::Intermediate>>;
+      });
+
+   constexpr static auto root_tagged_nodes =
+      hana::transform(root_nodes, [](auto elem){
+         return hana::type_c<node_trait<typename decltype(elem)::type, node_category::Root>>;
       });
 
    constexpr static auto all_decedents = unique(
@@ -73,16 +79,16 @@ class graph_trait final {
          return hana::concat(acc, hana::second(elem));
       }));
 
-   constexpr static auto leaf_nodes = hana::transform(
+   constexpr static auto leaf_tagged_nodes = hana::transform(
       hana::remove_if(all_decedents, [](auto elem) {
          return hana::contains(sorted_non_leaf_nodes, elem);
       }),
       [](auto elem) {
-         return hana::type_c<node_trait<typename decltype(elem)::type, true>>;
+         return hana::type_c<node_trait<typename decltype(elem)::type, node_category::Leaf>>;
       });
 
 public:
-   constexpr static auto all_sorted_nodes = hana::concat(sorted_intermediate_nodes, leaf_nodes);
+   constexpr static auto all_sorted_nodes = hana::concat(root_tagged_nodes, hana::concat(sorted_tagged_intermediate_nodes, leaf_tagged_nodes));
    constexpr static auto sorted_nodes_desc =
       hana::transform(sorted_non_leaf_nodes, [](auto elem){
          auto entry = hana::find_if(all_nodes_desc, [=](auto v){

@@ -10,6 +10,7 @@
 #include <graph/util/tuple_element_by_type.h>
 #include <graph/core/graph_context.h>
 #include <graph/status.h>
+#include <graph/core/node_category.h>
 #include <cstdint>
 #include <iostream>
 
@@ -30,7 +31,6 @@ struct subgraph_node_base {
    }
 
 public:
-
    auto dump() {
       std::cout << NODE::id << ": refs = " << (int)refs_ << std::endl;
    }
@@ -42,11 +42,27 @@ protected:
    bool    running_{false};
 };
 
-template<typename NODE, bool IS_LEAF>
+template<typename NODE, node_category category>
 struct subgraph_node;
 
 template<typename NODE>
-struct subgraph_node<NODE, true> : subgraph_node_base<NODE> {
+struct subgraph_node<NODE, node_category::Root> {
+   using node_type = NODE;
+private:
+   using parent = subgraph_node_base<NODE>;
+
+public:
+   template<typename NODE_DESC_TUPLE>
+   auto start(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
+      return status_t::Ok;
+   }
+
+   auto dump() {
+   }
+};
+
+template<typename NODE>
+struct subgraph_node<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
 private:
    using parent = subgraph_node_base<NODE>;
 
@@ -64,7 +80,7 @@ public:
 };
 
 template<typename NODE>
-struct subgraph_node<NODE, false> : subgraph_node_base<NODE> {
+struct subgraph_node<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
 private:
    using parent = subgraph_node_base<NODE>;
 

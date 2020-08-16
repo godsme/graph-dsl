@@ -20,7 +20,7 @@ struct subgraph_desc {
 
 private:
    template<typename ... Ts>
-   using cb_container = std::tuple<subgraph_node<typename Ts::node_type, Ts::is_leaf>...>;
+   using cb_container = std::tuple<subgraph_node<typename Ts::node_type, Ts::category>...>;
    using nodes_cb = hana_tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
 
    constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};

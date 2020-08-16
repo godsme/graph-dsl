@@ -7,7 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <graph/util/tuple_element_by_type.h>
-#include "graph_context.h"
+#include <graph/core/graph_context.h>
 
 GRAPH_DSL_NS_BEGIN
 
