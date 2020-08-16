@@ -29,9 +29,9 @@ struct link_desc<auto (PORT) -> NODE_LIKE> {
 
       auto collect_actor_port(graph_context& context, actor_ports& ports) -> status_t {
          if(down_stream_node_.enabled()) {
-            actor_handle_set actor_handles;
-            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, actor_handles));
-            ports.emplace_back(PORT::get_port_format(), actor_handles);
+            actor_handle_set handles;
+            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, handles));
+            ports.push_back({PORT::get_port_format(context), handles});
          }
          return status_t::Ok;
       }

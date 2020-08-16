@@ -6,7 +6,55 @@
 #include <boost/hana.hpp>
 #include <graph/core/node_desc.h>
 #include <graph/core/subgraph_desc.h>
+#include <nano-caf/core/actor/behavior_based_actor.h>
 #include <iostream>
+
+struct image_buf {
+   char buf[1024];
+};
+
+CAF_def_message(image_buf_msg, (buf, std::shared_ptr<const image_buf>));
+
+struct node_5_actor : nano_caf::behavior_based_actor {
+   node_5_actor(std::shared_ptr<GRAPH_DSL_NS::actor_ports> ports) : ports_(ports) {
+      std::cout << "created" << std::endl;
+   }
+   nano_caf::behavior get_behavior() {
+      return {
+         [&](const image_buf_msg& msg) {
+            forward(msg);
+         },
+
+         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
+      };
+   }
+
+   void forward(const image_buf_msg& msg) {
+      for(auto& port : *ports_) {
+         for(auto& handle : port.actor_handles_) {
+            handle.send<image_buf_msg>(msg);
+         }
+      }
+   }
+
+private:
+   std::shared_ptr<GRAPH_DSL_NS::actor_ports> ports_;
+};
+
+struct node_8_actor : nano_caf::behavior_based_actor {
+   node_8_actor() {
+      std::cout << "leaf created" << std::endl;
+   }
+   nano_caf::behavior get_behavior() {
+      return {
+         [](image_buf_msg_atom, const std::shared_ptr<const image_buf>& buf) {
+            std::cout << "image buf received" << std::endl;
+         },
+
+         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
+      };
+   }
+};
 
 struct node_1 : graph_dsl::node_signature{
    constexpr static auto id = 1;
@@ -16,32 +64,107 @@ struct node_2 : graph_dsl::node_signature{
 };
 struct node_3 : graph_dsl::node_signature{
    constexpr static auto id = 3;
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_5_actor>(std::forward<Args>(args)...);
+   }
 };
 struct node_4 : graph_dsl::node_signature{
    constexpr static auto id = 4;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
+   }
 };
+
+
+
 struct node_5 : graph_dsl::node_signature{
    constexpr static auto id = 5;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_5_actor>(std::forward<Args>(args)...);
+   }
 };
 struct node_6 : graph_dsl::node_signature{
    constexpr static auto id = 6;
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
+   }
 };
 struct node_7 : graph_dsl::node_signature{
    constexpr static auto id = 7;
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
+   }
 };
 struct node_8 : graph_dsl::node_signature{
    constexpr static auto id = 8;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
+   }
 };
 
-struct port_1 {};
-struct port_2 {};
-struct port_3 {};
-struct port_4 {};
-struct port_5 {};
-struct port_6 {};
-struct port_7 {};
-struct port_8 {};
-struct port_9 {};
+struct port_1 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_2 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_3 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_4 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_5 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_6 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_7 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_8 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+struct port_9 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
 
 struct cond_1 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
@@ -98,11 +221,18 @@ namespace {
 
    TEST_CASE("graph_desc build") {
       nano_caf::actor_system actor_system;
+      actor_system.start(1);
       GRAPH_DSL_NS::graph_context context{actor_system};
       grap_def graph;
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));
       REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));
+      REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.start(context));
+
       graph.dump();
+
+      std::cout << actor_system.get_num_of_actors() << std::endl;
+      std::cout.flush();
+      //actor_system.shutdown();
    }
 
 

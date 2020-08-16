@@ -36,6 +36,11 @@ struct node_like_fork {
       auto enabled() const -> bool {
          return enabled(sequence);
       }
+
+      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
+         return collect_actor_handle(context, actor_handles, sequence);
+      }
+
    private:
       template<size_t ... I>
       auto build(graph_context& context, std::index_sequence<I...>) -> status_t {
@@ -50,12 +55,8 @@ struct node_like_fork {
       }
 
       template<size_t ... I>
-      auto enabled(std::index_sequence<I...>) {
+      auto enabled(std::index_sequence<I...>) const -> bool {
          return (std::get<I>(nodes_).enabled() || ...);
-      }
-
-      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
-         return collect_actor_handle(context, actor_handles, sequence);
       }
 
    private:

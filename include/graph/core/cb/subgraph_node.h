@@ -79,9 +79,9 @@ public:
       if(!parent::enabled()) return status_t::Ok;
       constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
-      actor_ports ports;
-      GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, ports));
 
+      auto ports = std::make_shared<actor_ports>();
+      GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
       if(!parent::running_) {
          parent::actor_handle_ = NODE::spawn(context, ports);
          GRAPH_EXPECT_TRUE(parent::actor_handle_.exists());
