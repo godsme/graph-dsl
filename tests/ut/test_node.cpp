@@ -35,7 +35,7 @@ namespace {
          , __port(port_2) -> __maybe(cond_1, node_3)
          , __port(port_3) -> __either(cond_1, node_2, node_3)
          , __port(port_4) -> __fork(node_4, node_2, node_5));
-   
+
    using grap_def = __graph(node_def,
    __node( node_5
          , __port(port_5) -> node_2
@@ -52,4 +52,17 @@ namespace {
    TEST_CASE("graph_desc") {
       static_assert(boost::hana::tuple_t<node_5, node_3, node_2,node_4, node_6, node_7> == grap_def::all_sorted_nodes);
    }
+
+   template<typename T, template<typename ...> typename C>
+   struct trait;
+
+   template <template<typename ...> typename C, typename ... Ts>
+   struct trait<boost::hana::tuple<Ts...>, C> {
+      using type = C<typename Ts::type...>;
+   };
+
+   template<typename T>
+   struct S;
+
+//   S<typename trait<std::decay_t<decltype(boost::hana::tuple_t<int, double>)>, std::tuple>::type> s;
 }

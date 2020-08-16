@@ -42,10 +42,13 @@ class graph_trait final {
          return hana::first(elem);
       }));
 
-   constexpr static auto root_nodes = hana::transform(
+   constexpr static auto root_nodes_desc =
       hana::remove_if(hana::tuple_t<NODES...>, [](auto elem){
          return decltype(elem)::type::is_root != hana::bool_c<true>;
-      }), [](auto elem){
+      });
+
+   constexpr static auto root_nodes =
+      hana::transform(root_nodes_desc, [](auto elem){
          return hana::type_c<typename decltype(elem)::type::node_type>;
       });
 
