@@ -5,7 +5,7 @@
 #include <catch.hpp>
 #include <boost/hana.hpp>
 #include <graph/core/node_desc.h>
-#include <graph/core/graph_desc.h>
+#include <graph/core/subgraph_desc.h>
 #include <iostream>
 
 struct node_1 : graph_dsl::node_signature{
@@ -28,6 +28,9 @@ struct node_6 : graph_dsl::node_signature{
 };
 struct node_7 : graph_dsl::node_signature{
    constexpr static auto id = 7;
+};
+struct node_8 : graph_dsl::node_signature{
+   constexpr static auto id = 8;
 };
 
 struct port_1 {};
@@ -53,31 +56,38 @@ struct cond_2 {
 };
 namespace {
 
-   using node_def =
+   using root_node =
    __root( node_1
-         , __port(port_1) -> node_2
+         , __port(port_1) -> node_8
          , __port(port_2) -> __maybe(cond_2, node_3)
-         , __port(port_3) -> __either(cond_1, node_2, node_3)
-         , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_2)));
+         , __port(port_3) -> __either(cond_1, node_8, node_3)
+         , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8)));
 
-   using grap_def = __graph(node_def,
+   using grap_def = __sub_graph(
+   __root( node_1
+      , __port(port_1) -> node_8
+      , __port(port_2) -> __maybe(cond_2, node_3)
+      , __port(port_3) -> __either(cond_1, node_8, node_3)
+      , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8))),
+   __root( node_2
+         , __port(port_1) -> node_7 ),
    __node( node_5
-         , __port(port_5) -> node_2
+         , __port(port_5) -> node_8
          , __port(port_6) -> __fork(node_4, __maybe(cond_2, node_3))),
    __node( node_3
          , __port(port_7) -> node_4
-         , __port(port_8) -> __fork(node_2, node_6)
+         , __port(port_8) -> __fork(node_8, node_6)
          , __port(port_9) -> node_7));
 
    template<typename T>
    struct S;
 
    TEST_CASE("node_desc") {
-      static_assert(boost::hana::tuple_t<node_2, node_3, node_5, node_4> == node_def::direct_decedents);
+      static_assert(boost::hana::tuple_t<node_8, node_3, node_5, node_4> == root_node::direct_decedents);
    }
 
    TEST_CASE("graph_desc") {
-      static_assert(boost::hana::tuple_t<node_5, node_3, node_2,node_4, node_6, node_7> == grap_def::all_sorted_nodes);
+      static_assert(boost::hana::tuple_t<node_5, node_3, node_8, node_4, node_6, node_7> == grap_def::all_sorted_nodes);
    }
 
    TEST_CASE("graph_desc build") {

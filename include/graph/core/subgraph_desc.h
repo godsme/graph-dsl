@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/14.
 //
 
-#ifndef GRAPH_GRAPH_DESC_H
-#define GRAPH_GRAPH_DESC_H
+#ifndef GRAPH_SUBGRAPH_DESC_H
+#define GRAPH_SUBGRAPH_DESC_H
 
 #include <graph/graph_ns.h>
 #include <graph/core/graph_trait.h>
@@ -15,7 +15,7 @@ GRAPH_DSL_NS_BEGIN
 namespace hana = boost::hana;
 
 template<typename ... NODES>
-struct graph_desc {
+struct subgraph_desc {
    constexpr static auto all_sorted_nodes = graph_trait<NODES...>::all_sorted_nodes;
    constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};
 
@@ -60,6 +60,6 @@ private:
 
 GRAPH_DSL_NS_END
 
-#define __graph(...) GRAPH_DSL_NS::graph_desc<__VA_ARGS__>
+#define __sub_graph(...) GRAPH_DSL_NS::subgraph_desc<__VA_ARGS__>
 
-#endif //GRAPH_GRAPH_DESC_H
+#endif //GRAPH_SUBGRAPH_DESC_H
