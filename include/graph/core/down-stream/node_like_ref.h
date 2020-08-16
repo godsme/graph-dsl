@@ -9,7 +9,7 @@
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
 #include <graph/core/node_index.h>
-#include <graph/core/node_like_trait_decl.h>
+#include <graph/core/down-stream/node_like_trait_decl.h>
 
 GRAPH_DSL_NS_BEGIN
 

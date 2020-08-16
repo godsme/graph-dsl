@@ -13,7 +13,7 @@
 #include <tuple>
 #include <boost/hana.hpp>
 #include <graph/function/unique.h>
-#include <graph/core/subgraph_node.h>
+#include <graph/core/cb/subgraph_node.h>
 
 GRAPH_DSL_NS_BEGIN
 

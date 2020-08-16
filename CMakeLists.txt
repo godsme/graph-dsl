@@ -7,6 +7,39 @@ include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party/hana/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/include"
 )
 
-add_executable(graph include/graph/core/subgraph_desc.h include/graph/graph_ns.h include/graph/core/node_desc.h include/graph/status.h include/graph/core/graph_context.h include/graph/util/assertion.h include/graph/core/link_desc.h include/graph/core/cb/node.h include/graph/util/tuple_element_by_type.h include/graph/core/node_like_trait.h tests/ut/test_hana.cpp tests/ut/catch.cpp include/graph/function/unique.h tests/ut/test_node.cpp include/graph/function/group.h include/graph/core/graph_trait.h include/graph/core/cb/node_control_block.h include/graph/core/port_desc.h include/graph/core/cb/actor_handle.h include/graph/util/result_t.h include/graph/util/ptr_trait.h include/graph/util/either.h include/graph/core/subgraph_node.h include/graph/core/node_index.h include/graph/core/node_like_ref.h include/graph/core/node_like_maybe.h include/graph/core/node_like_either.h include/graph/core/node_like_fork.h include/graph/core/node_like_trait_decl.h include/graph/util/hana_tuple_trait.h)
+set(graph_dsl
+        include/graph/core/subgraph_desc.h
+        include/graph/graph_ns.h
+        include/graph/core/node_desc.h
+        include/graph/status.h
+        include/graph/core/graph_context.h
+        include/graph/util/assertion.h
+        include/graph/core/link_desc.h
+        include/graph/util/tuple_element_by_type.h
+        include/graph/core/down-stream/node_like_trait.h
+        include/graph/function/unique.h
+        include/graph/function/group.h
+        include/graph/core/graph_trait.h
+        include/graph/core/port_desc.h
+        include/graph/core/cb/actor_handle.h
+        include/graph/util/result_t.h
+        include/graph/util/ptr_trait.h
+        include/graph/util/either.h
+        include/graph/core/cb/subgraph_node.h
+        include/graph/core/node_index.h
+        include/graph/core/down-stream/node_like_ref.h
+        include/graph/core/down-stream/node_like_maybe.h
+        include/graph/core/down-stream/node_like_either.h
+        include/graph/core/down-stream/node_like_fork.h
+        include/graph/core/down-stream/node_like_trait_decl.h
+        include/graph/util/hana_tuple_trait.h)
+
+add_executable(graph_ut
+        tests/ut/test_hana.cpp
+        tests/ut/test_node.cpp
+        tests/ut/catch.cpp
+        ${graph_dsl})
+
