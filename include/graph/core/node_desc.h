@@ -7,6 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
+#include <graph/util/assertion.h>
 #include <graph/core/graph_context.h>
 #include <graph/core/link_desc.h>
 #include <tuple>
@@ -27,7 +28,14 @@ struct node_desc final {
 
    template<typename TUPLE>
    struct instance_type {
+      constexpr static auto is_root = ROOT;
       auto build(graph_context& context) -> status_t {
+         if constexpr (!is_root) {
+            if(!node_index<NODE, TUPLE>::get_node(context).enabled()) {
+               return status_t::Ok;
+            }
+         }
+
          return build_links(context, std::make_index_sequence<sizeof...(LINKS)>{});
       }
 
@@ -35,8 +43,8 @@ struct node_desc final {
       template<size_t ... I>
       auto build_links(graph_context& context, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
-         (((status = std::get<I>(links_).build(context)) == status_t::Ok) && ...);
-         return status;
+         auto result = (((status = std::get<I>(links_).build(context)) == status_t::Ok) && ...);
+         return result ? status_t::Ok : status;
       }
 
    private:

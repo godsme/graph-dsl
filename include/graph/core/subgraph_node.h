@@ -12,6 +12,8 @@ GRAPH_DSL_NS_BEGIN
 
 template<typename NODE>
 struct subgraph_node {
+   using node_type = NODE;
+
    inline auto add_ref() -> void {
       refs_++;
    }

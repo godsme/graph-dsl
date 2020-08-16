@@ -37,14 +37,14 @@ struct node_like_either {
 
    public:
       auto build(graph_context& context) -> status_t {
-         return COND(context).with_value([&](auto satisfied) {
+         return COND{}(context).with_value([&](auto satisfied) {
             if(satisfied) {
                if(node_.index() == 2) {
                   std::get<2>(node_).release(context);
                }
                if(node_.index() != 1) {
                   node_ = node_1{};
-                  GRAPH_EXPECT_SUCC(node_.build(context));
+                  GRAPH_EXPECT_SUCC(std::get<1>(node_).build(context));
                }
             } else {
                if(node_.index() == 1) {
@@ -52,7 +52,7 @@ struct node_like_either {
                }
                if(node_.index() != 2) {
                   node_ = node_2{};
-                  GRAPH_EXPECT_SUCC(node_.build(context));
+                  GRAPH_EXPECT_SUCC(std::get<2>(node_).build(context));
                }
             }
             return status_t::Ok;

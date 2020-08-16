@@ -17,6 +17,8 @@ class graph_trait final {
    constexpr static auto nodes_map = hana::make_tuple(
       hana::make_pair(hana::type_c<typename NODES::node_type>, NODES::direct_decedents)...);
 
+   constexpr static auto all_nodes_desc = hana::tuple_t<NODES...>;
+
    template<typename T>
    constexpr static auto get_all_decedents(T list) {
       return hana::fold_left(list, hana::tuple_t<>, [](auto acc, auto elem) {
@@ -42,13 +44,13 @@ class graph_trait final {
          return hana::first(elem);
       }));
 
-   constexpr static auto root_nodes_desc =
-      hana::remove_if(hana::tuple_t<NODES...>, [](auto elem){
-         return decltype(elem)::type::is_root != hana::bool_c<true>;
+   constexpr static auto nodes_partition =
+      hana::partition(hana::tuple_t<NODES...>, [](auto elem){
+         return decltype(elem)::type::is_root == hana::bool_c<true>;
       });
 
    constexpr static auto root_nodes =
-      hana::transform(root_nodes_desc, [](auto elem){
+      hana::transform(hana::first(nodes_partition), [](auto elem){
          return hana::type_c<typename decltype(elem)::type::node_type>;
       });
 
@@ -68,6 +70,15 @@ class graph_trait final {
 
 public:
    constexpr static auto all_sorted_nodes = hana::concat(sorted_intermediate_nodes, leaf_nodes);
+   constexpr static auto sorted_nodes_desc =
+      hana::transform(sorted_non_leaf_nodes, [](auto elem){
+         auto entry = hana::find_if(all_nodes_desc, [=](auto v){
+            return hana::type_c<typename decltype(v)::type::node_type> == elem;
+         });
+
+         static_assert(hana::is_just(entry), "");
+         return *entry;
+      });
 };
 
 GRAPH_DSL_NS_END

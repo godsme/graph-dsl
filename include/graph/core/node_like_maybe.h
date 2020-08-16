@@ -27,7 +27,7 @@ struct node_like_maybe {
    template<typename TUPLE>
    struct instance_type {
       auto build(graph_context& context) -> status_t {
-         return COND(context).with_value([&](auto satisfied) {
+         return COND{}(context).with_value([&](auto satisfied) {
             if(satisfied) {
                return build_(context);
             } else {

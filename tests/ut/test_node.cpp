@@ -26,7 +26,11 @@ struct port_7 {};
 struct port_8 {};
 struct port_9 {};
 
-struct cond_1 {};
+struct cond_1 {
+   auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
+      return true;
+   }
+};
 namespace {
 
    using node_def =
@@ -53,16 +57,12 @@ namespace {
       static_assert(boost::hana::tuple_t<node_5, node_3, node_2,node_4, node_6, node_7> == grap_def::all_sorted_nodes);
    }
 
-   template<typename T, template<typename ...> typename C>
-   struct trait;
-
-   template <template<typename ...> typename C, typename ... Ts>
-   struct trait<boost::hana::tuple<Ts...>, C> {
-      using type = C<typename Ts::type...>;
-   };
+   TEST_CASE("graph_desc build") {
+      GRAPH_DSL_NS::graph_context context;
+      grap_def graph;
+      REQUIRE(GRAPH_DSL_NS::status_t::Ok == graph.build(context));
+   }
 
    template<typename T>
    struct S;
-
-//   S<typename trait<std::decay_t<decltype(boost::hana::tuple_t<int, double>)>, std::tuple>::type> s;
 }

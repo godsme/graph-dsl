@@ -40,8 +40,8 @@ struct node_like_fork {
       template<size_t ... I>
       auto build(graph_context& context, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
-         (((status = std::get<I>(nodes_).build(context)) == status_t::Ok) && ...);
-         return status;
+         return (((status = std::get<I>(nodes_).build(context)) == status_t::Ok) && ...) ?
+                status_t::Ok : status;
       }
 
       template<size_t ... I>

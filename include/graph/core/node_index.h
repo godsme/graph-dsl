@@ -21,9 +21,9 @@ private:
    constexpr static int Index = tuple_element_index_v<NODE, TUPLE, trait>;
    static_assert(Index >= 0, "no type in tuple");
 
-protected:
-   inline auto get_node(graph_context& context) -> decltype(auto) {
-      return (context.get_node<NODE, TUPLE, Index>());
+public:
+   inline static auto get_node(graph_context& context) -> decltype(auto) {
+      return (context.get_node<TUPLE, Index>());
    }
 };
 
