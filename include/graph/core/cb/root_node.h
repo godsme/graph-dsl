@@ -21,6 +21,7 @@ GRAPH_DSL_NS_BEGIN
 struct root_node {
    virtual auto present() const -> bool = 0;
    virtual auto connect(std::unique_ptr<root_actor_ports> handles) -> status_t = 0;
+   virtual auto disconnect(std::unique_ptr<root_actor_ports> handles) -> status_t = 0;
    virtual ~root_node() = default;
 };
 
@@ -73,10 +74,12 @@ private:
    auto connect(std::unique_ptr<root_actor_ports> ports) -> status_t override {
       GRAPH_EXPECT_TRUE(present());
       auto result = actor_handle_.send<subgraph_connect_msg, nano_caf::message::urgent>(std::move(ports));
-      if(result != nano_caf::status_t::ok) {
-         return status_t::Failed;
-      }
-      return status_t ::Ok;
+      return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
+   }
+
+   auto disconnect(std::unique_ptr<root_actor_ports> ports) -> status_t override {
+      auto result = actor_handle_.send<subgraph_disconnect_msg, nano_caf::message::urgent>(std::move(ports));
+      return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 
 protected:

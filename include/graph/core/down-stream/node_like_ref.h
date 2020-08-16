@@ -43,7 +43,7 @@ struct node_like_ref {
          GRAPH_EXPECT_TRUE(enabled());
          auto handle = node_index<NODE, TUPLE>::get_node(context).actor_handle_;
          GRAPH_EXPECT_TRUE(handle.exists());
-         actor_handles.emplace_back(handle);
+         actor_handles.emplace_back(std::move(handle));
          return status_t::Ok;
       }
 

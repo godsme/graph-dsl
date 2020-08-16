@@ -26,7 +26,8 @@ struct node_5_actor : nano_caf::behavior_based_actor {
             forward(msg);
          },
 
-         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
+         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
+         }
       };
    }
 

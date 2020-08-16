@@ -55,9 +55,8 @@ private:
       using type = typename T::node_type;
    };
 
-public:
-   template<typename NODE_DESC_TUPLE>
-   auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
+   template<typename NODE_DESC_TUPLE, typename F>
+   auto op(graph_context& context, NODE_DESC_TUPLE& nodes_desc, F&& f) -> status_t {
       constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
@@ -68,12 +67,34 @@ public:
          return status_t::Ok;
       }
 
-      auto ports = std::make_unique<root_actor_ports>();
-      GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
+      return f(root_node, std::get<Index>(nodes_desc));
+   }
 
-      GRAPH_EXPECT_SUCC(root_node->connect(std::move(ports)));
+public:
+   template<typename NODE_DESC_TUPLE>
+   auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
+      return op<NODE_DESC_TUPLE>(context, nodes_desc,
+         [&](auto root_node, auto& node_desc) {
+            auto ports = std::make_unique<root_actor_ports>();
+            GRAPH_EXPECT_SUCC(node_desc.collect_actor_ports(context, *ports));
 
-      return status_t::Ok;
+            GRAPH_EXPECT_SUCC(root_node->connect(std::move(ports)));
+
+            return status_t::Ok;
+      });
+   }
+
+   template<typename NODE_DESC_TUPLE>
+   auto cleanup(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
+      return op<NODE_DESC_TUPLE>(context, nodes_desc,
+         [&](auto root_node, auto& node_desc) {
+            auto ports = std::make_unique<root_actor_ports>();
+            GRAPH_EXPECT_SUCC(node_desc.collect_actor_ports(context, *ports));
+
+            GRAPH_EXPECT_SUCC(root_node->disconnect(std::move(ports)));
+
+            return status_t::Ok;
+         });
    }
 
    auto dump() {
