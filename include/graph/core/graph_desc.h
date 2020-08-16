@@ -17,10 +17,15 @@ namespace hana = boost::hana;
 template<typename ... NODES>
 struct graph_desc {
    constexpr static auto all_sorted_nodes = graph_trait<NODES...>::all_sorted_nodes;
+   constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};
 
    auto build(graph_context& context) -> status_t {
       context.switch_subgraph_context(nodes_cb_);
-      return build(context, std::make_index_sequence<sizeof...(NODES)>{});
+      return build(context, sequence);
+   }
+
+   auto dump() {
+      dump(std::make_index_sequence<std::tuple_size_v<nodes_cb>>{});
    }
 
 private:
@@ -30,6 +35,12 @@ private:
       return (((status = std::get<I>(nodes_desc_).build(context)) == status_t::Ok) && ...) ?
          status_t::Ok : status;
    }
+
+   template<size_t... I>
+   auto dump(std::index_sequence<I...>) {
+      (std::get<I>(nodes_cb_).dump(), ...);
+   }
+
 private:
    template<typename ... Ts>
    using cb_container = std::tuple<subgraph_node<Ts>...>;

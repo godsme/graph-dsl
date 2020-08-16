@@ -7,6 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <cstdint>
+#include <iostream>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -22,6 +23,10 @@ struct subgraph_node {
    }
    inline auto enabled() -> bool {
       return refs_ > 0;
+   }
+
+   auto dump() {
+      std::cout << node_type::id << ": refs = " << (int)refs_ << std::endl;
    }
 private:
    uint8_t refs_{0};
