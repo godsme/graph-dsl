@@ -30,6 +30,17 @@ struct subgraph_node_base {
       return refs_ > 0;
    }
 
+   template<typename NODE_DESC_TUPLE>
+   auto cleanup(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
+      if(!enabled() && running_) {
+         actor_handle_.send<nano_caf::exit_msg>(nano_caf::exit_reason::normal);
+         actor_handle_.release();
+         running_ = false;
+      }
+
+      return status_t::Ok;
+   }
+
 public:
    auto dump() {
       std::cout << NODE::id << ": refs = " << (int)refs_ << std::endl;
