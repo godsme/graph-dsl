@@ -2,15 +2,15 @@
 // Created by Darwin Yuan on 2020/8/16.
 //
 
-#ifndef GRAPH_NODE_LIKE_EITHER_H
-#define GRAPH_NODE_LIKE_EITHER_H
+#ifndef GRAPH_DOWN_STREAM_EITHER_H
+#define GRAPH_DOWN_STREAM_EITHER_H
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
 #include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
-#include <graph/core/down-stream/node_like_trait_decl.h>
+#include <graph/core/down-stream/down_stream_trait_decl.h>
 #include <boost/hana/fwd/tuple.hpp>
 #include <boost/hana/concat.hpp>
 #include <vector>
@@ -20,7 +20,7 @@ GRAPH_DSL_NS_BEGIN
 namespace hana = boost::hana;
 
 template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
-struct node_like_either {
+struct down_stream_either {
    using decorated_node_1 = typename node_like_trait<NODE_LIKE_1>::type;
    using decorated_node_2 = typename node_like_trait<NODE_LIKE_2>::type;
 
@@ -85,12 +85,12 @@ struct node_like_either {
 };
 
 template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
-struct node_like_trait<node_like_either<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
-   using type = node_like_either<COND, NODE_LIKE_1, NODE_LIKE_2>;
+struct node_like_trait<down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
+   using type = down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>;
 };
 
 GRAPH_DSL_NS_END
 
-#define __g_EITHER(...) GRAPH_DSL_NS::node_like_either<__VA_ARGS__>
+#define __g_EITHER(...) GRAPH_DSL_NS::down_stream_either<__VA_ARGS__>
 
-#endif //GRAPH_NODE_LIKE_EITHER_H
+#endif //GRAPH_DOWN_STREAM_EITHER_H

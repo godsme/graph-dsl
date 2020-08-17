@@ -8,7 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
-#include <graph/core/down-stream/node_like_trait.h>
+#include <graph/core/down-stream/down_stream_trait.h>
 #include <graph/core/actor_ports.h>
 
 GRAPH_DSL_NS_BEGIN

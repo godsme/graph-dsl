@@ -2,15 +2,15 @@
 // Created by Darwin Yuan on 2020/8/16.
 //
 
-#ifndef GRAPH_NODE_LIKE_MAYBE_H
-#define GRAPH_NODE_LIKE_MAYBE_H
+#ifndef GRAPH_DOWN_STREAM_MAYBE_H
+#define GRAPH_DOWN_STREAM_MAYBE_H
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
 #include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
-#include <graph/core/down-stream/node_like_trait_decl.h>
+#include <graph/core/down-stream/down_stream_trait_decl.h>
 #include <boost/hana/fwd/tuple.hpp>
 #include <vector>
 
@@ -20,7 +20,7 @@ namespace hana = boost::hana;
 
 //////////////////////////////////////////////////////////////////////////////
 template<typename COND, typename NODE_LIKE>
-struct node_like_maybe {
+struct down_stream_maybe {
    using decorated_node = typename node_like_trait<NODE_LIKE>::type;
    constexpr static auto node_list = decorated_node::node_list;
 
@@ -69,12 +69,12 @@ struct node_like_maybe {
 };
 
 template<typename COND, typename NODE_LIKE>
-struct node_like_trait<node_like_maybe<COND, NODE_LIKE>, void> {
-   using type = node_like_maybe<COND, NODE_LIKE>;
+struct node_like_trait<down_stream_maybe<COND, NODE_LIKE>, void> {
+   using type = down_stream_maybe<COND, NODE_LIKE>;
 };
 
 GRAPH_DSL_NS_END
 
-#define __g_MAYBE(...) GRAPH_DSL_NS::node_like_maybe<__VA_ARGS__>
+#define __g_MAYBE(...) GRAPH_DSL_NS::down_stream_maybe<__VA_ARGS__>
 
-#endif //GRAPH_NODE_LIKE_MAYBE_H
+#endif //GRAPH_DOWN_STREAM_MAYBE_H

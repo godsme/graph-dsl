@@ -58,7 +58,7 @@ BOOST_HANA_NAMESPACE_BEGIN
     //! > - It was implemented in the MPL11, but it was not shown to be useful
     //! >   so far.
     //! > - It does not make sense for `not_equal` to have an arity of more
-    //! >   than 2, only `equal` could node_like_maybe have those semantics, which would
+    //! >   than 2, only `equal` could down_stream_maybe have those semantics, which would
     //! >   break symmetry.
 #ifdef BOOST_HANA_DOXYGEN_INVOKED
     constexpr auto equal = [](auto&& x, auto&& y) {

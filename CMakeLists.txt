@@ -30,7 +30,7 @@ set(graph_dsl
         include/graph/util/assertion.h
         include/graph/core/link_desc.h
         include/graph/util/tuple_element_by_type.h
-        include/graph/core/down-stream/node_like_trait.h
+        include/graph/core/down-stream/down_stream_trait.h
         include/graph/function/unique.h
         include/graph/function/group.h
         include/graph/core/graph_trait.h
@@ -39,11 +39,11 @@ set(graph_dsl
         include/graph/util/either.h
         include/graph/core/cb/subgraph_node.h
         include/graph/core/node_index.h
-        include/graph/core/down-stream/node_like_ref.h
-        include/graph/core/down-stream/node_like_maybe.h
-        include/graph/core/down-stream/node_like_either.h
-        include/graph/core/down-stream/node_like_fork.h
-        include/graph/core/down-stream/node_like_trait_decl.h
+        include/graph/core/down-stream/down_stream_node_ref.h
+        include/graph/core/down-stream/down_stream_maybe.h
+        include/graph/core/down-stream/down_stream_either.h
+        include/graph/core/down-stream/down_stream_fork.h
+        include/graph/core/down-stream/down_stream_trait_decl.h
         include/graph/util/hana_tuple_trait.h
         include/graph/core/actor_ports.h
         include/graph/core/cb/root_node.h
