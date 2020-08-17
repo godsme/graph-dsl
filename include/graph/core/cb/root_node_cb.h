@@ -18,24 +18,15 @@
 
 GRAPH_DSL_NS_BEGIN
 
-struct root_node_cb {
-   virtual auto present() const -> bool = 0;
-   virtual auto connect(std::unique_ptr<root_actor_ports> handles) -> status_t = 0;
-   virtual auto disconnect(std::unique_ptr<root_actor_ports> handles) -> status_t = 0;
-   virtual ~root_node_cb() = default;
-};
-
 struct graph_context;
 
 template<typename NODE>
-struct generic_root_node_cb : root_node_cb {
+struct root_node_cb  {
    using node_type = NODE;
 
    nano_caf::actor_handle actor_handle_;
 
-   auto present() const -> bool override {
-      return running_;
-   }
+   inline auto present() const -> bool { return running_; }
 
    auto start(graph_context& context) -> status_t {
       if(!running_) {
@@ -65,14 +56,13 @@ struct generic_root_node_cb : root_node_cb {
       return actor_handle_;
    }
 
-private:
-   auto connect(std::unique_ptr<root_actor_ports> ports) -> status_t override {
+   auto connect(std::unique_ptr<root_actor_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present());
       auto result = actor_handle_.send<subgraph_connect_msg, nano_caf::message::urgent>(std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 
-   auto disconnect(std::unique_ptr<root_actor_ports> ports) -> status_t override {
+   auto disconnect(std::unique_ptr<root_actor_ports> ports) -> status_t {
       auto result = actor_handle_.send<subgraph_disconnect_msg, nano_caf::message::urgent>(std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
@@ -80,6 +70,10 @@ private:
 protected:
    bool    running_{false};
 };
+
+
+template<typename ... Ts>
+using root_nodes = std::tuple<root_node_cb<Ts>...>;
 
 GRAPH_DSL_NS_END
 

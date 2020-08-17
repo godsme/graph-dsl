@@ -267,32 +267,22 @@ namespace {
 int main() {
    nano_caf::actor_system actor_system;
    actor_system.start(10);
-   GRAPH_DSL_NS::root_nodes<node_1, node_2> roots;
+   using roots_type = GRAPH_DSL_NS::root_nodes<node_1, node_2>;
+   roots_type roots;
 
    GRAPH_DSL_NS::graph_context context{actor_system, roots};
 
-   if(auto status = roots.get<0>().start(context); status != GRAPH_DSL_NS::status_t::Ok) {
-      return -1;
-   }
+   if(auto status = std::get<0>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+   if(auto status = std::get<1>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
 
-   if(auto status = roots.get<1>().start(context); status != GRAPH_DSL_NS::status_t::Ok) {
-      return -1;
-   }
-
-   grap_def graph;
-
-   if(auto status = graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) {
-      return -1;
-   }
-
-   if(auto status = graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) {
-      return -1;
-   }
+   grap_def::by_roots<roots_type> graph;
+   if(auto status = graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+   if(auto status = graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
 
    std::cout << actor_system.get_num_of_actors() << std::endl;
    std::cout.flush();
 
-   auto handle = roots.get<0>().get_handle();
+   auto handle = std::get<0>(roots).get_handle();
    for(int i = 0; i<100; i++) {
       auto msg = std::make_shared<const image_buf>();
       handle.send<image_buf_msg>(msg);

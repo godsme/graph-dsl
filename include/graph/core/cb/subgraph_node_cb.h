@@ -60,29 +60,26 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename NODE, node_category category>
+template<typename ROOTS, typename NODE, node_category category>
 struct subgraph_node_cb;
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename NODE>
-struct subgraph_node_cb<NODE, node_category::Root> {
+template<typename ROOTS, typename NODE>
+struct subgraph_node_cb<ROOTS, NODE, node_category::Root> {
    using node_type = NODE;
 
 private:
-   template<typename T>
-   struct desc_node_type {
-      using type = typename T::node_type;
-   };
+   template<typename T> struct desc_node_type { using type = typename T::node_type; };
+   constexpr static auto Root_Node_Index = tuple_element_index_v<NODE, ROOTS, desc_node_type>;
+   static_assert(Root_Node_Index >= 0, "it's not a root node");
 
    template<typename NODE_DESC_TUPLE, typename F>
    auto op(graph_context& context, NODE_DESC_TUPLE& nodes_desc, F&& f) -> status_t {
       constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
-      auto root_node = context.get_root_node(NODE::root_id);
-      GRAPH_EXPECT_TRUE(root_node != nullptr);
-
-      if(!root_node->present()) {
+      auto& root_node = context.get_root_node<ROOTS, Root_Node_Index>();
+      if(!root_node.present()) {
          return status_t::Ok;
       }
 
@@ -93,11 +90,10 @@ public:
    template<typename NODE_DESC_TUPLE>
    auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
       return op<NODE_DESC_TUPLE>(context, nodes_desc,
-         [&](auto root_node, auto& node_desc) {
+         [&](auto& root_node, auto& node_desc) {
             auto ports = std::make_unique<root_actor_ports>();
             GRAPH_EXPECT_SUCC(node_desc.collect_actor_ports(context, *ports));
-
-            GRAPH_EXPECT_SUCC(root_node->connect(std::move(ports)));
+            GRAPH_EXPECT_SUCC(root_node.connect(std::move(ports)));
 
             return status_t::Ok;
       });
@@ -106,11 +102,10 @@ public:
    template<typename NODE_DESC_TUPLE>
    auto cleanup(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
       return op<NODE_DESC_TUPLE>(context, nodes_desc,
-         [&](auto root_node, auto& node_desc) {
+         [&](auto& root_node, auto& node_desc) {
             auto ports = std::make_unique<root_actor_ports>();
             GRAPH_EXPECT_SUCC(node_desc.collect_actor_ports(context, *ports));
-
-            GRAPH_EXPECT_SUCC(root_node->disconnect(std::move(ports)));
+            GRAPH_EXPECT_SUCC(root_node.disconnect(std::move(ports)));
 
             return status_t::Ok;
          });
@@ -118,8 +113,8 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename NODE>
-struct subgraph_node_cb<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
+template<typename ROOTS, typename NODE>
+struct subgraph_node_cb<ROOTS, NODE, node_category::Leaf> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
@@ -137,8 +132,8 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename NODE>
-struct subgraph_node_cb<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
+template<typename ROOTS, typename NODE>
+struct subgraph_node_cb<ROOTS, NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
