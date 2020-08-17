@@ -302,10 +302,10 @@ int main() {
    if(auto status = std::get<0>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
    if(auto status = std::get<1>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
 
-   grap_def::by_roots<roots_type> graph;
-   if(auto status = graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-   if(auto status = graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-   graph.cleanup(context);
+   grap_def::by_roots<roots_type> sub_graph;
+   if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+   if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+   sub_graph.cleanup(context);
 
    std::cout << actor_system.get_num_of_actors() << std::endl;
    std::cout.flush();
@@ -318,12 +318,12 @@ int main() {
       std::this_thread::sleep_for(std::chrono::milliseconds {33});
    }
 
-   std::this_thread::sleep_for(std::chrono::seconds {1});
+   std::this_thread::sleep_for(std::chrono::milliseconds {10});
 
    std::get<0>(roots).stop();
    std::get<1>(roots).stop();
 
-   graph.stop(context);
+   sub_graph.stop(context);
 
    actor_system.shutdown();
 
