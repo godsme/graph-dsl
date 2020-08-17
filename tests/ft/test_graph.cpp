@@ -19,24 +19,24 @@ CAF_def_message(image_buf_msg_2, (buf, std::shared_ptr<const image_buf>));
 struct node_5_actor : nano_caf::behavior_based_actor {
    node_5_actor(int node_id, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports)
       : node_id_(node_id), ports_(std::move(ports)) {
-      std::cout << "intermediate created" << std::endl;
+      std::cout << node_id_ << ": intermediate created" << std::endl;
    }
    ~node_5_actor() {
-      std::cout << "intermediate destoried" << std::endl;
+      std::cout << node_id_ << ": intermediate destroyed" << std::endl;
    }
    nano_caf::behavior get_behavior() {
       return {
          [this](const image_buf_msg_1& msg) {
-            std::cout << node_id_ << ": 1 image buf received" << std::endl;
+            std::cout << node_id_ << ": intermediate image buf 1 received" << std::endl;
             forward(msg);
          },
          [this](const image_buf_msg_2& msg) {
-            std::cout << node_id_ << ": 2 image buf received" << std::endl;
+            std::cout << node_id_ << ": intermediate image buf 2 received" << std::endl;
             forward(msg);
          },
 
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-            std::cout << node_id_ << ":intermediate exit" << std::endl;
+            std::cout << node_id_ << ": intermediate exit" << std::endl;
          }
       };
    }
@@ -65,10 +65,10 @@ struct node_8_actor : nano_caf::behavior_based_actor {
    nano_caf::behavior get_behavior() {
       return {
          [this](image_buf_msg_1) {
-            std::cout << node_id_ << ": 1 image buf received : " << ++counter << std::endl;
+            std::cout << node_id_ << ": leaf image buf 1 received : " << ++counter << std::endl;
          },
          [this](image_buf_msg_2) {
-            std::cout << node_id_ << ": 2 image buf received : " << ++counter << std::endl;
+            std::cout << node_id_ << ": leaf image buf 2 received : " << ++counter << std::endl;
          },
 
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
@@ -77,7 +77,7 @@ struct node_8_actor : nano_caf::behavior_based_actor {
       };
    }
 
-   int counter{};
+   int counter{0};
    int node_id_;
 };
 
@@ -99,6 +99,9 @@ struct node_0_actor : nano_caf::behavior_based_actor {
             }
          },
          [this](const image_buf_msg_1& msg) {
+            forward(msg);
+         },
+         [this](const image_buf_msg_2& msg) {
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
@@ -290,7 +293,7 @@ namespace {
 
 int main() {
    nano_caf::actor_system actor_system;
-   actor_system.start(10);
+   actor_system.start(2);
    using roots_type = GRAPH_DSL_NS::root_nodes<node_1, node_2>;
    roots_type roots;
 
@@ -310,7 +313,9 @@ int main() {
    for(int i = 0; i<100; i++) {
       auto msg = std::make_shared<const image_buf>();
       std::get<0>(roots).get_handle().send<image_buf_msg_1>(msg);
+      std::this_thread::sleep_for(std::chrono::milliseconds {33});
       std::get<1>(roots).get_handle().send<image_buf_msg_2>(msg);
+      std::this_thread::sleep_for(std::chrono::milliseconds {33});
    }
 
    std::this_thread::sleep_for(std::chrono::seconds {1});
