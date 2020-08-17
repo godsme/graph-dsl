@@ -10,17 +10,6 @@ include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/include"
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    -Wold-style-cast \
-    -fsanitize=address \
-    -fno-omit-frame-pointer \
-    -fsanitize=alignment \
-    -fsanitize=function \
-    -fsanitize=return \
-    -fsanitize=nullability \
-    -fsanitize=unreachable \
-    -fsanitize=null")
-
 set(graph_dsl
         include/graph/core/dsl/subgraph.h
         include/graph/graph_ns.h
@@ -58,7 +47,7 @@ add_executable(graph_ut
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl} include/graph/core/cb/root_node_cb_set.h)
+        ${graph_dsl})
 
 target_link_libraries(graph_ut
         ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
