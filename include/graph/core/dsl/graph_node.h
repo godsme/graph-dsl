@@ -19,13 +19,13 @@ GRAPH_DSL_NS_BEGIN
 
 namespace hana = boost::hana;
 
-template<bool ROOT, typename NODE, typename ... LINKS>
+template<bool ROOT, typename NODE, typename ... PORTS>
 struct graph_node final {
    constexpr static auto is_root = hana::bool_c<ROOT>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
-      unique(hana::flatten(hana::make_tuple(graph_port<LINKS>::node_list...)));
-   constexpr static auto sequence = std::make_index_sequence<sizeof...(LINKS)>{};
+      unique(hana::flatten(hana::make_tuple(graph_port<PORTS>::node_list...)));
+   constexpr static auto sequence = std::make_index_sequence<sizeof...(PORTS)>{};
 
    template<typename TUPLE>
    struct instance_type {
@@ -39,7 +39,7 @@ struct graph_node final {
             }
          }
 
-         return build_links(context, sequence);
+         return build_ports(context, sequence);
       }
 
       auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
@@ -56,28 +56,28 @@ struct graph_node final {
 
    private:
       template<size_t ... I>
-      auto build_links(graph_context& context, std::index_sequence<I...>) -> status_t {
+      auto build_ports(graph_context& context, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
-         return (((status = std::get<I>(links_).build(context)) == status_t::Ok) && ...) ?
+         return (((status = std::get<I>(ports_).build(context)) == status_t::Ok) && ...) ?
             status_t::Ok : status;
       }
 
       template<size_t ... I>
       auto collect_actor_ports(graph_context& context, actor_ports& ports, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
-         return (((status = std::get<I>(links_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
+         return (((status = std::get<I>(ports_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
                 status_t::Ok : status;
       }
 
       template<size_t ... I>
       auto collect_actor_ports(graph_context& context, root_actor_ports& ports, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
-         return (((status = std::get<I>(links_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
+         return (((status = std::get<I>(ports_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
                 status_t::Ok : status;
       }
 
    private:
-      std::tuple<typename graph_port<LINKS>::template instance_type<TUPLE> ...> links_;
+      std::tuple<typename graph_port<PORTS>::template instance_type<TUPLE> ...> ports_;
    };
 };
 
