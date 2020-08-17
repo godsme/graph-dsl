@@ -14,10 +14,7 @@ GRAPH_DSL_NS_BEGIN
 template <typename NODE, typename TUPLE>
 struct node_index {
 private:
-   template<typename T>
-   struct trait {
-      using type = typename T::node_type;
-   };
+   template<typename T> struct trait { using type = typename T::node_type; };
    constexpr static int Index = tuple_element_index_v<NODE, TUPLE, trait>;
    static_assert(Index >= 0, "no type in tuple");
 
