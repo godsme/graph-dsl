@@ -56,14 +56,15 @@ struct root_node_cb  {
       return actor_handle_;
    }
 
-   auto connect(std::unique_ptr<root_actor_ports> ports) -> status_t {
+   auto connect(nano_caf::actor_context& context, std::unique_ptr<root_actor_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present());
-      auto result = actor_handle_.send<subgraph_connect_msg, nano_caf::message::urgent>(std::move(ports));
+      auto result = context.send<subgraph_connect_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 
-   auto disconnect(std::unique_ptr<root_actor_ports> ports) -> status_t {
-      auto result = actor_handle_.send<subgraph_disconnect_msg, nano_caf::message::urgent>(std::move(ports));
+   auto disconnect(nano_caf::actor_context& context, std::unique_ptr<root_actor_ports> ports) -> status_t {
+      GRAPH_EXPECT_TRUE(present());
+      auto result = context.send<subgraph_disconnect_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 

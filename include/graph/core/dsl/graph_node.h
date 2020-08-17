@@ -27,19 +27,23 @@ struct graph_node final {
       unique(hana::flatten(hana::make_tuple(graph_port<PORTS>::node_list...)));
    constexpr static auto sequence = std::make_index_sequence<sizeof...(PORTS)>{};
 
-   template<typename TUPLE>
+   template<typename ROOTS_CB, typename NODES_CB>
    struct instance_type {
       constexpr static auto is_root = ROOT;
       using node_type = NODE;
       auto build(graph_context& context) -> status_t {
-         if constexpr (!is_root) {
-            // skip all nodes whose ref count is 0
-            if(!node_index<NODE, TUPLE>::get_node(context).enabled()) {
-               return status_t::Ok;
-            }
+         auto& this_node = node_index<NODE, NODES_CB>::get_node(context);
+         // skip all nodes whose ref count is 0
+         if constexpr (is_root) {
+            if(!node_index<NODE, ROOTS_CB>::get_root_node(context).present()) { return status_t::Ok; }
+            GRAPH_EXPECT_SUCC(build_ports(context, sequence));
+            if(enabled(sequence)) { this_node.enable(); }
+            else { this_node.disable(); }
+            return status_t::Ok;
+         } else{
+            if(!this_node.present()) { return status_t::Ok; }
+            return build_ports(context, sequence);
          }
-
-         return build_ports(context, sequence);
       }
 
       auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
@@ -76,8 +80,13 @@ struct graph_node final {
                 status_t::Ok : status;
       }
 
+      template<size_t ... I>
+      auto enabled(std::index_sequence<I...>) -> bool {
+         return (std::get<I>(ports_).enabled() || ...);
+      }
+
    private:
-      std::tuple<typename graph_port<PORTS>::template instance_type<TUPLE> ...> ports_;
+      std::tuple<typename graph_port<PORTS>::template instance_type<NODES_CB> ...> ports_;
    };
 };
 

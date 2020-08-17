@@ -27,7 +27,7 @@ struct subgraph_node_base {
    inline auto release() -> void {
       refs_--;
    }
-   inline auto enabled() -> bool {
+   inline auto present() -> bool {
       return refs_ > 0;
    }
 
@@ -44,7 +44,7 @@ struct subgraph_node_base {
 
    template<typename NODE_DESC_TUPLE>
    auto cleanup(graph_context& context, NODE_DESC_TUPLE& desc) -> status_t {
-      if(!enabled()) {
+      if(!present()) {
          return stop(context, desc);
       }
 
@@ -89,27 +89,46 @@ private:
 public:
    template<typename NODE_DESC_TUPLE>
    auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
-      return op<NODE_DESC_TUPLE>(context, nodes_desc,
-         [&](auto& root_node, auto& node_desc) {
-            auto ports = std::make_unique<root_actor_ports>();
-            GRAPH_EXPECT_SUCC(node_desc.collect_actor_ports(context, *ports));
-            GRAPH_EXPECT_SUCC(root_node.connect(std::move(ports)));
-
-            return status_t::Ok;
+      return op<NODE_DESC_TUPLE>(context, nodes_desc, [&](auto& root_node, auto& node_desc) {
+         if(enabled) {
+            if(!connected) {
+               auto ports = std::make_unique<root_actor_ports>();
+               GRAPH_EXPECT_SUCC(node_desc.collect_actor_ports(context, *ports));
+               GRAPH_EXPECT_SUCC(root_node.connect(context.get_actor_context(), std::move(ports)));
+               connected = true;
+            } else {
+               // TODO: compare then update if changed
+            }
+         }
+         return status_t::Ok;
       });
    }
 
    template<typename NODE_DESC_TUPLE>
    auto cleanup(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
-      return op<NODE_DESC_TUPLE>(context, nodes_desc,
-         [&](auto& root_node, auto& node_desc) {
+      return op<NODE_DESC_TUPLE>(context, nodes_desc, [&](auto& root_node, auto& node_desc) {
+         if(!enabled && connected) {
             auto ports = std::make_unique<root_actor_ports>();
             GRAPH_EXPECT_SUCC(node_desc.collect_actor_ports(context, *ports));
-            GRAPH_EXPECT_SUCC(root_node.disconnect(std::move(ports)));
+            GRAPH_EXPECT_SUCC(root_node.disconnect(context.get_actor_context(), std::move(ports)));
+            connected = false;
+         }
 
-            return status_t::Ok;
-         });
+         return status_t::Ok;
+      });
    }
+
+   inline auto enable() {
+      enabled = true;
+   }
+
+   inline auto disable() {
+      enabled = false;
+   }
+
+private:
+   bool enabled{false};
+   bool connected{false};
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +140,7 @@ private:
 public:
    template<typename NODE_DESC_TUPLE>
    auto start(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
-      if(self::enabled() && !self::running_) {
+      if(self::present() && !self::running_) {
          self::actor_handle_ = NODE::spawn(context);
          GRAPH_EXPECT_TRUE(self::actor_handle_.exists());
          self::running_ = true;
@@ -148,7 +167,7 @@ public:
       constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
-      if(!self::enabled()) return status_t::Ok;
+      if(!self::present()) return status_t::Ok;
       auto ports = std::make_unique<actor_ports>();
       GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
       if(!self::running_) {
@@ -156,6 +175,7 @@ public:
          GRAPH_EXPECT_TRUE(self::actor_handle_.exists());
          self::running_ = true;
       } else {
+         // TODO: compare then update if changed
          //parent::actor_handle_.request<>()
       }
 

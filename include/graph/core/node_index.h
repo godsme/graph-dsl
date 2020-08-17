@@ -22,6 +22,10 @@ public:
    inline static auto get_node(graph_context& context) -> decltype(auto) {
       return (context.get_node<TUPLE, Index>());
    }
+
+   inline static auto get_root_node(graph_context& context) -> decltype(auto) {
+      return (context.get_root_node<TUPLE, Index>());
+   }
 };
 
 GRAPH_DSL_NS_END

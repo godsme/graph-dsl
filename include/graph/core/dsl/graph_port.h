@@ -23,7 +23,7 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
 
    template<typename TUPLE>
    struct instance_type {
-      auto build(graph_context& context) -> status_t {
+      inline auto build(graph_context& context) -> status_t {
          return down_stream_node_.build(context);
       }
 
@@ -31,6 +31,7 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
          if(down_stream_node_.enabled()) {
             actor_handle_set handles;
             GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, handles));
+            GRAPH_EXPECT_TRUE(!handles.empty());
             ports.push_back({PORT::get_port_format(context), handles});
          }
          return status_t::Ok;
@@ -44,6 +45,8 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
          }
          return status_t::Ok;
       }
+
+      inline auto enabled() -> bool { return down_stream_node_.enabled(); }
 
    private:
       typename node_like_type::template instance_type<TUPLE>  down_stream_node_;

@@ -18,11 +18,11 @@ template<typename ... NODES>
 struct subgraph final {
    constexpr static auto all_sorted_nodes = graph_analizer<NODES...>::all_sorted_nodes;
 
-   template<typename ROOTS>
+   template<typename ROOTS_CB>
    struct by_roots {
    private:
       template<typename ... Ts>
-      using cb_container = std::tuple<subgraph_node_cb<ROOTS, typename Ts::node_type, Ts::category>...>;
+      using cb_container = std::tuple<subgraph_node_cb<ROOTS_CB, typename Ts::node_type, Ts::category>...>;
       using nodes_cb = hana_tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
 
       constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};
@@ -58,7 +58,7 @@ struct subgraph final {
       static_assert(hana::size(sorted_nodes_desc) == sizeof...(NODES));
 
       template<typename ... Ts>
-      using desc_container  = std::tuple<typename Ts::template instance_type<nodes_cb>...>;
+      using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;
       using nodes_links = hana_tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
 
    private:

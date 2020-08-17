@@ -47,9 +47,7 @@ struct down_stream_node_ref {
          return status_t::Ok;
       }
 
-      auto enabled() const -> bool {
-         return enabled_;
-      }
+      inline auto enabled() const -> bool { return enabled_; }
 
    private:
       bool enabled_{false};
