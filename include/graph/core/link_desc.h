@@ -52,6 +52,6 @@ struct link_desc<auto (PORT) -> NODE_LIKE> {
 
 GRAPH_DSL_NS_END
 
-#define __port(name) auto (name)
+#define __g_PORT(name) auto (name)
 
 #endif //GRAPH_LINK_DESC_H

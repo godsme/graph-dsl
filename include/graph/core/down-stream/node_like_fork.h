@@ -87,6 +87,6 @@ struct node_like_trait<node_like_fork<NODEs_LIKE...>, void> {
 
 GRAPH_DSL_NS_END
 
-#define __fork(...) GRAPH_DSL_NS::node_like_fork<__VA_ARGS__>
+#define __g_FORK(...) GRAPH_DSL_NS::node_like_fork<__VA_ARGS__>
 
 #endif //GRAPH_NODE_LIKE_FORK_H

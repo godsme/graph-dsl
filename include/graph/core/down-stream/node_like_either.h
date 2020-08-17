@@ -91,6 +91,6 @@ struct node_like_trait<node_like_either<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
 
 GRAPH_DSL_NS_END
 
-#define __either(...) GRAPH_DSL_NS::node_like_either<__VA_ARGS__>
+#define __g_EITHER(...) GRAPH_DSL_NS::node_like_either<__VA_ARGS__>
 
 #endif //GRAPH_NODE_LIKE_EITHER_H

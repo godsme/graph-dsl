@@ -239,27 +239,27 @@ struct cond_2 {
 namespace {
 
    using root_node =
-   __source(node_1
-         , __port(port_1) -> node_8
-         , __port(port_2) -> __maybe(cond_2, node_3)
-         , __port(port_3) -> __either(cond_1, node_8, node_3)
-         , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8)));
+   __g_ROOT(node_1
+         , __g_PORT(port_1) -> node_8
+         , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_3)
+         , __g_PORT(port_3) -> __g_EITHER(cond_1, node_8, node_3)
+         , __g_PORT(port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8)));
 
    using grap_def = __sub_graph(
-      __source( node_1
-         , __port(port_1) -> node_8
-         , __port(port_2) -> __maybe(cond_2, node_3)
-         , __port(port_3) -> __either(cond_1, node_8, node_3)
-         , __port(port_4) -> __fork(node_5, node_4, __maybe(cond_2, node_8))),
-      __source( node_2
-         , __port(port_1) -> node_7 ),
-      __node( node_5
-         , __port(port_5) -> node_8
-         , __port(port_6) -> __fork(node_4, __maybe(cond_2, node_3))),
-      __node( node_3
-         , __port(port_7) -> node_4
-         , __port(port_8) -> __fork(node_8, node_6)
-         , __port(port_9) -> node_7));
+   __g_ROOT(node_1
+         , __g_PORT(port_1) -> node_8
+         , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_3)
+         , __g_PORT(port_3) -> __g_EITHER(cond_1, node_8, node_3)
+         , __g_PORT(port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
+   __g_ROOT(node_2
+         , __g_PORT(port_1) -> node_7 ),
+   __g_NODE(node_5
+         , __g_PORT(port_5) -> node_8
+         , __g_PORT(port_6) -> __g_FORK(node_4, __g_MAYBE(cond_2, node_3))),
+   __g_NODE(node_3
+         , __g_PORT(port_7) -> node_4
+         , __g_PORT(port_8) -> __g_FORK(node_8, node_6)
+         , __g_PORT(port_9) -> node_7));
 
    template<typename T>
    struct S;
