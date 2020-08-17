@@ -28,7 +28,7 @@ set(graph_dsl
         include/graph/status.h
         include/graph/core/graph_context.h
         include/graph/util/assertion.h
-        include/graph/core/dsl/graph_link.h
+        include/graph/core/dsl/graph_port.h
         include/graph/util/tuple_element_by_type.h
         include/graph/core/dsl/down-stream/down_stream_trait.h
         include/graph/function/unique.h

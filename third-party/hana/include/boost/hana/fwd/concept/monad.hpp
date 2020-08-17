@@ -51,7 +51,7 @@ BOOST_HANA_NAMESPACE_BEGIN
     //! `Applicative` (equivalent to `unit`) to introduce the notion of
     //! monadic function composition. We then write the properties that must
     //! be satisfied by a Monad using this monadic composition operator,
-    //! because we feel it shows the graph_link between Monads and Monoids more
+    //! because we feel it shows the graph_port between Monads and Monoids more
     //! clearly than other approaches.
     //!
     //! Roughly speaking, we will say that a `Monad` is an `Applicative` which

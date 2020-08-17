@@ -9,7 +9,7 @@
 #include <graph/status.h>
 #include <graph/util/assertion.h>
 #include <graph/core/graph_context.h>
-#include <graph/core/dsl/graph_link.h>
+#include <graph/core/dsl/graph_port.h>
 #include <tuple>
 #include <boost/hana.hpp>
 #include <graph/function/unique.h>
@@ -24,7 +24,7 @@ struct graph_node final {
    constexpr static auto is_root = hana::bool_c<ROOT>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
-      unique(hana::flatten(hana::make_tuple(graph_link<LINKS>::node_list...)));
+      unique(hana::flatten(hana::make_tuple(graph_port<LINKS>::node_list...)));
    constexpr static auto sequence = std::make_index_sequence<sizeof...(LINKS)>{};
 
    template<typename TUPLE>
@@ -77,7 +77,7 @@ struct graph_node final {
       }
 
    private:
-      std::tuple<typename graph_link<LINKS>::template instance_type<TUPLE> ...> links_;
+      std::tuple<typename graph_port<LINKS>::template instance_type<TUPLE> ...> links_;
    };
 };
 

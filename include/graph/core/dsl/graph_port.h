@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/14.
 //
 
-#ifndef GRAPH_GRAPH_LINK_H
-#define GRAPH_GRAPH_LINK_H
+#ifndef GRAPH_GRAPH_PORT_H
+#define GRAPH_GRAPH_PORT_H
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
@@ -14,10 +14,10 @@
 GRAPH_DSL_NS_BEGIN
 
 template<typename T>
-struct graph_link;
+struct graph_port;
 
 template<typename PORT, typename NODE_LIKE>
-struct graph_link<auto (PORT) -> NODE_LIKE> final {
+struct graph_port<auto (PORT) -> NODE_LIKE> final {
    using node_like_type = typename down_stream_trait<NODE_LIKE>::type;
    constexpr static auto node_list = node_like_type::node_list;
 
@@ -54,4 +54,4 @@ GRAPH_DSL_NS_END
 
 #define __g_PORT(name) auto (name)
 
-#endif //GRAPH_GRAPH_LINK_H
+#endif //GRAPH_GRAPH_PORT_H
