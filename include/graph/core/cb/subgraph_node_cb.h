@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/16.
 //
 
-#ifndef GRAPH_SUBGRAPH_NODE_H
-#define GRAPH_SUBGRAPH_NODE_H
+#ifndef GRAPH_SUBGRAPH_NODE_CB_H
+#define GRAPH_SUBGRAPH_NODE_CB_H
 
 #include <graph/graph_ns.h>
 #include <nano-caf/core/actor/actor_handle.h>
@@ -63,10 +63,10 @@ protected:
 };
 
 template<typename NODE, node_category category>
-struct subgraph_node;
+struct subgraph_node_cb;
 
 template<typename NODE>
-struct subgraph_node<NODE, node_category::Root> {
+struct subgraph_node_cb<NODE, node_category::Root> {
    using node_type = NODE;
 
 private:
@@ -122,7 +122,7 @@ public:
 };
 
 template<typename NODE>
-struct subgraph_node<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
+struct subgraph_node_cb<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
@@ -140,7 +140,7 @@ public:
 };
 
 template<typename NODE>
-struct subgraph_node<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
+struct subgraph_node_cb<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
@@ -175,4 +175,4 @@ private:
 
 GRAPH_DSL_NS_END
 
-#endif //GRAPH_SUBGRAPH_NODE_H
+#endif //GRAPH_SUBGRAPH_NODE_CB_H

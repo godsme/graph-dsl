@@ -63,12 +63,12 @@ BOOST_HANA_NAMESPACE_BEGIN
         constexpr void times_t<T, v>::operator()(F&& f) const
         { go<T, ((void)sizeof(&f), v)>::without_index(static_cast<F&&>(f)); }
 
-        // avoid link_desc-time error
+        // avoid graph_link-time error
         template <typename T, T v>
         constexpr with_index_t<T, v> times_t<T, v>::with_index;
     }
 
-    // avoid link_desc-time error
+    // avoid graph_link-time error
     template <typename T, T v>
     constexpr ic_detail::times_t<T, v> integral_constant<T, v>::times;
 

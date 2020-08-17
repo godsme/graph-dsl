@@ -2,29 +2,29 @@
 // Created by Darwin Yuan on 2020/8/14.
 //
 
-#ifndef GRAPH_NODE_DESC_H
-#define GRAPH_NODE_DESC_H
+#ifndef GRAPH_NODE_H
+#define GRAPH_NODE_H
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/util/assertion.h>
 #include <graph/core/graph_context.h>
-#include <graph/core/link_desc.h>
+#include <graph/core/graph_link.h>
 #include <tuple>
 #include <boost/hana.hpp>
 #include <graph/function/unique.h>
-#include <graph/core/cb/subgraph_node.h>
+#include <graph/core/cb/subgraph_node_cb.h>
 
 GRAPH_DSL_NS_BEGIN
 
 namespace hana = boost::hana;
 
 template<bool ROOT, typename NODE, typename ... LINKS>
-struct node_desc final {
+struct node final {
    constexpr static auto is_root = hana::bool_c<ROOT>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
-      unique(hana::flatten(hana::make_tuple(link_desc<LINKS>::node_list...)));
+      unique(hana::flatten(hana::make_tuple(graph_link<LINKS>::node_list...)));
    constexpr static auto sequence = std::make_index_sequence<sizeof...(LINKS)>{};
 
    template<typename TUPLE>
@@ -77,13 +77,13 @@ struct node_desc final {
       }
 
    private:
-      std::tuple<typename link_desc<LINKS>::template instance_type<TUPLE> ...> links_;
+      std::tuple<typename graph_link<LINKS>::template instance_type<TUPLE> ...> links_;
    };
 };
 
 GRAPH_DSL_NS_END
 
-#define __g_NODE(...) GRAPH_DSL_NS::node_desc<false, __VA_ARGS__>
-#define __g_ROOT(...) GRAPH_DSL_NS::node_desc<true,  __VA_ARGS__>
+#define __g_NODE(...) GRAPH_DSL_NS::node<false, __VA_ARGS__>
+#define __g_ROOT(...) GRAPH_DSL_NS::node<true,  __VA_ARGS__>
 
-#endif //GRAPH_NODE_DESC_H
+#endif //GRAPH_SUBGRAPH_NODE_CB_H

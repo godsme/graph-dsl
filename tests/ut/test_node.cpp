@@ -4,8 +4,8 @@
 
 #include <catch.hpp>
 #include <boost/hana.hpp>
-#include <graph/core/node_desc.h>
-#include <graph/core/subgraph_desc.h>
+#include <graph/core/node.h>
+#include <graph/core/subgraph.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <iostream>
 #include <map>
@@ -264,7 +264,7 @@ namespace {
    template<typename T>
    struct S;
 
-   TEST_CASE("node_desc") {
+   TEST_CASE("node") {
       static_assert(boost::hana::tuple_t<node_8, node_3, node_5, node_4> == root_node::direct_decedents);
    }
 

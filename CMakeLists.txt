@@ -22,13 +22,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
     -fsanitize=null")
 
 set(graph_dsl
-        include/graph/core/subgraph_desc.h
+        include/graph/core/subgraph.h
         include/graph/graph_ns.h
-        include/graph/core/node_desc.h
+        include/graph/core/node.h
         include/graph/status.h
         include/graph/core/graph_context.h
         include/graph/util/assertion.h
-        include/graph/core/link_desc.h
+        include/graph/core/graph_link.h
         include/graph/util/tuple_element_by_type.h
         include/graph/core/down-stream/down_stream_trait.h
         include/graph/function/unique.h
@@ -37,7 +37,7 @@ set(graph_dsl
         include/graph/util/result_t.h
         include/graph/util/ptr_trait.h
         include/graph/util/either.h
-        include/graph/core/cb/subgraph_node.h
+        include/graph/core/cb/subgraph_node_cb.h
         include/graph/core/node_index.h
         include/graph/core/down-stream/down_stream_node_ref.h
         include/graph/core/down-stream/down_stream_maybe.h
@@ -46,7 +46,7 @@ set(graph_dsl
         include/graph/core/down-stream/down_stream_trait_decl.h
         include/graph/util/hana_tuple_trait.h
         include/graph/core/actor_ports.h
-        include/graph/core/cb/root_node.h
+        include/graph/core/cb/root_node_cb.h
         include/graph/core/node_category.h
         include/graph/core/msgs/graph_msgs.h)
 
@@ -58,7 +58,7 @@ add_executable(graph_ut
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl})
+        ${graph_dsl} include/graph/core/cb/root_node_cb_set.h)
 
 target_link_libraries(graph_ut
         ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)

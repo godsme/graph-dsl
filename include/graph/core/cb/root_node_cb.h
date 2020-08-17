@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/16.
 //
 
-#ifndef GRAPH_ROOT_NODE_H
-#define GRAPH_ROOT_NODE_H
+#ifndef GRAPH_ROOT_NODE_CB_H
+#define GRAPH_ROOT_NODE_CB_H
 
 #include <graph/graph_ns.h>
 #include <nano-caf/core/actor/actor_handle.h>
@@ -18,22 +18,17 @@
 
 GRAPH_DSL_NS_BEGIN
 
-struct root_node {
+struct root_node_cb {
    virtual auto present() const -> bool = 0;
    virtual auto connect(std::unique_ptr<root_actor_ports> handles) -> status_t = 0;
    virtual auto disconnect(std::unique_ptr<root_actor_ports> handles) -> status_t = 0;
-   virtual ~root_node() = default;
-};
-
-struct root_node_set {
-   virtual auto get_root_node(size_t index) -> root_node* = 0;
-   virtual ~root_node_set() = default;
+   virtual ~root_node_cb() = default;
 };
 
 struct graph_context;
 
 template<typename NODE>
-struct root_node_cb : root_node {
+struct generic_root_node_cb : root_node_cb {
    using node_type = NODE;
 
    nano_caf::actor_handle actor_handle_;
@@ -86,37 +81,6 @@ protected:
    bool    running_{false};
 };
 
-template<typename ... Ts>
-struct root_nodes : root_node_set {
-   root_nodes() {
-      push_to_container(std::make_index_sequence<sizeof...(Ts)>{});
-   }
-
-   auto get_root_node(size_t index) -> root_node* {
-      if(index >= sizeof...(Ts)) {
-         return nullptr;
-      }
-
-      return containers_[index];
-   }
-
-   template <size_t I>
-   auto get() -> decltype(auto) {
-      static_assert(I <= sizeof...(Ts), "");
-      return (std::get<I>(nodes_));
-   }
-
-private:
-   template <size_t ... I>
-   auto push_to_container(std::index_sequence<I...>) {
-      ((containers_.push_back(static_cast<root_node*>(&std::get<I>(nodes_)))), ...);
-   }
-
-private:
-   std::vector<root_node*> containers_;
-   std::tuple<root_node_cb<Ts>...> nodes_;
-};
-
 GRAPH_DSL_NS_END
 
-#endif //GRAPH_ROOT_NODE_H
+#endif //GRAPH_ROOT_NODE_CB_H
