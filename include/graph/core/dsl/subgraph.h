@@ -24,7 +24,6 @@ private:
    using nodes_cb = hana_tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
 
    constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};
-   constexpr static auto node_cb_size = std::tuple_size_v<nodes_cb>;
    constexpr static auto node_cb_seq = std::make_index_sequence<std::tuple_size_v<nodes_cb>>{};
 
 public:

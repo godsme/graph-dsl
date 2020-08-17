@@ -132,8 +132,6 @@ struct node_4 : graph_dsl::node_signature{
    }
 };
 
-
-
 struct node_5 : graph_dsl::node_signature{
    constexpr static auto id = 5;
 
@@ -172,6 +170,7 @@ struct port_1 {
       return format;
    }
 };
+
 struct port_2 {
    constexpr static graph_dsl::port_id_t root_port_id = 2;
    constexpr static graph_dsl::port_format format{};
@@ -279,7 +278,6 @@ int main() {
    if(auto status = roots.get<1>().start(context); status != GRAPH_DSL_NS::status_t::Ok) {
       return -1;
    }
-
 
    grap_def graph;
 
