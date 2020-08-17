@@ -57,7 +57,7 @@ struct down_stream_node_ref {
 };
 
 template<typename NODE>
-struct node_like_trait<NODE, std::enable_if_t<std::is_base_of_v<node_signature, NODE>>> {
+struct down_stream_trait<NODE, std::enable_if_t<std::is_base_of_v<node_signature, NODE>>> {
    using type = down_stream_node_ref<NODE>;
 };
 

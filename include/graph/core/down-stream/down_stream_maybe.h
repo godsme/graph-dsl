@@ -21,7 +21,7 @@ namespace hana = boost::hana;
 //////////////////////////////////////////////////////////////////////////////
 template<typename COND, typename NODE_LIKE>
 struct down_stream_maybe {
-   using decorated_node = typename node_like_trait<NODE_LIKE>::type;
+   using decorated_node = typename down_stream_trait<NODE_LIKE>::type;
    constexpr static auto node_list = decorated_node::node_list;
 
    template<typename TUPLE>
@@ -69,7 +69,7 @@ struct down_stream_maybe {
 };
 
 template<typename COND, typename NODE_LIKE>
-struct node_like_trait<down_stream_maybe<COND, NODE_LIKE>, void> {
+struct down_stream_trait<down_stream_maybe<COND, NODE_LIKE>, void> {
    using type = down_stream_maybe<COND, NODE_LIKE>;
 };
 

@@ -10,7 +10,7 @@
 GRAPH_DSL_NS_BEGIN
 
 template<typename NODE, typename = void>
-struct node_like_trait;
+struct down_stream_trait;
 
 GRAPH_DSL_NS_END
 

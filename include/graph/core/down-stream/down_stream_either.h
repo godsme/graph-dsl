@@ -21,13 +21,13 @@ namespace hana = boost::hana;
 
 template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
 struct down_stream_either {
-   using decorated_node_1 = typename node_like_trait<NODE_LIKE_1>::type;
-   using decorated_node_2 = typename node_like_trait<NODE_LIKE_2>::type;
+   using decorated_node_1 = typename down_stream_trait<NODE_LIKE_1>::type;
+   using decorated_node_2 = typename down_stream_trait<NODE_LIKE_2>::type;
 
    constexpr static auto node_list = \
       hana::concat
-      ( node_like_trait<NODE_LIKE_1>::type::node_list
-         , node_like_trait<NODE_LIKE_2>::type::node_list);
+      (down_stream_trait<NODE_LIKE_1>::type::node_list
+         , down_stream_trait<NODE_LIKE_2>::type::node_list);
 
    template<typename TUPLE>
    struct instance_type {
@@ -85,7 +85,7 @@ struct down_stream_either {
 };
 
 template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
-struct node_like_trait<down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
+struct down_stream_trait<down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
    using type = down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>;
 };
 

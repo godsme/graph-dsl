@@ -20,7 +20,7 @@ namespace hana = boost::hana;
 template<typename ... NODEs_LIKE>
 struct down_stream_fork {
    constexpr static auto node_list =
-      hana::flatten(hana::make_tuple(node_like_trait<NODEs_LIKE>::type::node_list...));
+      hana::flatten(hana::make_tuple(down_stream_trait<NODEs_LIKE>::type::node_list...));
 
    constexpr static auto sequence = std::make_index_sequence<sizeof...(NODEs_LIKE)>{};
    template<typename TUPLE>
@@ -76,12 +76,12 @@ struct down_stream_fork {
       }
 
    private:
-      std::tuple<typename node_like_trait<NODEs_LIKE>::type::template instance_type<TUPLE>...> nodes_;
+      std::tuple<typename down_stream_trait<NODEs_LIKE>::type::template instance_type<TUPLE>...> nodes_;
    };
 };
 
 template<typename ... NODEs_LIKE>
-struct node_like_trait<down_stream_fork<NODEs_LIKE...>, void> {
+struct down_stream_trait<down_stream_fork<NODEs_LIKE...>, void> {
    using type = down_stream_fork<NODEs_LIKE...>;
 };
 

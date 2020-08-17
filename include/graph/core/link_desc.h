@@ -18,7 +18,7 @@ struct link_desc;
 
 template<typename PORT, typename NODE_LIKE>
 struct link_desc<auto (PORT) -> NODE_LIKE> {
-   using node_like_type = typename node_like_trait<NODE_LIKE>::type;
+   using node_like_type = typename down_stream_trait<NODE_LIKE>::type;
    constexpr static auto node_list = node_like_type::node_list;
 
    template<typename TUPLE>
