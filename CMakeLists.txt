@@ -47,7 +47,7 @@ add_executable(graph_ut
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl} include/holo/holo_ns.h include/holo/types/type_c.h include/holo/types/tuple_t.h include/holo/algo/fold_left.h include/holo/algo/find_if.h include/holo/algo/transform.h)
+        ${graph_dsl} include/holo/holo_ns.h include/holo/types/type_c.h include/holo/types/tuple_t.h include/holo/algo/fold_left.h include/holo/algo/find_if.h include/holo/algo/transform.h include/holo/algo/filter.h)
 
 target_link_libraries(graph_ut
         ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
