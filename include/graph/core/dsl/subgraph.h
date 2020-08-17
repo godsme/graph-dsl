@@ -34,9 +34,9 @@ struct subgraph final {
          return build(context, sequence);
       }
 
-      auto start(graph_context& context) -> status_t {
-         return start(context, node_cb_seq);
-      }
+      auto start(graph_context& context) -> status_t { return start(context, node_cb_seq); }
+      auto cleanup(graph_context& context) { return cleanup(context, node_cb_seq); }
+      auto stop(graph_context& context) { return stop(context, node_cb_seq); }
 
    private:
       template<size_t ... I>
@@ -51,6 +51,16 @@ struct subgraph final {
          status_t status = status_t::Ok;
          return (... && ((status = std::get<sizeof...(I) - 1 - I>(nodes_cb_).start(context, nodes_links_)) == status_t::Ok)) ?
                 status_t::Ok : status;
+      }
+
+      template<size_t ... I>
+      auto cleanup(graph_context& context, std::index_sequence<I...>) {
+         (std::get<I>(nodes_cb_).cleanup(context, nodes_links_), ...);
+      }
+
+      template<size_t ... I>
+      auto stop(graph_context& context, std::index_sequence<I...>) {
+         (std::get<I>(nodes_cb_).stop(context, nodes_links_), ...);
       }
 
    private:

@@ -42,13 +42,8 @@ struct root_node_cb  {
       if(running_) {
          actor_handle_.exit(nano_caf::exit_reason::normal);
          running_ = false;
-         actor_handle_.release();
-      }
-   }
-
-   auto wait_for_exit() {
-      if(running_) {
          actor_handle_.wait_for_exit();
+         actor_handle_.release();
       }
    }
 
