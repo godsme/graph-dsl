@@ -16,6 +16,7 @@
 
 GRAPH_DSL_NS_BEGIN
 
+//////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE>
 struct subgraph_node_base {
    using node_type = NODE;
@@ -51,10 +52,6 @@ struct subgraph_node_base {
    }
 
 public:
-   auto dump() {
-      std::cout << NODE::id << ": refs = " << (int)refs_ << std::endl;
-   }
-
    nano_caf::actor_handle actor_handle_{};
 
 protected:
@@ -62,9 +59,11 @@ protected:
    bool    running_{false};
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE, node_category category>
 struct subgraph_node_cb;
 
+//////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE>
 struct subgraph_node_cb<NODE, node_category::Root> {
    using node_type = NODE;
@@ -116,11 +115,9 @@ public:
             return status_t::Ok;
          });
    }
-
-   auto dump() {
-   }
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE>
 struct subgraph_node_cb<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
 private:
@@ -139,6 +136,7 @@ public:
    }
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE>
 struct subgraph_node_cb<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
 private:

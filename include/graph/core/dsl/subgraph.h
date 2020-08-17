@@ -37,10 +37,6 @@ public:
       return start(context, node_cb_seq);
    }
 
-   auto dump() {
-      dump(node_cb_seq);
-   }
-
 private:
    template<size_t ... I>
    auto build(graph_context& context, std::index_sequence<I...>) {
@@ -54,11 +50,6 @@ private:
       status_t status = status_t::Ok;
       return (... && ((status = std::get<sizeof...(I) - 1 - I>(nodes_cb_).start(context, nodes_links_)) == status_t::Ok)) ?
              status_t::Ok : status;
-   }
-
-   template<size_t... I>
-   auto dump(std::index_sequence<I...>) {
-      (std::get<I>(nodes_cb_).dump(), ...);
    }
 
 private:

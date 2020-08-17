@@ -291,8 +291,6 @@ int main() {
       return -1;
    }
 
-   graph.dump();
-
    std::cout << actor_system.get_num_of_actors() << std::endl;
    std::cout.flush();
 
