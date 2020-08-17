@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/15.
 //
 
-#ifndef GRAPH_GRAPH_TRAIT_H
-#define GRAPH_GRAPH_TRAIT_H
+#ifndef GRAPH_GRAPH_ANALIZER_H
+#define GRAPH_GRAPH_ANALIZER_H
 
 #include <graph/graph_ns.h>
 #include <boost/hana.hpp>
@@ -20,7 +20,7 @@ struct node_trait {
 };
 
 template<typename ... NODES>
-class graph_trait final {
+class graph_analizer final {
    constexpr static auto nodes_map = hana::make_tuple(
       hana::make_pair(hana::type_c<typename NODES::node_type>, NODES::direct_decedents)...);
 
@@ -102,4 +102,4 @@ public:
 
 GRAPH_DSL_NS_END
 
-#endif //GRAPH_GRAPH_TRAIT_H
+#endif //GRAPH_GRAPH_ANALIZER_H
