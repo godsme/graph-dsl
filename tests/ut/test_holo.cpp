@@ -8,6 +8,7 @@
 #include <optional>
 #include <iostream>
 #include <holo/algo/find_if.h>
+#include <holo/algo/transform.h>
 
 namespace {
    TEST_CASE("holo fold left") {
@@ -30,10 +31,6 @@ namespace {
           },
           holo::tuple_t<value_holder<1>, value_holder<2>, value_holder<3>>);
 
-      constexpr std::optional<int> i = 10;
-      static_assert(result == 6);
-      static_assert(*i == 10, "");
-      static_assert(i.has_value(), "");
       REQUIRE(result == 6);
    }
 
@@ -45,7 +42,27 @@ namespace {
          holo::tuple_t<int, double, float>);
 
       static_assert(result.has_value(), "");
-      static_assert(*result == std::optional{holo::type_c<double>}, "");
+      static_assert(*result == std::optional{holo::type_c<double>});
+   }
+
+   template <typename T> struct w{};
+   TEST_CASE("holo transform") {
+      constexpr auto result = holo::transform(
+         [](auto elem) constexpr {
+            return holo::type_c<w<typename decltype(elem)::type>>;
+         },
+         holo::tuple_t<int, double, float>);
+
+      static_assert(result == holo::tuple_t<w<int>, w<double>, w<float>>);
+   }
+
+   TEST_CASE("std constexpr test") {
+      constexpr std::optional<int> i = 10;
+      static_assert(*i == 10, "");
+      static_assert(i.has_value(), "");
+      
+      constexpr auto pair = std::pair{holo::type_c<int>, holo::type_c<double>};
+      static_assert(pair == std::make_pair(holo::type_c<int>, holo::type_c<double>));
    }
 
 }
