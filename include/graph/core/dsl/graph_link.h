@@ -8,7 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
-#include <graph/core/down-stream/down_stream_trait.h>
+#include <graph/core/dsl/down-stream/down_stream_trait.h>
 #include <graph/core/actor_ports.h>
 
 GRAPH_DSL_NS_BEGIN
@@ -17,7 +17,7 @@ template<typename T>
 struct graph_link;
 
 template<typename PORT, typename NODE_LIKE>
-struct graph_link<auto (PORT) -> NODE_LIKE> {
+struct graph_link<auto (PORT) -> NODE_LIKE> final {
    using node_like_type = typename down_stream_trait<NODE_LIKE>::type;
    constexpr static auto node_list = node_like_type::node_list;
 

@@ -15,7 +15,7 @@ GRAPH_DSL_NS_BEGIN
 namespace hana = boost::hana;
 
 template<typename ... NODES>
-struct subgraph {
+struct subgraph final {
    constexpr static auto all_sorted_nodes = graph_trait<NODES...>::all_sorted_nodes;
 
 private:

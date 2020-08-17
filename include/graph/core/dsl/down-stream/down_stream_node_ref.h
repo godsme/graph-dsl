@@ -9,7 +9,7 @@
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
 #include <graph/core/node_index.h>
-#include <graph/core/down-stream/down_stream_trait_decl.h>
+#include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <graph/core/actor_ports.h>
 #include <boost/hana.hpp>
 

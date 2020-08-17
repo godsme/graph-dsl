@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/16.
 //
 
-#include <graph/core/node.h>
-#include <graph/core/subgraph.h>
+#include <graph/core/dsl/graph_node.h>
+#include <graph/core/dsl/subgraph.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <iostream>
 #include <map>

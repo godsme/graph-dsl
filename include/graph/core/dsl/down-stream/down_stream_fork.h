@@ -9,7 +9,7 @@
 #include <graph/status.h>
 #include <graph/core/graph_context.h>
 #include <graph/util/result_t.h>
-#include <graph/core/down-stream/down_stream_trait_decl.h>
+#include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <boost/hana/fwd/tuple.hpp>
 #include <boost/hana/flatten.hpp>
 

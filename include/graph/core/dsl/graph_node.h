@@ -2,14 +2,14 @@
 // Created by Darwin Yuan on 2020/8/14.
 //
 
-#ifndef GRAPH_NODE_H
-#define GRAPH_NODE_H
+#ifndef GRAPH_GRAPH_NODE_H
+#define GRAPH_GRAPH_NODE_H
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/util/assertion.h>
 #include <graph/core/graph_context.h>
-#include <graph/core/graph_link.h>
+#include <graph/core/dsl/graph_link.h>
 #include <tuple>
 #include <boost/hana.hpp>
 #include <graph/function/unique.h>
@@ -20,7 +20,7 @@ GRAPH_DSL_NS_BEGIN
 namespace hana = boost::hana;
 
 template<bool ROOT, typename NODE, typename ... LINKS>
-struct node final {
+struct graph_node final {
    constexpr static auto is_root = hana::bool_c<ROOT>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
@@ -83,7 +83,7 @@ struct node final {
 
 GRAPH_DSL_NS_END
 
-#define __g_NODE(...) GRAPH_DSL_NS::node<false, __VA_ARGS__>
-#define __g_ROOT(...) GRAPH_DSL_NS::node<true,  __VA_ARGS__>
+#define __g_NODE(...) GRAPH_DSL_NS::graph_node<false, __VA_ARGS__>
+#define __g_ROOT(...) GRAPH_DSL_NS::graph_node<true,  __VA_ARGS__>
 
 #endif //GRAPH_SUBGRAPH_NODE_CB_H

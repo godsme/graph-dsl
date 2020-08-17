@@ -22,15 +22,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
     -fsanitize=null")
 
 set(graph_dsl
-        include/graph/core/subgraph.h
+        include/graph/core/dsl/subgraph.h
         include/graph/graph_ns.h
-        include/graph/core/node.h
+        include/graph/core/dsl/graph_node.h
         include/graph/status.h
         include/graph/core/graph_context.h
         include/graph/util/assertion.h
-        include/graph/core/graph_link.h
+        include/graph/core/dsl/graph_link.h
         include/graph/util/tuple_element_by_type.h
-        include/graph/core/down-stream/down_stream_trait.h
+        include/graph/core/dsl/down-stream/down_stream_trait.h
         include/graph/function/unique.h
         include/graph/function/group.h
         include/graph/core/graph_trait.h
@@ -39,11 +39,11 @@ set(graph_dsl
         include/graph/util/either.h
         include/graph/core/cb/subgraph_node_cb.h
         include/graph/core/node_index.h
-        include/graph/core/down-stream/down_stream_node_ref.h
-        include/graph/core/down-stream/down_stream_maybe.h
-        include/graph/core/down-stream/down_stream_either.h
-        include/graph/core/down-stream/down_stream_fork.h
-        include/graph/core/down-stream/down_stream_trait_decl.h
+        include/graph/core/dsl/down-stream/down_stream_node_ref.h
+        include/graph/core/dsl/down-stream/down_stream_maybe.h
+        include/graph/core/dsl/down-stream/down_stream_either.h
+        include/graph/core/dsl/down-stream/down_stream_fork.h
+        include/graph/core/dsl/down-stream/down_stream_trait_decl.h
         include/graph/util/hana_tuple_trait.h
         include/graph/core/actor_ports.h
         include/graph/core/cb/root_node_cb.h
