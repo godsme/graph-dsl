@@ -18,6 +18,11 @@ namespace detail {
       return (((status = f(std::get<I>(std::forward<TUPLE>(tuple)))) == status_t::Ok) && ...) ?
              status_t::Ok : status;
    }
+
+   template<typename TUPLE, typename F, size_t ... I>
+   auto tuple_foreach_void(TUPLE&& tuple, F&& f, std::index_sequence<I...>) {
+      (f(std::get<I>(std::forward<TUPLE>(tuple))), ...);
+   }
 }
 
 template<typename TUPLE, typename F, size_t ... I>
@@ -26,6 +31,14 @@ auto tuple_foreach(TUPLE&& tuple, F&& f) {
             ( std::forward<TUPLE>(tuple)
             , std::forward<F>(f)
             , std::make_index_sequence<std::tuple_size_v<std::decay_t<TUPLE>>>{});
+}
+
+template<typename TUPLE, typename F, size_t ... I>
+auto tuple_foreach_void(TUPLE&& tuple, F&& f) {
+   detail::tuple_foreach_void
+      ( std::forward<TUPLE>(tuple)
+         , std::forward<F>(f)
+         , std::make_index_sequence<std::tuple_size_v<std::decay_t<TUPLE>>>{});
 }
 
 

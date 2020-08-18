@@ -14,10 +14,6 @@ GRAPH_DSL_NS_BEGIN
 
 template<typename ROOTS, typename ... SUB_GRAPH_SELECTOR>
 struct graph final {
-private:
-   constexpr static auto sequence = std::make_index_sequence<sizeof...(SUB_GRAPH_SELECTOR)>{};
-
-public:
    inline auto build(graph_context& context) -> status_t {
       context.update_root_nodes(roots_.roots_);
       return tuple_foreach(sub_graphs_, [&](auto& sub) {
@@ -37,13 +33,14 @@ public:
          if(status != status_t::Ok) return status;
          return root.update_ports(context, std::move(ports));
       }));
-      cleanup_sub_graphs(sequence);
+
+      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.cleanup(); });
       return status_t::Ok;
    }
 
    auto stop() {
-      stop_roots(ROOTS::sequence);
-      stop_sub_graphs(sequence);
+      roots_.stop();
+      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.stop(); });
    }
 
    template<size_t I>
@@ -52,27 +49,8 @@ public:
    }
 
 private:
-
-   template<size_t ... I>
-   auto cleanup_sub_graphs(std::index_sequence<I...>) {
-      (std::get<I>(sub_graphs_).cleanup(),  ...);
-   }
-
-   using roots = typename ROOTS::type;
-
-   template<size_t ... I>
-   auto stop_sub_graphs(std::index_sequence<I...>) {
-      (std::get<I>(sub_graphs_).stop(),  ...);
-   }
-
-   template<size_t ... I>
-   auto stop_roots(std::index_sequence<I...>) {
-      (std::get<I>(roots_.roots_).stop(),  ...);
-   }
-
-private:
    template<typename T>
-   using selector = typename sub_graph_selector<T>::template instance_type<roots>;
+   using selector = typename sub_graph_selector<T>::template instance_type<typename ROOTS::type>;
 
 private:
    ROOTS roots_;
