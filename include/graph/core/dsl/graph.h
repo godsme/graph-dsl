@@ -22,6 +22,7 @@ struct graph final {
    }
 
    auto start(graph_context& context) -> status_t {
+      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.cleanup(); });
       GRAPH_EXPECT_SUCC(tuple_foreach(sub_graphs_, [&](auto& sub) {
          return sub.start(context);
       }));
@@ -34,7 +35,6 @@ struct graph final {
          return root.update_ports(context, std::move(ports));
       }));
 
-      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.cleanup(); });
       return status_t::Ok;
    }
 

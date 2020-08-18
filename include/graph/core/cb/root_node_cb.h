@@ -37,12 +37,12 @@ struct root_node_cb  {
    }
 
    auto stop() {
-      if(running_) {
-         actor_handle_.exit(nano_caf::exit_reason::normal);
-         running_ = false;
-         actor_handle_.wait_for_exit();
-         actor_handle_.release();
-      }
+      if(!running_) return;
+
+      actor_handle_.exit(nano_caf::exit_reason::normal);
+      running_ = false;
+      actor_handle_.wait_for_exit();
+      actor_handle_.release();
    }
 
    auto get_handle() -> decltype(auto) {
@@ -55,16 +55,16 @@ struct root_node_cb  {
          GRAPH_EXPECT_TRUE(actor_handle_.exists());
          running_ = true;
       } else {
-         GRAPH_EXPECT_SUCC(connect(context.get_actor_context(), std::move(ports)));
+         GRAPH_EXPECT_SUCC(update_ports(context.get_actor_context(), std::move(ports)));
       }
 
       return status_t::Ok;
    }
 
 private:
-   auto connect(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+   auto update_ports(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present_ && running_);
-      auto result = context.send<subgraph_connect_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
+      auto result = context.send<root_update_ports_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 

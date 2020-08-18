@@ -12,7 +12,7 @@
 
 GRAPH_DSL_NS_BEGIN
 
-CAF_def_message(subgraph_connect_msg,
+CAF_def_message(root_update_ports_msg,
     (ports, std::shared_ptr<root_ports>));
 
 CAF_def_message(subgraph_ports_update_msg,
