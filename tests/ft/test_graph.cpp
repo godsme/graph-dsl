@@ -24,9 +24,11 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
       , ports_(std::move(ports)) {
       std::cout << node_id_ << ": intermediate created ----------------------> " << std::endl;
    }
+
    ~intermediate_actor() {
       std::cout << node_id_ << ": intermediate destroyed <----------------------" << std::endl;
    }
+
    nano_caf::behavior get_behavior() {
       return {
          [this](GRAPH_DSL_NS::subgraph_ports_update_msg_atom, std::shared_ptr<GRAPH_DSL_NS::actor_ports> ports) {
@@ -40,7 +42,6 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
             std::cout << node_id_ << ": intermediate image buf 2 received" << std::endl;
             forward(msg);
          },
-
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
             std::cout << node_id_ << ": intermediate exit" << std::endl;
          }
@@ -65,18 +66,19 @@ struct leaf_actor : nano_caf::behavior_based_actor {
    leaf_actor(int node_id) : node_id_(node_id) {
       std::cout << node_id_ << ": leaf created ----------------------> " << std::endl;
    }
+
    ~leaf_actor() {
       std::cout << node_id_ << ": leaf destroyed <-------------------- " << std::endl;
    }
+
    nano_caf::behavior get_behavior() {
       return {
-         [this](image_buf_msg_1) {
+         [this](image_buf_msg_1&) {
             std::cout << node_id_ << ": leaf image buf 1 received : " << ++counter << std::endl;
          },
-         [this](image_buf_msg_2) {
+         [this](image_buf_msg_2&) {
             std::cout << node_id_ << ": leaf image buf 2 received : " << ++counter << std::endl;
          },
-
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
             std::cout << node_id_ << ": leaf exit" << std::endl;
          }
@@ -340,63 +342,64 @@ struct port_12 {
    }
 };
 
-std::atomic<bool> condition = false;
+bool condition = false;
 
 struct cond_1 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return condition.load();
+      return condition;
    }
 };
 
 struct cond_2 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return !condition.load();
+      return !condition;
    }
 };
 
+bool sub_graph_switch = true;
+
 struct cond_3 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return true;
+      return sub_graph_switch;
    }
 };
 
 struct cond_4 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return !condition;
+      return !sub_graph_switch;
    }
 };
 
 namespace {
 
    using sub_graph_1 = __sub_graph(
-   __g_ROOT(node_1
+      __g_ROOT( node_1
               , __g_PORT(port_1) -> node_8
               , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_3)
               , __g_PORT(port_3) -> __g_EITHER(cond_1, node_8, node_4)
               , __g_PORT(port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
-   __g_ROOT(node_2
+      __g_ROOT( node_2
               , __g_PORT(port_1) -> node_7),
-   __g_NODE(node_5
+      __g_NODE( node_5
               , __g_PORT(port_5) -> node_8
               , __g_PORT(port_6) -> __g_FORK(node_4, __g_MAYBE(cond_2, node_3))),
-   __g_NODE(node_3
+      __g_NODE( node_3
               , __g_PORT(port_7) -> node_4
               , __g_PORT(port_8) -> __g_FORK(node_8, node_6)
               , __g_PORT(port_9) -> node_7));
 
 
    using sub_graph_2 = __sub_graph(
-      __g_ROOT(node_2
-         , __g_PORT(port_1) -> node_9),
-      __g_ROOT(node_2
-         , __g_PORT(port_1) -> node_10
-         , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_11)
-         , __g_PORT(port_3) -> __g_EITHER(cond_1, node_12, node_13)),
+      __g_ROOT( node_1
+              , __g_PORT(port_1) -> node_9),
+      __g_ROOT( node_2
+              , __g_PORT(port_1) -> node_10
+              , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_11)
+              , __g_PORT(port_3) -> __g_EITHER(cond_1, node_12, node_13)),
       __g_NODE(node_11
-         , __g_PORT(port_10) -> node_12
-         , __g_PORT(port_11) -> __g_FORK(node_13, node_14)
-         , __g_PORT(port_12) -> node_15));
-
+              , __g_PORT(port_10) -> node_12
+              , __g_PORT(port_11) -> __g_FORK(node_13, node_14)
+              , __g_PORT(port_12) -> node_15));
 
 
    using graph = __g_GRAPH(
@@ -415,8 +418,7 @@ int test_2() {
    GRAPH_DSL_NS::graph_context context{actor_system};
    graph g;
 
-   if(auto status = g.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-   if(auto status = g.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+   if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
 
    auto tid = std::thread([&]{
       for(int i = 0; i<100; i++) {
@@ -433,17 +435,19 @@ int test_2() {
       }
    });
 
-   for(auto i=0; i<20; i++) {
+   for(auto i=0; i<40; i++) {
       std::this_thread::sleep_for(5s);
       condition = !condition;
-      if(auto status = g.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-      if(auto status = g.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+
+      if((i > 0) && (i % 10) == 0) {
+         sub_graph_switch = !sub_graph_switch;
+      }
+
+      if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
    }
 
    tid.join();
-
    g.stop();
-
    actor_system.shutdown();
 
    return 0;

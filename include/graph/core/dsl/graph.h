@@ -14,6 +14,23 @@ GRAPH_DSL_NS_BEGIN
 
 template<typename ROOTS, typename ... SUB_GRAPH_SELECTOR>
 struct graph final {
+   auto refresh(graph_context& context) -> status_t {
+      GRAPH_EXPECT_SUCC(build(context));
+      GRAPH_EXPECT_SUCC(start(context));
+      return status_t::Ok;
+   }
+
+   auto stop() {
+      roots_.stop();
+      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.stop(); });
+   }
+
+   template<size_t I>
+   inline auto get_root() -> decltype(auto) {
+      return (std::get<I>(roots_.roots_).get_handle());
+   }
+
+private:
    inline auto build(graph_context& context) -> status_t {
       context.update_root_nodes(roots_.roots_);
       return tuple_foreach(sub_graphs_, [&](auto& sub) {
@@ -36,16 +53,6 @@ struct graph final {
       }));
 
       return status_t::Ok;
-   }
-
-   auto stop() {
-      roots_.stop();
-      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.stop(); });
-   }
-
-   template<size_t I>
-   inline auto get_root() -> decltype(auto) {
-      return (std::get<I>(roots_.roots_).get_handle());
    }
 
 private:

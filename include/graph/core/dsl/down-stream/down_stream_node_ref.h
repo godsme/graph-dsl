@@ -43,7 +43,7 @@ struct down_stream_node_ref {
 
       auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
          GRAPH_EXPECT_TRUE(enabled());
-         auto handle = node_index<NODE, TUPLE>::get_node(context).actor_handle_;
+         auto handle = node_index<NODE, TUPLE>::get_node(context).actor_handle();
          GRAPH_EXPECT_TRUE(handle.exists());
          actor_handles.emplace_back(std::move(handle));
          return status_t::Ok;

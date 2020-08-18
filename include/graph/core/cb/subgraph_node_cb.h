@@ -49,10 +49,11 @@ struct subgraph_node_base {
       return false;
    }
 
-public:
-   nano_caf::actor_handle actor_handle_{};
-
+   inline auto actor_handle() -> decltype(auto) {
+      return (actor_handle_);
+   }
 protected:
+   nano_caf::actor_handle actor_handle_{};
    uint8_t refs_{0};
    bool    running_{false};
 };
