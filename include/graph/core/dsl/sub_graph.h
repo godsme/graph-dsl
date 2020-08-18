@@ -22,7 +22,7 @@ struct sub_graph final {
    struct by_roots {
    private:
       template<typename ... Ts>
-      using cb_container = std::tuple<subgraph_node_cb<ROOTS_CB, typename Ts::node_type, Ts::category>...>;
+      using cb_container = std::tuple<subgraph_node_cb<typename Ts::node_type, Ts::category>...>;
       using nodes_cb = hana_tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
 
       constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};

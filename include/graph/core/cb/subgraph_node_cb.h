@@ -58,12 +58,12 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename ROOTS, typename NODE, node_category category>
+template<typename NODE, node_category category>
 struct subgraph_node_cb;
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename ROOTS, typename NODE>
-struct subgraph_node_cb<ROOTS, NODE, node_category::Leaf> : subgraph_node_base<NODE> {
+template<typename NODE>
+struct subgraph_node_cb<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
@@ -81,8 +81,8 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename ROOTS, typename NODE>
-struct subgraph_node_cb<ROOTS, NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
+template<typename NODE>
+struct subgraph_node_cb<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
