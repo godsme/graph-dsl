@@ -11,7 +11,7 @@ include_directories(
 )
 
 set(graph_dsl
-        include/graph/core/dsl/subgraph.h
+        include/graph/core/dsl/sub_graph.h
         include/graph/graph_ns.h
         include/graph/core/dsl/graph_node.h
         include/graph/status.h
@@ -47,7 +47,7 @@ add_executable(graph_ut
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl} include/holo/holo_ns.h include/holo/types/type_c.h include/holo/types/tuple_t.h include/holo/algo/fold_left.h include/holo/algo/find_if.h include/holo/algo/transform.h include/holo/algo/filter.h)
+        ${graph_dsl} include/holo/holo_ns.h include/holo/types/type_c.h include/holo/types/tuple_t.h include/holo/algo/fold_left.h include/holo/algo/find_if.h include/holo/algo/transform.h include/holo/algo/filter.h include/graph/core/dsl/graph.h include/graph/core/dsl/sub_graph_selector.h include/graph/core/dsl/graph_roots.h)
 
 target_link_libraries(graph_ut
         ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)

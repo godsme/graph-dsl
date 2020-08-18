@@ -5,7 +5,7 @@
 #include <catch.hpp>
 #include <boost/hana.hpp>
 #include <graph/core/dsl/graph_node.h>
-#include <graph/core/dsl/subgraph.h>
+#include <graph/core/dsl/sub_graph.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <iostream>
 #include <map>

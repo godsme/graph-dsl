@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/14.
 //
 
-#ifndef GRAPH_SUBGRAPH_H
-#define GRAPH_SUBGRAPH_H
+#ifndef GRAPH_SUB_GRAPH_H
+#define GRAPH_SUB_GRAPH_H
 
 #include <graph/graph_ns.h>
 #include <graph/core/graph_analizer.h>
@@ -15,7 +15,7 @@ GRAPH_DSL_NS_BEGIN
 namespace hana = boost::hana;
 
 template<typename ... NODES>
-struct subgraph final {
+struct sub_graph final {
    constexpr static auto all_sorted_nodes = graph_analizer<NODES...>::all_sorted_nodes;
 
    template<typename ROOTS_CB>
@@ -79,6 +79,6 @@ struct subgraph final {
 
 GRAPH_DSL_NS_END
 
-#define __sub_graph(...) GRAPH_DSL_NS::subgraph<__VA_ARGS__>
+#define __sub_graph(...) GRAPH_DSL_NS::sub_graph<__VA_ARGS__>
 
-#endif //GRAPH_SUBGRAPH_H
+#endif //GRAPH_SUB_GRAPH_H

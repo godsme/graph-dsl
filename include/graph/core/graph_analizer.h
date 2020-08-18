@@ -52,12 +52,12 @@ class graph_analizer final {
       }));
 
    constexpr static auto nodes_partition =
-      hana::partition(hana::tuple_t<NODES...>, [](auto elem){
+      hana::filter(hana::tuple_t<NODES...>, [](auto elem){
          return decltype(elem)::type::is_root == hana::bool_c<true>;
       });
 
    constexpr static auto root_nodes =
-      hana::transform(hana::first(nodes_partition), [](auto elem){
+      hana::transform(nodes_partition, [](auto elem){
          return hana::type_c<typename decltype(elem)::type::node_type>;
       });
 
