@@ -37,6 +37,20 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
          return status_t::Ok;
       }
 
+      auto cleanup() {
+         if(alive_) {
+            if(selected_) { subgraph_.cleanup(); }
+            else { stop(); }
+         }
+      }
+
+      auto stop() {
+         if(alive_) {
+            subgraph_.stop();
+            alive_ = false;
+         }
+      }
+
       template <typename ROOT>
       auto connect_root(graph_context& context, ROOT& root, root_ports& ports) -> status_t {
          if(selected_) {

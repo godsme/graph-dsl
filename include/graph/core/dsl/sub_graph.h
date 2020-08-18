@@ -53,8 +53,8 @@ struct sub_graph final {
       }
 
       auto start(graph_context& context) -> status_t { return start(context, node_cb_seq); }
-      auto cleanup(graph_context& context) { return cleanup(context, node_cb_seq); }
-      auto stop(graph_context& context) { return stop(context, node_cb_seq); }
+      auto cleanup() { return cleanup(node_cb_seq); }
+      auto stop() { return stop(node_cb_seq); }
 
    private:
       template<size_t ... I>
@@ -72,13 +72,13 @@ struct sub_graph final {
       }
 
       template<size_t ... I>
-      auto cleanup(graph_context& context, std::index_sequence<I...>) {
-         (std::get<I>(nodes_cb_).cleanup(context), ...);
+      auto cleanup(std::index_sequence<I...>) {
+         (std::get<I>(nodes_cb_).cleanup(), ...);
       }
 
       template<size_t ... I>
-      auto stop(graph_context& context, std::index_sequence<I...>) {
-         (std::get<I>(nodes_cb_).stop(context), ...);
+      auto stop(std::index_sequence<I...>) {
+         (std::get<I>(nodes_cb_).stop(), ...);
       }
 
 

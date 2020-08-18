@@ -24,7 +24,7 @@ struct root_node_cb  {
 
    nano_caf::actor_handle actor_handle_;
 
-   inline auto present() const -> bool { return running_; }
+   inline auto present() const -> bool { return present_; }
 
    auto start(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
       if(!running_) {
@@ -45,8 +45,8 @@ struct root_node_cb  {
       }
    }
 
-   auto get_handle() {
-      return actor_handle_;
+   auto get_handle() -> decltype(auto) {
+      return (actor_handle_);
    }
 
    auto update_ports(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
@@ -63,13 +63,14 @@ struct root_node_cb  {
 
 private:
    auto connect(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
-      GRAPH_EXPECT_TRUE(present());
+      GRAPH_EXPECT_TRUE(present_ && running_);
       auto result = context.send<subgraph_connect_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 
 protected:
    bool    running_{false};
+   bool    present_{true};
 };
 
 template<typename ... Ts>

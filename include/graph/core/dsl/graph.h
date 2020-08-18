@@ -19,31 +19,49 @@ private:
 public:
    inline auto build(graph_context& context) -> status_t {
       context.update_root_nodes(roots_.roots_);
-      return build(context, sequence);
+      return build_sub_graphs(context, sequence);
    }
-   inline auto start(graph_context& context) -> status_t {
-      GRAPH_EXPECT_SUCC(start(context, sequence));
-      return connect(context, ROOTS::sequence);
+
+   auto start(graph_context& context) -> status_t {
+      GRAPH_EXPECT_SUCC(start_sub_graphs(context, sequence));
+      GRAPH_EXPECT_SUCC(connect_sub_graphs(context, ROOTS::sequence));
+      cleanup_sub_graphs(sequence);
+      return status_t::Ok;
+   }
+
+   auto stop() {
+      stop_roots(ROOTS::sequence);
+      stop_sub_graphs(sequence);
+   }
+
+   template<size_t I>
+   inline auto get_root() -> decltype(auto) {
+      return (std::get<I>(roots_.roots_).get_handle());
    }
 
 private:
    template<size_t ... I>
-   auto build(graph_context& context, std::index_sequence<I...>) -> status_t {
+   auto build_sub_graphs(graph_context& context, std::index_sequence<I...>) -> status_t {
       status_t status = status_t::Ok;
       return (((status = std::get<I>(sub_graphs_).build(context)) == status_t::Ok) && ...) ?
              status_t::Ok : status;
    }
 
    template<size_t ... I>
-   auto start(graph_context& context, std::index_sequence<I...>) -> status_t {
+   auto start_sub_graphs(graph_context& context, std::index_sequence<I...>) -> status_t {
       status_t status = status_t::Ok;
       return (((status = std::get<I>(sub_graphs_).start(context)) == status_t::Ok) && ...) ?
              status_t::Ok : status;
    }
 
+   template<size_t ... I>
+   auto cleanup_sub_graphs(std::index_sequence<I...>) {
+      (std::get<I>(sub_graphs_).cleanup(),  ...);
+   }
+
    using roots = typename ROOTS::type;
    template<size_t ... I>
-   auto connect(graph_context& context, std::index_sequence<I...>) -> status_t {
+   auto connect_sub_graphs(graph_context& context, std::index_sequence<I...>) -> status_t {
       status_t status = status_t::Ok;
       return (((status = connect_by_root(context, std::get<I>(roots_.roots_), sequence)) == status_t::Ok) && ...) ?
              status_t::Ok : status;
@@ -60,6 +78,16 @@ private:
       }
 
       return status;
+   }
+
+   template<size_t ... I>
+   auto stop_sub_graphs(std::index_sequence<I...>) {
+      (std::get<I>(sub_graphs_).stop(),  ...);
+   }
+
+   template<size_t ... I>
+   auto stop_roots(std::index_sequence<I...>) {
+      (std::get<I>(roots_.roots_).stop(),  ...);
    }
 
 private:

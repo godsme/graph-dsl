@@ -25,7 +25,7 @@ struct subgraph_node_base {
    inline auto release() -> void { refs_--; }
    inline auto present() -> bool { return refs_ > 0; }
 
-   auto stop(graph_context& context) -> status_t {
+   auto stop() -> status_t {
       if(running_) {
          actor_handle_.send<nano_caf::exit_msg, nano_caf::message::urgent>(nano_caf::exit_reason::normal);
          actor_handle_.wait_for_exit();
@@ -36,9 +36,9 @@ struct subgraph_node_base {
       return status_t::Ok;
    }
 
-   auto cleanup(graph_context& context) -> status_t {
+   auto cleanup() -> status_t {
       if(!present()) {
-         return stop(context);
+         return stop();
       }
 
       return status_t::Ok;
@@ -101,10 +101,10 @@ public:
       auto start(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
          return status_t::Ok;
       }
-      auto cleanup(graph_context& context) -> status_t {
+      auto cleanup() -> status_t {
          return status_t::Ok;
       }
-      auto stop(graph_context& context) -> status_t {
+      auto stop() -> status_t {
          return status_t::Ok;
       }
 

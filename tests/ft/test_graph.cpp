@@ -306,57 +306,6 @@ namespace {
 
 using namespace std::chrono_literals;
 
-//int test_1() {
-//   nano_caf::actor_system actor_system;
-//   actor_system.start(2);
-//   using roots_type = GRAPH_DSL_NS::root_nodes<node_1, node_2>;
-//   roots_type roots;
-//
-//   GRAPH_DSL_NS::graph_context context{actor_system};
-//
-//   context.update_root_nodes(roots);
-//
-//   if(auto status = std::get<0>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-//   if(auto status = std::get<1>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-//
-//   graph_def::by_roots<roots_type> sub_graph;
-//   if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-//   if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-//   sub_graph.cleanup(context);
-//
-//   std::cout << actor_system.get_num_of_actors() << std::endl;
-//   std::cout.flush();
-//
-//   auto tid = std::thread([&]{
-//      for(int i = 0; i<100; i++) {
-//         auto msg = std::make_shared<const image_buf>();
-//         std::get<0>(roots).get_handle().send<image_buf_msg_1>(msg);
-//         std::this_thread::sleep_for(33ms);
-//         std::get<1>(roots).get_handle().send<image_buf_msg_2>(msg);
-//         std::this_thread::sleep_for(33ms);
-//      }
-//   });
-//
-////   for(int i=0; i<10; i++) {
-////      condition = !condition;
-////      std::this_thread::sleep_for(std::chrono::seconds {10});
-////      if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-////      if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-////      sub_graph.cleanup(context);
-////   }
-//
-//   tid.join();
-//
-//   std::get<0>(roots).stop();
-//   std::get<1>(roots).stop();
-//
-//   sub_graph.stop(context);
-//
-//   actor_system.shutdown();
-//
-//   return 0;
-//}
-
 int test_2() {
    nano_caf::actor_system actor_system;
    actor_system.start(2);
@@ -366,6 +315,28 @@ int test_2() {
 
    if(auto status = g.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
    if(auto status = g.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+
+   auto tid = std::thread([&]{
+      for(int i = 0; i<100; i++) {
+         auto msg = std::make_shared<const image_buf>();
+         if(auto status = g.get_root<0>().send<image_buf_msg_1>(msg); status != nano_caf::status_t::ok) {
+            std::cout << "0 send failed" << std::endl;
+         }
+         std::this_thread::sleep_for(33ms);
+         if(auto status = g.get_root<1>().send<image_buf_msg_2>(msg); status != nano_caf::status_t::ok) {
+            std::cout << "1 send failed" << std::endl;
+         } else {
+            std::cout << "1 send ok" << std::endl;
+         }
+         std::this_thread::sleep_for(33ms);
+      }
+   });
+
+   tid.join();
+
+   g.stop();
+
+   actor_system.shutdown();
 
    return 0;
 }
