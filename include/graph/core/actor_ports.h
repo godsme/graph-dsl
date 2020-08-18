@@ -39,8 +39,6 @@ struct root_actor_port {
 };
 
 using actor_ports = std::vector<actor_port>;
-using root_actor_ports = std::vector<root_actor_port>;
-
 using root_ports = std::map<port_id_t, actor_handle_set>;
 
 GRAPH_DSL_NS_END

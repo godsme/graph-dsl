@@ -32,16 +32,13 @@ struct graph_node final {
       constexpr static auto is_root = ROOT;
       using node_type = NODE;
       auto build(graph_context& context) -> status_t {
-         auto& this_node = node_index<NODE, NODES_CB>::get_node(context);
          // skip all nodes whose ref count is 0
          if constexpr (is_root) {
             if(!node_index<NODE, ROOTS_CB>::get_root_node(context).present()) { return status_t::Ok; }
             GRAPH_EXPECT_SUCC(build_ports(context, sequence));
-//            if(enabled(sequence)) { this_node.enable(); }
-//            else { this_node.disable(); }
             return status_t::Ok;
          } else{
-            if(!this_node.present()) { return status_t::Ok; }
+            if(!node_index<NODE, NODES_CB>::get_node(context).present()) { return status_t::Ok; }
             return build_ports(context, sequence);
          }
       }

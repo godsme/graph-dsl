@@ -149,8 +149,6 @@ namespace {
 
    TEST_CASE("graph_desc") {
       static_assert(boost::hana::tuple_t<
-         GRAPH_DSL_NS::node_trait<node_1, GRAPH_DSL_NS::node_category::Root>,
-         GRAPH_DSL_NS::node_trait<node_2, GRAPH_DSL_NS::node_category::Root>,
          GRAPH_DSL_NS::node_trait<node_5, GRAPH_DSL_NS::node_category::Intermediate>,
          GRAPH_DSL_NS::node_trait<node_3, GRAPH_DSL_NS::node_category::Intermediate>,
          GRAPH_DSL_NS::node_trait<node_8, GRAPH_DSL_NS::node_category::Leaf>,

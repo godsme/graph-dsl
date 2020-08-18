@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/15.
 //
 
-#ifndef GRAPH_GRAPH_ANALIZER_H
-#define GRAPH_GRAPH_ANALIZER_H
+#ifndef GRAPH_SUB_GRAPH_ANALIZER_H
+#define GRAPH_SUB_GRAPH_ANALIZER_H
 
 #include <graph/graph_ns.h>
 #include <boost/hana.hpp>
@@ -20,7 +20,7 @@ struct node_trait {
 };
 
 template<typename ... NODES>
-class graph_analizer final {
+class sub_graph_analizer final {
    constexpr static auto nodes_map = hana::make_tuple(
       hana::make_pair(hana::type_c<typename NODES::node_type>, NODES::direct_decedents)...);
 
@@ -88,7 +88,7 @@ class graph_analizer final {
       });
 
 public:
-   constexpr static auto all_sorted_nodes = hana::concat(root_tagged_nodes, hana::concat(sorted_tagged_intermediate_nodes, leaf_tagged_nodes));
+   constexpr static auto all_sorted_sub_graph_nodes = hana::concat(sorted_tagged_intermediate_nodes, leaf_tagged_nodes);
    constexpr static auto sorted_nodes_desc =
       hana::transform(sorted_non_leaf_nodes, [](auto elem){
          auto entry = hana::find_if(all_nodes_desc, [=](auto v){
@@ -102,4 +102,4 @@ public:
 
 GRAPH_DSL_NS_END
 
-#endif //GRAPH_GRAPH_ANALIZER_H
+#endif //GRAPH_SUB_GRAPH_ANALIZER_H

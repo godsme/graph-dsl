@@ -6,7 +6,7 @@
 #define GRAPH_SUB_GRAPH_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/graph_analizer.h>
+#include <graph/core/sub_graph_analizer.h>
 #include <graph/util/hana_tuple_trait.h>
 #include <boost/hana.hpp>
 
@@ -16,7 +16,7 @@ namespace hana = boost::hana;
 
 template<typename ... NODES>
 struct sub_graph final {
-   constexpr static auto all_sorted_nodes = graph_analizer<NODES...>::all_sorted_nodes;
+   constexpr static auto all_sorted_nodes = sub_graph_analizer<NODES...>::all_sorted_sub_graph_nodes;
 
    template<typename ROOTS_CB>
    struct by_roots {
@@ -29,7 +29,7 @@ struct sub_graph final {
       constexpr static auto node_cb_seq = std::make_index_sequence<std::tuple_size_v<nodes_cb>>{};
 
    private:
-      constexpr static auto sorted_nodes_desc = graph_analizer<NODES...>::sorted_nodes_desc;
+      constexpr static auto sorted_nodes_desc = sub_graph_analizer<NODES...>::sorted_nodes_desc;
       static_assert(hana::size(sorted_nodes_desc) == sizeof...(NODES));
 
       template<typename ... Ts>
