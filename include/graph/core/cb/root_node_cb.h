@@ -64,7 +64,7 @@ struct root_node_cb  {
 private:
    auto update_ports(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present_ && running_);
-      auto result = context.send<root_update_ports_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
+      auto result = context.send<root_ports_update_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 

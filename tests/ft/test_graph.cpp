@@ -102,7 +102,7 @@ struct root_actor : nano_caf::behavior_based_actor {
 
    nano_caf::behavior get_behavior() {
       return {
-         [this](graph_dsl::root_update_ports_msg_atom, std::shared_ptr<graph_dsl::root_ports> ports) {
+         [this](graph_dsl::root_ports_update_msg_atom, std::shared_ptr<graph_dsl::root_ports> ports) {
             ports_ = std::move(ports);
             std::cout << id_ << ": root ports updated" << std::endl;
          },
@@ -437,7 +437,7 @@ int test_2() {
 
    for(auto i=0; i<40; i++) {
       std::this_thread::sleep_for(5s);
-      
+
       node_condition = !node_condition;
 
       if((i > 0) && (i % 10) == 0) {
