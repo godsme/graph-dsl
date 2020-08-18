@@ -63,7 +63,7 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
    private:
       bool selected_;
       bool alive_;
-      typename SUB_GRAPH::template by_roots<ROOTS> subgraph_;
+      typename SUB_GRAPH::template instance_type<ROOTS> subgraph_;
    };
 };
 
