@@ -21,7 +21,11 @@ private:
 
 public:
    auto start(graph_context& context) -> status_t {
-      return start(context, sequence);
+      auto status = start(context, sequence);
+      if(status != status_t::Ok) {
+         stop(context, sequence);
+      }
+      return status;
    }
 
 private:
@@ -30,6 +34,11 @@ private:
       status_t status = status_t::Ok;
       return (((status = std::get<I>(roots_).build(context)) == status_t::Ok) && ...) ?
              status_t::Ok : status;
+   }
+
+   template<size_t ... I>
+   auto stop(graph_context& context, std::index_sequence<I...>) {
+      (std::get<I>(roots_).stop(context), ...);
    }
 
 private:

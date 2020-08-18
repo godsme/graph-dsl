@@ -28,6 +28,7 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
             return status_t::Ok;
          });
       }
+
    private:
       bool selected_;
       bool alive_;

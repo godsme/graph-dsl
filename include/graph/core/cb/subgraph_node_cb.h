@@ -46,6 +46,10 @@ struct subgraph_node_base {
       return status_t::Ok;
    }
 
+   inline auto enabled_as_root() -> bool {
+      return false;
+   }
+
 public:
    nano_caf::actor_handle actor_handle_{};
 
@@ -135,6 +139,10 @@ public:
       enabled = false;
    }
 
+   inline auto enabled_as_root() -> bool {
+      return enabled;
+   }
+
 private:
    bool enabled{false};
    bool connected{false};
@@ -156,6 +164,7 @@ public:
       }
       return status_t::Ok;
    }
+
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////

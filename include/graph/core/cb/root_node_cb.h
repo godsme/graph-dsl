@@ -67,7 +67,6 @@ protected:
    bool    running_{false};
 };
 
-
 template<typename ... Ts>
 using root_nodes = std::tuple<root_node_cb<Ts>...>;
 
