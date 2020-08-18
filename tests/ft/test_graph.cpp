@@ -73,10 +73,10 @@ struct leaf_actor : nano_caf::behavior_based_actor {
 
    nano_caf::behavior get_behavior() {
       return {
-         [this](image_buf_msg_1&) {
+         [this](const image_buf_msg_1&) {
             std::cout << node_id_ << ": leaf image buf 1 received : " << ++counter << std::endl;
          },
-         [this](image_buf_msg_2&) {
+         [this](const image_buf_msg_2&) {
             std::cout << node_id_ << ": leaf image buf 2 received : " << ++counter << std::endl;
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
@@ -342,17 +342,17 @@ struct port_12 {
    }
 };
 
-bool condition = false;
+bool node_condition = false;
 
 struct cond_1 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return condition;
+      return node_condition;
    }
 };
 
 struct cond_2 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return !condition;
+      return !node_condition;
    }
 };
 
@@ -422,12 +422,12 @@ int test_2() {
 
    auto tid = std::thread([&]{
       for(int i = 0; i<100; i++) {
-         auto msg = std::make_shared<const image_buf>();
-         if(auto status = g.get_root<0>().send<image_buf_msg_1>(msg); status != nano_caf::status_t::ok) {
+         auto msg = std::make_unique<const image_buf>();
+         if(auto status = g.get_root<0>().send<image_buf_msg_1>(std::move(msg)); status != nano_caf::status_t::ok) {
             std::cout << "0 send failed" << std::endl;
          }
          std::this_thread::sleep_for(1s);
-         if(auto status = g.get_root<1>().send<image_buf_msg_2>(msg); status != nano_caf::status_t::ok) {
+         if(auto status = g.get_root<1>().send<image_buf_msg_2>(std::move(msg)); status != nano_caf::status_t::ok) {
             std::cout << "1 send failed" << std::endl;
          }
 
@@ -437,7 +437,8 @@ int test_2() {
 
    for(auto i=0; i<40; i++) {
       std::this_thread::sleep_for(5s);
-      condition = !condition;
+      
+      node_condition = !node_condition;
 
       if((i > 0) && (i % 10) == 0) {
          sub_graph_switch = !sub_graph_switch;
