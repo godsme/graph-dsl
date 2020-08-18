@@ -29,6 +29,23 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
          });
       }
 
+      auto start(graph_context& context) -> status_t {
+         if(selected_) {
+            GRAPH_EXPECT_SUCC(subgraph_.start(context));
+            alive_ = true;
+         }
+         return status_t::Ok;
+      }
+
+      template <typename ROOT>
+      auto connect_root(graph_context& context, ROOT& root, root_ports& ports) -> status_t {
+         if(selected_) {
+            GRAPH_EXPECT_TRUE(alive_);
+            return subgraph_.connect_root(context, root, ports);
+         }
+
+         return status_t::Ok;
+      }
    private:
       bool selected_;
       bool alive_;

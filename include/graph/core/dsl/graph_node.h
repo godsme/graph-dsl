@@ -37,8 +37,8 @@ struct graph_node final {
          if constexpr (is_root) {
             if(!node_index<NODE, ROOTS_CB>::get_root_node(context).present()) { return status_t::Ok; }
             GRAPH_EXPECT_SUCC(build_ports(context, sequence));
-            if(enabled(sequence)) { this_node.enable(); }
-            else { this_node.disable(); }
+//            if(enabled(sequence)) { this_node.enable(); }
+//            else { this_node.disable(); }
             return status_t::Ok;
          } else{
             if(!this_node.present()) { return status_t::Ok; }
@@ -50,9 +50,12 @@ struct graph_node final {
          return collect_actor_ports(context, ports, sequence);
       }
 
-      auto collect_actor_ports(graph_context& context, root_actor_ports& ports) -> status_t {
+      auto collect_actor_ports(graph_context& context, root_ports& ports) -> status_t {
          if constexpr (is_root) {
-            return collect_actor_ports(context, ports, sequence);
+            if(enabled(sequence)){
+               return collect_actor_ports(context, ports, sequence);
+            }
+            return status_t::Ok;
          } else {
             return status_t::Failed;
          }
@@ -74,7 +77,7 @@ struct graph_node final {
       }
 
       template<size_t ... I>
-      auto collect_actor_ports(graph_context& context, root_actor_ports& ports, std::index_sequence<I...>) -> status_t {
+      auto collect_actor_ports(graph_context& context, root_ports& ports, std::index_sequence<I...>) -> status_t {
          status_t status = status_t::Ok;
          return (((status = std::get<I>(ports_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
                 status_t::Ok : status;

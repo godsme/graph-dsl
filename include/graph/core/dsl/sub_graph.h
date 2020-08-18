@@ -28,10 +28,28 @@ struct sub_graph final {
       constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};
       constexpr static auto node_cb_seq = std::make_index_sequence<std::tuple_size_v<nodes_cb>>{};
 
+   private:
+      constexpr static auto sorted_nodes_desc = graph_analizer<NODES...>::sorted_nodes_desc;
+      static_assert(hana::size(sorted_nodes_desc) == sizeof...(NODES));
+
+      template<typename ... Ts>
+      using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;
+      using nodes_links = hana_tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
+
+      template<typename T> struct desc_node_type { using type = typename T::node_type; };
    public:
       auto build(graph_context& context) -> status_t {
          context.switch_subgraph_context(nodes_cb_);
          return build(context, sequence);
+      }
+
+      template<typename ROOT>
+      auto connect_root(graph_context& context, ROOT& root, root_ports& ports) -> status_t {
+         constexpr auto Index = tuple_element_index_v<typename ROOT::node_type, nodes_links, desc_node_type>;
+         if constexpr (Index >= 0) {
+            return std::get<Index>(nodes_links_).collect_actor_ports(context, ports);
+         }
+         return status_t::Ok;
       }
 
       auto start(graph_context& context) -> status_t { return start(context, node_cb_seq); }
@@ -55,21 +73,14 @@ struct sub_graph final {
 
       template<size_t ... I>
       auto cleanup(graph_context& context, std::index_sequence<I...>) {
-         (std::get<I>(nodes_cb_).cleanup(context, nodes_links_), ...);
+         (std::get<I>(nodes_cb_).cleanup(context), ...);
       }
 
       template<size_t ... I>
       auto stop(graph_context& context, std::index_sequence<I...>) {
-         (std::get<I>(nodes_cb_).stop(context, nodes_links_), ...);
+         (std::get<I>(nodes_cb_).stop(context), ...);
       }
 
-   private:
-      constexpr static auto sorted_nodes_desc = graph_analizer<NODES...>::sorted_nodes_desc;
-      static_assert(hana::size(sorted_nodes_desc) == sizeof...(NODES));
-
-      template<typename ... Ts>
-      using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;
-      using nodes_links = hana_tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
 
    private:
       nodes_cb    nodes_cb_;

@@ -37,11 +37,9 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
          return status_t::Ok;
       }
 
-      auto collect_actor_port(graph_context& context, root_actor_ports& ports) -> status_t {
+      auto collect_actor_port(graph_context& context, root_ports& ports) -> status_t {
          if(down_stream_node_.enabled()) {
-            actor_handle_set handles;
-            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, handles));
-            ports.push_back({PORT::root_port_id, handles});
+            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, ports[PORT::root_port_id]));
          }
          return status_t::Ok;
       }

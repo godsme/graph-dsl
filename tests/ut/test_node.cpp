@@ -10,160 +10,39 @@
 #include <iostream>
 #include <map>
 #include <unordered_map>
+#include <graph/core/msgs/graph_msgs.h>
 
-struct image_buf {
-   char buf[1024];
-};
 
-CAF_def_message(image_buf_msg, (buf, std::shared_ptr<const image_buf>));
-
-struct node_5_actor : nano_caf::behavior_based_actor {
-   node_5_actor(std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) : ports_(std::move(ports)) {
-      std::cout << "intermediate created" << std::endl;
-   }
-   nano_caf::behavior get_behavior() {
-      return {
-         [&](const image_buf_msg& msg) {
-            std::cout << "1 image buf received" << std::endl;
-            forward(msg);
-         },
-
-         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
-      };
-   }
-
-   void forward(const image_buf_msg& msg) {
-      for(auto& port : *ports_) {
-         for(auto& handle : port.actor_handles_) {
-            nano_caf::actor_handle(handle).send<image_buf_msg>(msg);
-         }
-      }
-   }
-
-private:
-   std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports_;
-};
-
-struct node_8_actor : nano_caf::behavior_based_actor {
-   node_8_actor() {
-      std::cout << "leaf created" << std::endl;
-   }
-   nano_caf::behavior get_behavior() {
-      return {
-         [this](image_buf_msg) {
-            std::cout << "image buf received : " << ++counter << std::endl;
-         },
-
-         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
-      };
-   }
-
-   int counter{};
-};
-
-struct node_0_actor : nano_caf::behavior_based_actor {
-   node_0_actor() {
-      std::cout << "root created" << std::endl;
-   }
-   nano_caf::behavior get_behavior() {
-      return {
-         [this](const graph_dsl::subgraph_connect_msg& msg) {
-            std::cout << "subgraph_connect_msg" << std::endl;
-            for(auto& port : *msg.ports) {
-               for(auto& handle : port.handles) {
-                  ports_[port.port_id].push_back(std::move(handle));
-               }
-            }
-
-            send();
-         },
-         [this](image_buf_msg_atom, const std::shared_ptr<const image_buf>& buf) {
-            //std::cout << "msg" << std::endl;
-            send();
-         },
-         [](nano_caf::exit_msg_atom, nano_caf::exit_reason) {}
-      };
-   }
-
-   void send() {
-      for(auto& [port, handles] : ports_) {
-         for(auto handle : handles) {
-            auto msg = std::make_shared<const image_buf>();
-            if(handle.send<image_buf_msg>(msg) != nano_caf::status_t::ok) {
-               std::cout << "send failed" << std::endl;
-            }
-         }
-      }
-   }
-
-private:
-   std::unordered_map<GRAPH_DSL_NS::port_id_t, std::vector<nano_caf::actor_handle>> ports_{};
-};
 
 struct node_1 : graph_dsl::node_signature{
    constexpr static auto root_id = 0;
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_0_actor>(std::forward<Args>(args)...);
-   }
 };
 
 struct node_2 : graph_dsl::node_signature{
    constexpr static auto root_id = 1;
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_0_actor>(std::forward<Args>(args)...);
-   }
 };
 
 struct node_3 : graph_dsl::node_signature{
    constexpr static auto id = 3;
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_5_actor>(std::forward<Args>(args)...);
-   }
 };
 
 struct node_4 : graph_dsl::node_signature{
    constexpr static auto id = 4;
-
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
-   }
 };
 
 
 
 struct node_5 : graph_dsl::node_signature{
    constexpr static auto id = 5;
-
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_5_actor>(std::forward<Args>(args)...);
-   }
 };
 struct node_6 : graph_dsl::node_signature{
    constexpr static auto id = 6;
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
-   }
 };
 struct node_7 : graph_dsl::node_signature{
    constexpr static auto id = 7;
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
-   }
 };
 struct node_8 : graph_dsl::node_signature{
    constexpr static auto id = 8;
-
-   template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<node_8_actor>(std::forward<Args>(args)...);
-   }
 };
 
 struct port_1 {

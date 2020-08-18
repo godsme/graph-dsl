@@ -18,8 +18,6 @@
 
 GRAPH_DSL_NS_BEGIN
 
-struct graph_context;
-
 template<typename NODE>
 struct root_node_cb  {
    using node_type = NODE;
@@ -28,9 +26,9 @@ struct root_node_cb  {
 
    inline auto present() const -> bool { return running_; }
 
-   auto start(graph_context& context) -> status_t {
+   auto start(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
       if(!running_) {
-         actor_handle_ = NODE::spawn(context);
+         actor_handle_ = NODE::spawn(context, ports);
          GRAPH_EXPECT_TRUE(actor_handle_.exists());
          running_ = true;
       }
@@ -51,15 +49,22 @@ struct root_node_cb  {
       return actor_handle_;
    }
 
-   auto connect(nano_caf::actor_context& context, std::unique_ptr<root_actor_ports> ports) -> status_t {
-      GRAPH_EXPECT_TRUE(present());
-      auto result = context.send<subgraph_connect_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
-      return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
+   auto update_ports(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+      if(!running_) {
+         actor_handle_ = NODE::spawn(context, std::move(ports));
+         GRAPH_EXPECT_TRUE(actor_handle_.exists());
+         running_ = true;
+      } else {
+         GRAPH_EXPECT_SUCC(connect(context.get_actor_context(), std::move(ports)));
+      }
+
+      return status_t::Ok;
    }
 
-   auto disconnect(nano_caf::actor_context& context, std::unique_ptr<root_actor_ports> ports) -> status_t {
+private:
+   auto connect(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present());
-      auto result = context.send<subgraph_disconnect_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
+      auto result = context.send<subgraph_connect_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 

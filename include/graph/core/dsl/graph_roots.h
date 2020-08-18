@@ -13,8 +13,6 @@ GRAPH_DSL_NS_BEGIN
 template<typename ... NODES>
 struct graph_roots final {
    using type = root_nodes<NODES...>;
-
-private:
    constexpr static auto sequence = std::make_index_sequence<sizeof...(NODES)>{};
 
 public:
@@ -39,7 +37,7 @@ private:
       (std::get<I>(roots_).stop(context), ...);
    }
 
-private:
+public:
    type roots_;
 };
 

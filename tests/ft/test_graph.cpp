@@ -85,32 +85,21 @@ struct node_8_actor : nano_caf::behavior_based_actor {
 };
 
 struct node_0_actor : nano_caf::behavior_based_actor {
-   node_0_actor(int id) : id_(id) {
+   node_0_actor(int id, std::shared_ptr<graph_dsl::root_ports> ports)
+      : id_(id)
+      , ports_{std::move(ports)} {
       std::cout << id_ << ": root created" << std::endl;
    }
+
    ~node_0_actor() {
       std::cout << id_ << ": root destroyed" << std::endl;
    }
+
    nano_caf::behavior get_behavior() {
       return {
-         [this](const graph_dsl::subgraph_connect_msg& msg) {
+         [this](graph_dsl::subgraph_connect_msg_atom, std::shared_ptr<graph_dsl::root_ports> ports) {
+            ports_ = std::move(ports);
             std::cout << "subgraph_connect_msg" << std::endl;
-            for(auto& port : *msg.ports) {
-               for(auto& handle : port.handles) {
-                  ports_[port.port_id].push_back(std::move(handle));
-               }
-            }
-         },
-         [this](const graph_dsl::subgraph_disconnect_msg& msg) {
-            std::cout << "subgraph_disconnect_msg ----------- " << std::endl;
-            for(auto& port : *msg.ports) {
-               for(auto& handle : port.handles) {
-                  auto result = std::find(ports_[port.port_id].begin(), ports_[port.port_id].end(), handle);
-                  if(result != ports_[port.port_id].end()) {
-                     ports_[port.port_id].erase(result);
-                  }
-               }
-            }
          },
          [this](const image_buf_msg_1& msg) {
             forward(msg);
@@ -126,7 +115,7 @@ struct node_0_actor : nano_caf::behavior_based_actor {
 
    template<typename MSG>
    void forward(const MSG& msg) {
-      for(auto& [port, handles] : ports_) {
+      for(auto& [port, handles] : *ports_) {
          for(auto handle : handles) {
             if(handle.send<MSG>(msg) != nano_caf::status_t::ok) {
                std::cout << id_ << ": send failed" << std::endl;
@@ -136,7 +125,7 @@ struct node_0_actor : nano_caf::behavior_based_actor {
    }
 
 private:
-   std::unordered_map<GRAPH_DSL_NS::port_id_t, std::vector<nano_caf::actor_handle>> ports_{};
+   std::shared_ptr<graph_dsl::root_ports> ports_{};
    int id_;
 };
 
@@ -280,7 +269,7 @@ struct cond_2 {
 
 struct cond_3 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return !condition;
+      return true;
    }
 };
 
@@ -317,52 +306,71 @@ namespace {
 
 using namespace std::chrono_literals;
 
-int main() {
+//int test_1() {
+//   nano_caf::actor_system actor_system;
+//   actor_system.start(2);
+//   using roots_type = GRAPH_DSL_NS::root_nodes<node_1, node_2>;
+//   roots_type roots;
+//
+//   GRAPH_DSL_NS::graph_context context{actor_system};
+//
+//   context.update_root_nodes(roots);
+//
+//   if(auto status = std::get<0>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+//   if(auto status = std::get<1>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+//
+//   graph_def::by_roots<roots_type> sub_graph;
+//   if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+//   if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+//   sub_graph.cleanup(context);
+//
+//   std::cout << actor_system.get_num_of_actors() << std::endl;
+//   std::cout.flush();
+//
+//   auto tid = std::thread([&]{
+//      for(int i = 0; i<100; i++) {
+//         auto msg = std::make_shared<const image_buf>();
+//         std::get<0>(roots).get_handle().send<image_buf_msg_1>(msg);
+//         std::this_thread::sleep_for(33ms);
+//         std::get<1>(roots).get_handle().send<image_buf_msg_2>(msg);
+//         std::this_thread::sleep_for(33ms);
+//      }
+//   });
+//
+////   for(int i=0; i<10; i++) {
+////      condition = !condition;
+////      std::this_thread::sleep_for(std::chrono::seconds {10});
+////      if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+////      if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+////      sub_graph.cleanup(context);
+////   }
+//
+//   tid.join();
+//
+//   std::get<0>(roots).stop();
+//   std::get<1>(roots).stop();
+//
+//   sub_graph.stop(context);
+//
+//   actor_system.shutdown();
+//
+//   return 0;
+//}
+
+int test_2() {
    nano_caf::actor_system actor_system;
    actor_system.start(2);
-   using roots_type = GRAPH_DSL_NS::root_nodes<node_1, node_2>;
-   roots_type roots;
 
-   GRAPH_DSL_NS::graph_context context{actor_system, roots};
+   GRAPH_DSL_NS::graph_context context{actor_system};
+   graph g;
 
-   if(auto status = std::get<0>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-   if(auto status = std::get<1>(roots).start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-
-   graph_def::by_roots<roots_type> sub_graph;
-   if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-   if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-   sub_graph.cleanup(context);
-
-   std::cout << actor_system.get_num_of_actors() << std::endl;
-   std::cout.flush();
-
-   auto tid = std::thread([&]{
-      for(int i = 0; i<100; i++) {
-         auto msg = std::make_shared<const image_buf>();
-         std::get<0>(roots).get_handle().send<image_buf_msg_1>(msg);
-         std::this_thread::sleep_for(33ms);
-         std::get<1>(roots).get_handle().send<image_buf_msg_2>(msg);
-         std::this_thread::sleep_for(33ms);
-      }
-   });
-
-//   for(int i=0; i<10; i++) {
-//      condition = !condition;
-//      std::this_thread::sleep_for(std::chrono::seconds {10});
-//      if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-//      if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-//      sub_graph.cleanup(context);
-//   }
-
-   tid.join();
-
-   std::get<0>(roots).stop();
-   std::get<1>(roots).stop();
-
-   sub_graph.stop(context);
-
-   actor_system.shutdown();
+   if(auto status = g.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+   if(auto status = g.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
 
    return 0;
+}
+
+int main() {
+   return test_2();
 }
 
