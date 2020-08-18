@@ -13,6 +13,7 @@
 #include <tuple>
 #include <boost/hana.hpp>
 #include <graph/function/unique.h>
+#include <graph/function/tuple_foreach.h>
 #include <graph/core/cb/subgraph_node_cb.h>
 
 GRAPH_DSL_NS_BEGIN
@@ -25,80 +26,61 @@ struct graph_node final {
    using node_type = NODE;
    constexpr static auto direct_decedents =
       unique(hana::flatten(hana::make_tuple(graph_port<PORTS>::node_list...)));
-   constexpr static auto sequence = std::make_index_sequence<sizeof...(PORTS)>{};
 
-   template<typename ROOTS_CB, typename NODES_CB>
-   struct instance_type {
-      constexpr static auto is_root = ROOT;
+   template<typename NODES_CB, bool IS_ROOT>
+   struct instance_type_base {
+      constexpr static auto is_root = IS_ROOT;
       using node_type = NODE;
-      auto build(graph_context& context) -> status_t {
-         // clear all nodes whose ref count is 0
-         if constexpr (is_root) {
-            if(!node_index<NODE, ROOTS_CB>::get_root_node(context).present()) {
-               release_ports(context, sequence);
-            } else {
-               GRAPH_EXPECT_SUCC(build_ports(context, sequence));
-            }
-         } else{
-            if(!node_index<NODE, NODES_CB>::get_node(context).present()) {
-               release_ports(context, sequence);
-            } else {
-               GRAPH_EXPECT_SUCC(build_ports(context, sequence));
-            }
+   protected:
+      auto build_(graph_context &context, bool present) -> status_t {
+         if (present) {
+            GRAPH_EXPECT_SUCC(tuple_foreach(ports_, [&](auto &port) { return port.build(context); }));
+         } else {
+            tuple_foreach_void(ports_, [&](auto &port) { port.release(context); });
          }
          return status_t::Ok;
       }
 
-      auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
-         return collect_actor_ports(context, ports, sequence);
+      std::tuple<typename graph_port<PORTS>::template instance_type<NODES_CB> ...> ports_;
+   };
+
+   template<typename ROOTS_CB, typename NODES_CB, bool IS_ROOT>
+   struct instance_trait;
+
+   template<typename ROOTS_CB, typename NODES_CB>
+   struct instance_trait<ROOTS_CB, NODES_CB, true> : instance_type_base<NODES_CB, true> {
+      using self = instance_type_base<NODES_CB, true>;
+
+      auto build(graph_context& context) -> status_t {
+         return self::build_(context, node_index<NODE, ROOTS_CB>::get_root_node(context).present());
       }
 
       auto collect_actor_ports(graph_context& context, root_ports& ports) -> status_t {
-         if constexpr (is_root) {
-            if(enabled(sequence)){
-               return collect_actor_ports(context, ports, sequence);
-            }
+         if(!tuple_exists(self::ports_, [](auto& port) { return port.enabled(); })) {
             return status_t::Ok;
-         } else {
-            return status_t::Failed;
          }
+         return tuple_foreach(self::ports_, [&](auto& port) {
+            return port.collect_actor_port(context, ports);
+         });
       }
-
-   private:
-      template<size_t ... I>
-      auto build_ports(graph_context& context, std::index_sequence<I...>) -> status_t {
-         status_t status = status_t::Ok;
-         return (((status = std::get<I>(ports_).build(context)) == status_t::Ok) && ...) ?
-            status_t::Ok : status;
-      }
-
-      template<size_t ... I>
-      auto release_ports(graph_context& context, std::index_sequence<I...>) {
-         (std::get<I>(ports_).release(context), ...);
-      }
-
-      template<size_t ... I>
-      auto collect_actor_ports(graph_context& context, actor_ports& ports, std::index_sequence<I...>) -> status_t {
-         status_t status = status_t::Ok;
-         return (((status = std::get<I>(ports_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
-                status_t::Ok : status;
-      }
-
-      template<size_t ... I>
-      auto collect_actor_ports(graph_context& context, root_ports& ports, std::index_sequence<I...>) -> status_t {
-         status_t status = status_t::Ok;
-         return (((status = std::get<I>(ports_).collect_actor_port(context, ports)) == status_t::Ok) && ...) ?
-                status_t::Ok : status;
-      }
-
-      template<size_t ... I>
-      auto enabled(std::index_sequence<I...>) -> bool {
-         return (std::get<I>(ports_).enabled() || ...);
-      }
-
-   private:
-      std::tuple<typename graph_port<PORTS>::template instance_type<NODES_CB> ...> ports_;
    };
+
+   template<typename ROOTS_CB, typename NODES_CB>
+   struct instance_trait<ROOTS_CB, NODES_CB, false> : instance_type_base<NODES_CB, false> {
+      using self = instance_type_base<NODES_CB, false>;
+      auto build(graph_context& context) -> status_t {
+         return self::build_(context, node_index<NODE, NODES_CB>::get_node(context).present());
+      }
+
+      auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
+         return tuple_foreach(self::ports_, [&](auto& port) {
+            return port.collect_actor_port(context, ports);
+         });
+      }
+   };
+
+   template<typename ROOTS_CB, typename NODES_CB>
+   using instance_type = instance_trait<ROOTS_CB, NODES_CB, ROOT>;
 };
 
 GRAPH_DSL_NS_END
