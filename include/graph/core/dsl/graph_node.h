@@ -32,15 +32,21 @@ struct graph_node final {
       constexpr static auto is_root = ROOT;
       using node_type = NODE;
       auto build(graph_context& context) -> status_t {
-         // skip all nodes whose ref count is 0
+         // clear all nodes whose ref count is 0
          if constexpr (is_root) {
-            if(!node_index<NODE, ROOTS_CB>::get_root_node(context).present()) { return status_t::Ok; }
-            GRAPH_EXPECT_SUCC(build_ports(context, sequence));
-            return status_t::Ok;
+            if(!node_index<NODE, ROOTS_CB>::get_root_node(context).present()) {
+               release_ports(context, sequence);
+            } else {
+               GRAPH_EXPECT_SUCC(build_ports(context, sequence));
+            }
          } else{
-            if(!node_index<NODE, NODES_CB>::get_node(context).present()) { return status_t::Ok; }
-            return build_ports(context, sequence);
+            if(!node_index<NODE, NODES_CB>::get_node(context).present()) {
+               release_ports(context, sequence);
+            } else {
+               GRAPH_EXPECT_SUCC(build_ports(context, sequence));
+            }
          }
+         return status_t::Ok;
       }
 
       auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
@@ -64,6 +70,11 @@ struct graph_node final {
          status_t status = status_t::Ok;
          return (((status = std::get<I>(ports_).build(context)) == status_t::Ok) && ...) ?
             status_t::Ok : status;
+      }
+
+      template<size_t ... I>
+      auto release_ports(graph_context& context, std::index_sequence<I...>) {
+         (std::get<I>(ports_).release(context), ...);
       }
 
       template<size_t ... I>

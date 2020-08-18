@@ -38,7 +38,7 @@ struct subgraph_node_base {
    }
 
    auto cleanup() -> status_t {
-      if(!present()) {
+      if(refs_ == 0) {
          return stop();
       }
 

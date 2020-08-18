@@ -27,6 +27,10 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
          return down_stream_node_.build(context);
       }
 
+      inline auto release(graph_context& context) {
+         down_stream_node_.release(context);
+      }
+
       auto collect_actor_port(graph_context& context, actor_ports& ports) -> status_t {
          if(down_stream_node_.enabled()) {
             actor_handle_set handles;
