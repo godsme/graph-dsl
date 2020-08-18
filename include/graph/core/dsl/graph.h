@@ -8,6 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/core/dsl/sub_graph_selector.h>
 #include <graph/util/assertion.h>
+#include <graph/function/tuple_foreach.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -19,12 +20,23 @@ private:
 public:
    inline auto build(graph_context& context) -> status_t {
       context.update_root_nodes(roots_.roots_);
-      return build_sub_graphs(context, sequence);
+      return tuple_foreach(sub_graphs_, [&](auto& sub) {
+         return sub.build(context);
+      });
    }
 
    auto start(graph_context& context) -> status_t {
-      GRAPH_EXPECT_SUCC(start_sub_graphs(context, sequence));
-      GRAPH_EXPECT_SUCC(connect_sub_graphs(context, ROOTS::sequence));
+      GRAPH_EXPECT_SUCC(tuple_foreach(sub_graphs_, [&](auto& sub) {
+         return sub.start(context);
+      }));
+      GRAPH_EXPECT_SUCC(tuple_foreach(roots_.roots_, [&](auto& root) {
+         auto ports = std::make_unique<root_ports>();
+         auto status = tuple_foreach(sub_graphs_, [&](auto& sub) {
+            return sub.connect_root(context, root, *ports);
+         });
+         if(status != status_t::Ok) return status;
+         return root.update_ports(context, std::move(ports));
+      }));
       cleanup_sub_graphs(sequence);
       return status_t::Ok;
    }
@@ -40,19 +52,6 @@ public:
    }
 
 private:
-   template<size_t ... I>
-   auto build_sub_graphs(graph_context& context, std::index_sequence<I...>) -> status_t {
-      status_t status = status_t::Ok;
-      return (((status = std::get<I>(sub_graphs_).build(context)) == status_t::Ok) && ...) ?
-             status_t::Ok : status;
-   }
-
-   template<size_t ... I>
-   auto start_sub_graphs(graph_context& context, std::index_sequence<I...>) -> status_t {
-      status_t status = status_t::Ok;
-      return (((status = std::get<I>(sub_graphs_).start(context)) == status_t::Ok) && ...) ?
-             status_t::Ok : status;
-   }
 
    template<size_t ... I>
    auto cleanup_sub_graphs(std::index_sequence<I...>) {
@@ -60,25 +59,6 @@ private:
    }
 
    using roots = typename ROOTS::type;
-   template<size_t ... I>
-   auto connect_sub_graphs(graph_context& context, std::index_sequence<I...>) -> status_t {
-      status_t status = status_t::Ok;
-      return (((status = connect_by_root(context, std::get<I>(roots_.roots_), sequence)) == status_t::Ok) && ...) ?
-             status_t::Ok : status;
-   }
-
-   template<size_t ... I, typename ROOT>
-   auto connect_by_root(graph_context& context, ROOT& root, std::index_sequence<I...>) -> status_t {
-      status_t status = status_t::Ok;
-      auto ports = std::make_unique<root_ports>();
-      auto result = (((status = std::get<I>(sub_graphs_).connect_root(context, root, *ports)) == status_t::Ok) && ...);
-      if(result) {
-         GRAPH_EXPECT_SUCC(root.update_ports(context, std::move(ports)));
-         return status_t::Ok;
-      }
-
-      return status;
-   }
 
    template<size_t ... I>
    auto stop_sub_graphs(std::index_sequence<I...>) {

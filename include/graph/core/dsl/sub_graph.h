@@ -57,7 +57,7 @@ struct sub_graph final {
          context.switch_subgraph_context(nodes_cb_);
          return start(context, node_cb_seq);
       }
-      
+
       auto cleanup() { return cleanup(node_cb_seq); }
       auto stop() { return stop(node_cb_seq); }
 
