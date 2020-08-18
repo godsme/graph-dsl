@@ -196,6 +196,69 @@ struct node_8 : graph_dsl::node_signature{
    }
 };
 
+struct node_9 : graph_dsl::node_signature{
+   constexpr static auto id = 9;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   }
+};
+
+struct node_10 : graph_dsl::node_signature{
+   constexpr static auto id = 10;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   }
+};
+
+struct node_11: graph_dsl::node_signature{
+   constexpr static auto id = 11;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<intermediate_actor>(id, std::forward<Args>(args)...);
+   }
+};
+
+struct node_12 : graph_dsl::node_signature{
+   constexpr static auto id = 12;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   }
+};
+
+struct node_13 : graph_dsl::node_signature{
+   constexpr static auto id = 13;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   }
+};
+
+struct node_14 : graph_dsl::node_signature{
+   constexpr static auto id = 14;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   }
+};
+
+struct node_15 : graph_dsl::node_signature{
+   constexpr static auto id = 15;
+
+   template<typename ... Args>
+   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
+      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   }
+};
+
 struct port_1 {
    constexpr static graph_dsl::port_id_t root_port_id = 1;
    constexpr static graph_dsl::port_format format{};
@@ -256,6 +319,27 @@ struct port_9 {
    }
 };
 
+struct port_10 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+
+struct port_11 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+
+struct port_12 {
+   constexpr static graph_dsl::port_format format{};
+   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+      return format;
+   }
+};
+
 std::atomic<bool> condition = false;
 
 struct cond_1 {
@@ -284,7 +368,7 @@ struct cond_4 {
 
 namespace {
 
-   using graph_def = __sub_graph(
+   using sub_graph_1 = __sub_graph(
    __g_ROOT(node_1
               , __g_PORT(port_1) -> node_8
               , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_3)
@@ -301,9 +385,24 @@ namespace {
               , __g_PORT(port_9) -> node_7));
 
 
+   using sub_graph_2 = __sub_graph(
+      __g_ROOT(node_2
+         , __g_PORT(port_1) -> node_9),
+      __g_ROOT(node_2
+         , __g_PORT(port_1) -> node_10
+         , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_11)
+         , __g_PORT(port_3) -> __g_EITHER(cond_1, node_12, node_13)),
+      __g_NODE(node_11
+         , __g_PORT(port_10) -> node_12
+         , __g_PORT(port_11) -> __g_FORK(node_13, node_14)
+         , __g_PORT(port_12) -> node_15));
+
+
+
    using graph = __g_GRAPH(
       __g_ROOTS(node_1, node_2),
-      __g_WHEN(cond_3) -> graph_def);
+      __g_WHEN(cond_3) -> sub_graph_1,
+      __g_WHEN(cond_4) -> sub_graph_2);
 }
 
 

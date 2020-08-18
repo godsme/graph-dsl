@@ -45,6 +45,7 @@ struct sub_graph final {
 
       template<typename ROOT>
       auto connect_root(graph_context& context, ROOT& root, root_ports& ports) -> status_t {
+         context.switch_subgraph_context(nodes_cb_);
          constexpr auto Index = tuple_element_index_v<typename ROOT::node_type, nodes_links, desc_node_type>;
          if constexpr (Index >= 0) {
             return std::get<Index>(nodes_links_).collect_actor_ports(context, ports);
@@ -52,7 +53,11 @@ struct sub_graph final {
          return status_t::Ok;
       }
 
-      auto start(graph_context& context) -> status_t { return start(context, node_cb_seq); }
+      auto start(graph_context& context) -> status_t {
+         context.switch_subgraph_context(nodes_cb_);
+         return start(context, node_cb_seq);
+      }
+      
       auto cleanup() { return cleanup(node_cb_seq); }
       auto stop() { return stop(node_cb_seq); }
 
