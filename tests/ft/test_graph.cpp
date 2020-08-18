@@ -372,7 +372,7 @@ struct cond_4 {
 
 namespace {
 
-   using sub_graph_1 = __sub_graph(
+   using sub_graph_1 = __g_SUB_GRAPH(
       __g_ROOT( node_1
               , __g_PORT(port_1) -> node_8
               , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_3)
@@ -389,7 +389,7 @@ namespace {
               , __g_PORT(port_9) -> node_7));
 
 
-   using sub_graph_2 = __sub_graph(
+   using sub_graph_2 = __g_SUB_GRAPH(
       __g_ROOT( node_1
               , __g_PORT(port_1) -> node_9),
       __g_ROOT( node_2

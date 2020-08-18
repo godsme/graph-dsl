@@ -80,6 +80,6 @@ struct sub_graph final {
 
 GRAPH_DSL_NS_END
 
-#define __sub_graph(...) GRAPH_DSL_NS::sub_graph<__VA_ARGS__>
+#define __g_SUB_GRAPH(...) GRAPH_DSL_NS::sub_graph<__VA_ARGS__>
 
 #endif //GRAPH_SUB_GRAPH_H
