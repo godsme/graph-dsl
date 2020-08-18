@@ -6,9 +6,7 @@
 #define GRAPH_GRAPH_ROOTS_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/graph_analizer.h>
-#include <graph/util/hana_tuple_trait.h>
-#include <boost/hana.hpp>
+#include <graph/core/cb/root_node_cb.h>
 
 GRAPH_DSL_NS_BEGIN
 

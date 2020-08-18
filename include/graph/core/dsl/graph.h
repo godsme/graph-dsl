@@ -6,14 +6,9 @@
 #define GRAPH_GRAPH_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/graph_analizer.h>
-#include <graph/util/hana_tuple_trait.h>
-#include <boost/hana.hpp>
 #include <graph/core/dsl/sub_graph_selector.h>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 template<typename ROOTS, typename ... SUB_GRAPH_SELECTOR>
 struct graph final {
