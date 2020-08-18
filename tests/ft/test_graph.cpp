@@ -315,6 +315,7 @@ namespace {
 }
 
 
+using namespace std::chrono_literals;
 
 int main() {
    nano_caf::actor_system actor_system;
@@ -339,19 +340,19 @@ int main() {
       for(int i = 0; i<100; i++) {
          auto msg = std::make_shared<const image_buf>();
          std::get<0>(roots).get_handle().send<image_buf_msg_1>(msg);
-         std::this_thread::sleep_for(std::chrono::seconds {1});
+         std::this_thread::sleep_for(33ms);
          std::get<1>(roots).get_handle().send<image_buf_msg_2>(msg);
-         std::this_thread::sleep_for(std::chrono::seconds {1});
+         std::this_thread::sleep_for(33ms);
       }
    });
 
-   for(int i=0; i<10; i++) {
-      condition = !condition;
-      std::this_thread::sleep_for(std::chrono::seconds {10});
-      if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-      if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
-      sub_graph.cleanup(context);
-   }
+//   for(int i=0; i<10; i++) {
+//      condition = !condition;
+//      std::this_thread::sleep_for(std::chrono::seconds {10});
+//      if(auto status = sub_graph.build(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+//      if(auto status = sub_graph.start(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+//      sub_graph.cleanup(context);
+//   }
 
    tid.join();
 

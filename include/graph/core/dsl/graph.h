@@ -18,7 +18,10 @@ private:
 public:
    inline auto build(graph_context& context) -> status_t { return build(context, sequence); }
    inline auto start(graph_context& context) -> status_t {
-      return build(context, sequence);
+      GRAPH_SUCC_CALL(start(context, sequence));
+      // todo: collect ports downstream actor handlers
+      // todo: register the ports/handlers to different roots
+      return status_t::Ok;
    }
 
 private:
@@ -26,6 +29,13 @@ private:
    auto build(graph_context& context, std::index_sequence<I...>) -> status_t {
       status_t status = status_t::Ok;
       return (((status = std::get<I>(sub_graphs_).build(context)) == status_t::Ok) && ...) ?
+             status_t::Ok : status;
+   }
+
+   template<size_t ... I>
+   auto start(graph_context& context, std::index_sequence<I...>) -> status_t {
+      status_t status = status_t::Ok;
+      return (((status = std::get<I>(sub_graphs_).start(context)) == status_t::Ok) && ...) ?
              status_t::Ok : status;
    }
 
