@@ -35,8 +35,10 @@ struct down_stream_node_ref {
       }
 
       auto release(graph_context& context) {
-         node_index<NODE, TUPLE>::get_node(context).release();
-         enabled_ = false;
+         if(enabled_) {
+            node_index<NODE, TUPLE>::get_node(context).release();
+            enabled_ = false;
+         }
       }
 
       auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {

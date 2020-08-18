@@ -61,8 +61,16 @@ struct down_stream_either {
 
       auto release(graph_context& context) {
          switch(node_.index()) {
-            case 1: std::get<1>(node_).release(context); break;
-            case 2: std::get<2>(node_).release(context); break;
+            case 1: {
+               std::get<1>(node_).release(context);
+               node_ = std::monostate{};
+               break;
+            }
+            case 2: {
+               std::get<2>(node_).release(context);
+               node_ = std::monostate{};
+               break;
+            }
             default: break;
          }
       }
