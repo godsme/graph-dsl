@@ -45,7 +45,7 @@ add_executable(graph_ut
         tests/ut/test_hana.cpp
         tests/ut/test_node.cpp
         tests/ut/catch.cpp
-        ${graph_dsl} tests/ut/test_holo.cpp tests/ut/test_number_string.cpp tests/ut/test_interval.cpp)
+        ${graph_dsl} tests/ut/test_holo.cpp tests/ut/test_number_string.cpp tests/ut/test_interval.cpp tests/ut/test_device.cpp)
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp

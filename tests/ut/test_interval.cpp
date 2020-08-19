@@ -32,9 +32,9 @@ namespace {
 
    TEST_CASE("upper open interval") {
       REQUIRE(__CUB_interval( [2.0, 18.0} )::contains(2.0));
-      REQUIRE_FALSE(__CUB_interval( [2.0, 18.0} )::contains(18));
-      REQUIRE_FALSE(__CUB_interval( [2.0, 18.0} )::contains(1.999999999999));
-      REQUIRE_FALSE(__CUB_interval( [2.0, 18.0} )::contains(18.0000000000001));
+      REQUIRE_FALSE(__CUB_interval( [2.0, 18.0)::contains(18));
+      REQUIRE_FALSE(__CUB_interval( [2.0, 18.0)::contains(1.999999999999));
+      REQUIRE_FALSE(__CUB_interval( [2.0, 18.0)::contains(18.0000000000001));
    }
 
    TEST_CASE("both open interval") {
