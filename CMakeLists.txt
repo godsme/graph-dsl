@@ -10,6 +10,8 @@ include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/include"
 )
 
+
+
 set(graph_dsl
         include/graph/core/dsl/sub_graph.h
         include/graph/graph_ns.h
@@ -43,11 +45,11 @@ add_executable(graph_ut
         tests/ut/test_hana.cpp
         tests/ut/test_node.cpp
         tests/ut/catch.cpp
-        ${graph_dsl} tests/ut/test_holo.cpp)
+        ${graph_dsl} tests/ut/test_holo.cpp tests/ut/test_number_string.cpp)
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl} include/holo/holo_ns.h include/holo/types/type_c.h include/holo/types/tuple_t.h include/holo/algo/fold_left.h include/holo/algo/find_if.h include/holo/algo/transform.h include/holo/algo/filter.h include/graph/core/dsl/graph.h include/graph/core/dsl/sub_graph_selector.h include/graph/core/dsl/graph_roots.h include/graph/function/tuple_foreach.h)
+        ${graph_dsl} include/holo/holo_ns.h include/holo/types/type_c.h include/holo/types/tuple_t.h include/holo/algo/fold_left.h include/holo/algo/find_if.h include/holo/algo/transform.h include/holo/algo/filter.h include/graph/core/dsl/graph.h include/graph/core/dsl/sub_graph_selector.h include/graph/core/dsl/graph_roots.h include/graph/function/tuple_foreach.h include/graph/util/number_string.h)
 
 target_link_libraries(graph_ut
         ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
