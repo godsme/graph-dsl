@@ -39,10 +39,9 @@ struct root_node_cb  {
    auto stop() {
       if(!running_) return;
 
-      actor_handle_.exit(nano_caf::exit_reason::normal);
-      running_ = false;
-      actor_handle_.wait_for_exit();
+      actor_handle_.exit_and_wait();
       actor_handle_.release();
+      running_ = false;
    }
 
    auto get_handle() -> decltype(auto) {

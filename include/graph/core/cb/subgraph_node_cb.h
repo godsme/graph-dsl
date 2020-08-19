@@ -28,25 +28,17 @@ struct subgraph_node_base {
 
    auto stop() -> status_t {
       if(running_) {
-         actor_handle_.send<nano_caf::exit_msg, nano_caf::message::urgent>(nano_caf::exit_reason::normal);
-         actor_handle_.wait_for_exit();
-         actor_handle_.release();
          running_ = false;
+         auto result = actor_handle_.exit_and_wait();
+         GRAPH_EXPECT_TRUE(result.is_ok());
       }
 
       return status_t::Ok;
    }
 
    auto cleanup() -> status_t {
-      if(refs_ == 0) {
-         return stop();
-      }
-
+      if(refs_ == 0) { return stop(); }
       return status_t::Ok;
-   }
-
-   inline auto enabled_as_root() -> bool {
-      return false;
    }
 
    inline auto actor_handle() -> decltype(auto) {
@@ -95,7 +87,7 @@ private:
 public:
    template<typename NODE_DESC_TUPLE>
    auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
-      constexpr auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
+      constexpr static auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
       if(!self::present()) return status_t::Ok;
