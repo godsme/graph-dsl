@@ -4,6 +4,7 @@
 
 #include <catch.hpp>
 #include <graph/util/number_string.h>
+#include <iostream>
 
 namespace {
 
@@ -24,6 +25,5 @@ namespace {
       static_assert(__CUB_number_string(26.)::value == 26);
       static_assert(std::is_base_of_v<GRAPH_DSL_NS::num_s::number_string_signature, __CUB_number_string(123)>);
       static_assert(std::is_base_of_v<GRAPH_DSL_NS::num_s::number_string_signature, __CUB_number_string(1.23)>);
-      static_assert(std::is_base_of_v<GRAPH_DSL_NS::num_s::open_interval_signature, __CUB_number_string(open_i)>);
    }
 }

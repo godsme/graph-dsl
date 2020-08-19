@@ -404,8 +404,8 @@ namespace {
 
    using graph = __g_GRAPH(
       __g_ROOTS(node_1, node_2),
-      __g_WHEN(cond_3) -> sub_graph_1,
-      __g_WHEN(cond_4) -> sub_graph_2);
+      __g_IF(cond_3) -> sub_graph_1,
+      __g_IF(cond_4) -> sub_graph_2);
 }
 
 

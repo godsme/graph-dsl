@@ -61,14 +61,14 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
          return status_t::Ok;
       }
    private:
-      bool selected_;
-      bool alive_;
-      typename SUB_GRAPH::template instance_type<ROOTS> subgraph_;
+      typename SUB_GRAPH::template instance_type<ROOTS> subgraph_{};
+      bool selected_{false};
+      bool alive_{false};
    };
 };
 
 GRAPH_DSL_NS_END
 
-#define __g_WHEN(cond) auto(cond)
+#define __g_IF(cond) auto(cond)
 
 #endif //GRAPH_SUB_GRAPH_SELECTOR_H
