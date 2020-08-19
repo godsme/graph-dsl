@@ -99,7 +99,7 @@ public:
          self::running_ = true;
       } else {
          auto status = context.get_actor_context()
-            .send<subgraph_ports_update_msg>(self::actor_handle_, std::move(ports));
+            .send<subgraph_ports_update_msg, nano_caf::message::urgent>(self::actor_handle_, std::move(ports));
          if(status != nano_caf::status_t::ok) {
             return status_t::Failed;
          }

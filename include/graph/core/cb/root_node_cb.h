@@ -52,14 +52,14 @@ struct root_node_cb  {
          GRAPH_EXPECT_TRUE(actor_handle_.exists());
          running_ = true;
       } else {
-         GRAPH_EXPECT_SUCC(update_ports(context.get_actor_context(), std::move(ports)));
+         GRAPH_EXPECT_SUCC(update_ports_(context.get_actor_context(), std::move(ports)));
       }
 
       return status_t::Ok;
    }
 
 private:
-   auto update_ports(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+   auto update_ports_(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present_ && running_);
       auto result = context.send<root_ports_update_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
