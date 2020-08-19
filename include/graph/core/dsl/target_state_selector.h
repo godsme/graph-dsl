@@ -50,7 +50,7 @@ struct device_state {
 template<uint8_t SCENE>
 struct scene {
    template<typename DICT>
-   auto matches(const DICT& dict) -> bool {
+   static auto matches(const DICT& dict) -> bool {
       return dict.get_scene() == SCENE;
    }
 };
@@ -97,7 +97,7 @@ template<typename COND, typename STATE>
 struct target_state_entry<auto (COND) -> STATE> {
    constexpr static size_t Num_Of_Conditions = COND::Num_Of_Conditions;
    template<typename DICT>
-   inline static auto return_if_matches(const DICT& dict, device_info*& devices, size_t& size) -> bool {
+   inline static auto return_if_matches(const DICT& dict, const device_info*& devices, size_t& size) -> bool {
       if(COND::matches(dict)) {
          devices = STATE::Devices;
          size = STATE::Num_Of_Devices;
@@ -116,18 +116,16 @@ private:
       return decltype(l)::type::Num_Of_Conditions < decltype(r)::type::Num_Of_Conditions;
    });
 
+public:
    template<typename ... Entries>
-   struct sorted_entries {
+   struct entries {
       template<typename DICT>
-      static auto find(const DICT& dict, device_info*& devices, size_t& size) {
+      static auto find(const DICT& dict, const device_info*& devices, size_t& size) {
          return (Entries::return_if_matches(dict, devices, size) || ...);
       }
    };
 
-   using sorted_entries_t = hana_tuple_trait_t<decltype(Sorted_Entries), sorted_entries>;
-
-public:
-   using sorted_entries_t::find;
+   using sorted_entries = hana_tuple_trait_t<decltype(Sorted_Entries), entries>;
 };
 
 GRAPH_DSL_NS_END
