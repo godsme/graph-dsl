@@ -113,19 +113,19 @@ struct target_state_selector {
 private:
    constexpr static auto Sorted_Entries =
       hana::sort(hana::tuple_t<target_state_entry<ENTRIES>...>, [](auto l, auto r) {
-      return decltype(l)::type::Num_Of_Conditions < decltype(r)::type::Num_Of_Conditions;
+      return hana::size_c<decltype(l)::type::Num_Of_Conditions> > hana::size_c<decltype(r)::type::Num_Of_Conditions>;
    });
 
 public:
    template<typename ... Entries>
-   struct entries {
+   struct entries_type {
       template<typename DICT>
       static auto find(const DICT& dict, const device_info*& devices, size_t& size) {
          return (Entries::return_if_matches(dict, devices, size) || ...);
       }
    };
 
-   using sorted_entries = hana_tuple_trait_t<decltype(Sorted_Entries), entries>;
+   using sorted_entries = hana_tuple_trait_t<decltype(Sorted_Entries), entries_type>;
 };
 
 GRAPH_DSL_NS_END
