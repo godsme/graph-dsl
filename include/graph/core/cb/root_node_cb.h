@@ -38,9 +38,7 @@ struct root_node_cb  {
 
    auto stop() {
       if(!running_) return;
-
       actor_handle_.exit_and_wait();
-      actor_handle_.release();
       running_ = false;
    }
 
