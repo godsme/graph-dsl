@@ -97,10 +97,9 @@ template<typename COND, typename STATE>
 struct target_state_entry<auto (COND) -> STATE> {
    constexpr static size_t Num_Of_Conditions = COND::Num_Of_Conditions;
    template<typename DICT>
-   inline static auto return_if_matches(const DICT& dict, const device_info*& devices, size_t& size) -> bool {
+   inline static auto return_if_matches(const DICT& dict, std::pair<const device_info*, size_t>& result) -> bool {
       if(COND::matches(dict)) {
-         devices = STATE::Devices;
-         size = STATE::Num_Of_Devices;
+         result = std::make_pair(STATE::Devices, STATE::Num_Of_Devices);
          return true;
       }
       return false;
@@ -120,8 +119,8 @@ public:
    template<typename ... Entries>
    struct entries_type {
       template<typename DICT>
-      static auto find(const DICT& dict, const device_info*& devices, size_t& size) {
-         return (Entries::return_if_matches(dict, devices, size) || ...);
+      static auto find(const DICT& dict, std::pair<const device_info*, size_t>& result) {
+         return (Entries::return_if_matches(dict, result) || ...);
       }
    };
 
