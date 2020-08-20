@@ -36,23 +36,6 @@ struct state_transitions {
       [](auto const& elem) { return hana::first(elem) == hana::second(elem); });
    constexpr static auto All_Direct_Transitions =
       hana::make_tuple(hana::make_pair(hana::type_c<typename TRANS::from_state>, hana::type_c<typename TRANS::to_state>)...);
-
-   template<typename TRANSITION, typename REST>
-   constexpr static auto find_shortcut(TRANSITION const& transition, REST const& rest) {
-      auto parts = hana::partition(rest, [&](auto const& elem) {
-         using from_type = typename std::decay_t<decltype(hana::first(transition))>::type;
-         return std::decay_t<decltype(hana::first(elem))>::type::template equals<from_type>();
-      });
-      constexpr auto result = hana::find_if(hana::first(parts), [&](auto const& elem) {
-         using target = typename std::decay_t<decltype(hana::second(elem))>::type;
-         return std::decay_t<decltype(hana::second(transition))>::type::template equals<target>();
-      });
-      if constexpr (hana::is_nothing(result)) {
-         return hana::make_pair(false, parts);
-      } else {
-         return hana::make_pair(true, *result);
-      }
-   }
 };
 
 GRAPH_DSL_NS_END

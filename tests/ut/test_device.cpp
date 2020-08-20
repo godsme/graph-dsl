@@ -95,40 +95,10 @@ namespace {
       REQUIRE(device_info[1].is_preview);
    }
 
-   template<typename = void, typename ... TRANS>
-   struct state_transitions {
-   };
-
-//#define __StAtE_transform_2(empty, state1, arrow, state2, ...) , auto ( __g_STATE state1) arrow __g_STATE state2
-//#define __StAtE_transform(x) __StAtE_transform_2 x
-//#define __StAtE_each_transition(n, x) __StAtE_transform(x)
-//#define __state(...) , (__VA_ARGS__) ,
-//#define __state_transition_table(...) \
-//state_transitions<void __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__StAtE_each_transition, 0, __VA_ARGS__)>
-
-//using transitions =
-//__state_transition_table(
-//   (__state(device_0, __g_PREVIEW(device_1)) -> __state(__g_PREVIEW(device_2), device_1)),
-//   (__state(__g_PREVIEW(device_2), device_1) -> __state(device_0, __g_PREVIEW(device_1)))
-//   );
-
-   template<typename ... Ts> struct transition_trait;
-   template<typename FROM, typename TO1, typename ... TOs>
-   struct transition_trait<auto (FROM) -> TO1, TOs...> {
-      using from_state = FROM;
-      using to_state = GRAPH_DSL_NS::device_state<TO1, TOs...>;
-   };
-
-#define __graph_StAtE_transform_2(...)   auto ( GRAPH_DSL_NS::device_state<__VA_ARGS__> )
-#define __graph_StAtE_transform(...) transition_trait< __graph_StAtE_transform_2 __VA_ARGS__ >
-#define __graph_StAtE_each_transition(n, x) , __graph_StAtE_transform x
-#define __g_STATE_TRANSITIONS(...) \
-state_transitions<void __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__graph_StAtE_each_transition, 0, __VA_ARGS__)>
-
-using trans =
-__g_STATE_TRANSITIONS(
-   ((device_0, __g_PREVIEW(device_1)) -> __g_PREVIEW(device_2), device_1),
-   ((__g_PREVIEW(device_2), device_1) -> device_0, __g_PREVIEW(device_1))
-   );
-
+   TEST_CASE("device eq") {
+      static_assert(GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
+      static_assert(GRAPH_DSL_NS::device_state<device_2, __g_PREVIEW(device_1)>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
+      static_assert(!GRAPH_DSL_NS::device_state<device_1, device_2>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
+      static_assert(!GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1)>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
+   }
 }
