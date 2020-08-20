@@ -119,8 +119,10 @@ public:
    template<typename ... Entries>
    struct entries_type {
       template<typename DICT>
-      static auto find(const DICT& dict, std::pair<const device_info*, size_t>& result) {
-         return (Entries::return_if_matches(dict, result) || ...);
+      static auto find(const DICT& dict) -> std::pair<const device_info*, size_t> {
+         std::pair<const device_info*, size_t> result;
+         (Entries::return_if_matches(dict, result) || ...);
+         return result;
       }
    };
 

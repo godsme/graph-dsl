@@ -61,9 +61,7 @@ namespace {
       -> __g_STATE(device_2, __g_PREVIEW(device_1)));
 
    TEST_CASE("selector 1") {
-      std::pair<const GRAPH_DSL_NS::device_info*, size_t> result;
-      REQUIRE(selector::sorted_entries::find(dict{}, result));
-      const auto& [device_info, size] = result;
+      auto [device_info, size] = selector::sorted_entries::find(dict{});
       REQUIRE(device_info != nullptr);
       REQUIRE(size == 2);
       REQUIRE(device_info[0].device_id == 0);
@@ -75,9 +73,7 @@ namespace {
    TEST_CASE("selector 2") {
       dict dict2;
       dict2.condition_3 = 4;
-      std::pair<const GRAPH_DSL_NS::device_info*, size_t> result;
-      REQUIRE(selector::sorted_entries::find(dict2, result));
-      const auto& [device_info, size] = result;
+      auto [device_info, size] = selector::sorted_entries::find(dict2);
       REQUIRE(device_info != nullptr);
       REQUIRE(size == 2);
       REQUIRE(device_info[0].device_id == 2);
@@ -90,9 +86,7 @@ namespace {
       dict dict2;
       dict2.condition_2 = 6;
       dict2.condition_3 = 4;
-      std::pair<const GRAPH_DSL_NS::device_info*, size_t> result;
-      REQUIRE(selector::sorted_entries::find(dict2, result));
-      const auto& [device_info, size] = result;
+      auto [device_info, size] = selector::sorted_entries::find(dict2);
       REQUIRE(device_info != nullptr);
       REQUIRE(size == 2);
       REQUIRE(device_info[0].device_id == 0);
