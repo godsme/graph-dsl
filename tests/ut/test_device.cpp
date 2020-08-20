@@ -125,7 +125,7 @@ namespace {
 #define __g_STATE_TRANSITIONS(...) \
 state_transitions<void __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__graph_StAtE_each_transition, 0, __VA_ARGS__)>
 
-   using trans =
+using trans =
 __g_STATE_TRANSITIONS(
    ((device_0, __g_PREVIEW(device_1)) -> __g_PREVIEW(device_2), device_1),
    ((__g_PREVIEW(device_2), device_1) -> device_0, __g_PREVIEW(device_1))

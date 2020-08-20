@@ -19,7 +19,23 @@ namespace hana = boost::hana;
 struct device_info {
    const bool is_preview;
    const uint8_t device_id;
+
+   inline constexpr auto tie() const noexcept {
+      return std::tie(device_id, is_preview);
+   }
 };
+
+inline constexpr auto operator==(device_info const& lhs, device_info const& rhs) noexcept -> bool {
+   return lhs.tie() == rhs.tie();
+}
+
+inline constexpr auto operator!=(device_info const& lhs, device_info const& rhs) noexcept -> bool {
+   return !operator==(lhs, rhs);
+}
+
+inline constexpr auto operator<(device_info const& lhs, device_info const& rhs) noexcept -> bool {
+   return lhs.tie() < rhs.tie();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 template<typename DEVICE>
