@@ -70,8 +70,32 @@ struct device_state {
       };
    };
 
-   using sorted_devices = hana_tuple_trait_t<decltype(Sorted_Devices), devices_type>;
+   constexpr static auto Devices = hana_tuple_trait_t<decltype(Sorted_Devices), devices_type>::Devices;
+
+   template<typename DEVICE>
+   inline static constexpr auto content_equal() -> bool {
+      for(size_t i=0; i<Num_Of_Devices; i++) {
+         if (Devices[i] != DEVICE::Devices[i]) {
+            return false;
+         }
+      }
+      return true;
+   }
+
+   template<typename DEVICE>
+   inline static constexpr auto equals() noexcept {
+      if constexpr (Num_Of_Devices != DEVICE::Num_Of_Devices) {
+         return hana::integral_constant<bool, false>{};
+      } else {
+         if constexpr (content_equal<DEVICE>()) {
+            return hana::integral_constant<bool, true>{};
+         } else {
+            return hana::integral_constant<bool, false>{};
+         }
+      }
+   }
 };
+
 
 template<uint8_t SCENE>
 struct scene {
@@ -125,7 +149,7 @@ struct target_state_entry<auto (COND) -> STATE> {
    template<typename DICT>
    inline static auto return_if_matches(const DICT& dict, std::pair<const device_info*, size_t>& result) -> bool {
       if(COND::matches(dict)) {
-         result = std::make_pair(STATE::sorted_devices::Devices, STATE::Num_Of_Devices);
+         result = std::make_pair(STATE::Devices, STATE::Num_Of_Devices);
          return true;
       }
       return false;

@@ -22,11 +22,11 @@ namespace {
    TEST_CASE("devices") {
       static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Num_Of_Devices == 2);
 
-      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::sorted_devices::Devices[0].device_id == 0);
-      static_assert(!__g_STATE(device_0, __g_PREVIEW(device_1))::sorted_devices::Devices[0].is_preview);
+      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[0].device_id == 0);
+      static_assert(!__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[0].is_preview);
 
-      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::sorted_devices::Devices[1].device_id == 1);
-      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::sorted_devices::Devices[1].is_preview);
+      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[1].device_id == 1);
+      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[1].is_preview);
    }
 
    struct dict {
