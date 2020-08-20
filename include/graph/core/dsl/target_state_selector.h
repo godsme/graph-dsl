@@ -17,8 +17,8 @@ GRAPH_DSL_NS_BEGIN
 namespace hana = boost::hana;
 
 struct device_info {
-   bool is_preview;
-   uint8_t device_id;
+   const bool is_preview;
+   const uint8_t device_id;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,19 @@ struct device_trait<DEVICE, std::enable_if_t<DEVICE::Is_Preview>> : DEVICE {};
 template<typename ... DEVICEs>
 struct device_state {
    constexpr static size_t Num_Of_Devices = sizeof...(DEVICEs);
-   constexpr static device_info Devices[] = {
-      {device_trait<DEVICEs>::Is_Preview, device_trait<DEVICEs>::Device_Id}...
+   constexpr static auto Sorted_Devices =
+      hana::sort(hana::tuple_t<device_trait<DEVICEs>...>, [](auto l, auto r) {
+      return hana::char_c<decltype(l)::type::Device_Id> < hana::char_c<decltype(r)::type::Device_Id>;
+   });
+
+   template<typename ... Ts>
+   struct devices_type {
+      constexpr static device_info Devices[] = {
+         {Ts::Is_Preview, Ts::Device_Id}...
+      };
    };
+
+   using sorted_devices = hana_tuple_trait_t<decltype(Sorted_Devices), devices_type>;
 };
 
 template<uint8_t SCENE>
@@ -99,7 +109,7 @@ struct target_state_entry<auto (COND) -> STATE> {
    template<typename DICT>
    inline static auto return_if_matches(const DICT& dict, std::pair<const device_info*, size_t>& result) -> bool {
       if(COND::matches(dict)) {
-         result = std::make_pair(STATE::Devices, STATE::Num_Of_Devices);
+         result = std::make_pair(STATE::sorted_devices::Devices, STATE::Num_Of_Devices);
          return true;
       }
       return false;
@@ -132,7 +142,7 @@ public:
 GRAPH_DSL_NS_END
 
 #define __g_WHEN(...)           auto (GRAPH_DSL_NS::state_select_condition<__VA_ARGS__>)
-#define __g_SCENE(value)        GRAPH_DSL_NS::scene<value>
+#define __g_SCENE_MODE(value)   GRAPH_DSL_NS::scene<value>
 #define __g_COND_1(...)         GRAPH_DSL_NS::condition_1<__CUB_interval(__VA_ARGS__)>
 #define __g_COND_2(...)         GRAPH_DSL_NS::condition_2<__CUB_interval(__VA_ARGS__)>
 #define __g_COND_3(...)         GRAPH_DSL_NS::condition_3<__CUB_interval(__VA_ARGS__)>
