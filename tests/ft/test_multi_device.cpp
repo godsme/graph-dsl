@@ -485,7 +485,8 @@ struct environment {
    unsigned int condition_3{20};
 };
 
-int test_2() {
+
+int test_1() {
    nano_caf::actor_system actor_system;
    actor_system.start(2);
 
@@ -550,6 +551,6 @@ int test_2() {
 }
 
 int main() {
-   return test_2();
+   return test_1();
 }
 
