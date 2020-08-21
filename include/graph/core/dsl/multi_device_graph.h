@@ -36,9 +36,8 @@ struct multi_device_graph : private GRAPH {
             context.update_root_state(paths_.state[current_state_]);
             return GRAPH::refresh(context);
          }
-      } else {
-         return status_t::Ok;
       }
+      return status_t::Ok;
    }
 
    auto stop() {

@@ -379,7 +379,7 @@ struct cond_3 {
 
 struct cond_4 {
    auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
-      return !sub_graph_switch;
+      return sub_graph_switch;
    }
 };
 
@@ -500,28 +500,44 @@ int test_2() {
    }
 
    auto tid = std::thread([&]{
-      for(int i = 0; i<100; i++) {
+      auto duration = 33ms;
+      for(int i = 0; i<1000; i++) {
          auto msg = std::make_unique<const image_buf>();
-         if(auto status = g.get_root<0>().send<image_buf_msg_1>(std::move(msg)); status != nano_caf::status_t::ok) {
-            std::cout << "0 send failed" << std::endl;
-         }
-         std::this_thread::sleep_for(1s);
-         if(auto status = g.get_root<1>().send<image_buf_msg_2>(std::move(msg)); status != nano_caf::status_t::ok) {
-            std::cout << "1 send failed" << std::endl;
-         }
-
-         std::this_thread::sleep_for(1s);
+         g.get_root<0>().send<image_buf_msg_1>(std::move(msg));
+         std::this_thread::sleep_for(duration);
+         g.get_root<1>().send<image_buf_msg_2>(std::move(msg));
+         std::this_thread::sleep_for(duration);
+         g.get_root<2>().send<image_buf_msg_1>(std::move(msg));
+         std::this_thread::sleep_for(duration);
+         g.get_root<3>().send<image_buf_msg_2>(std::move(msg));
+         std::this_thread::sleep_for(duration);
       }
    });
 
+   env.condition_1 = 3.0;
+   env.condition_2 = 12;
+   env.condition_3 = 8;
+
+   bool env_changed = false;
    for(auto i=0; i<40; i++) {
+      if(g.on_switch_done(context) != GRAPH_DSL_NS::status_t::Ok) {
+         std::cout << "on_switch_done fail" << std::endl;
+      }
+
       std::this_thread::sleep_for(5s);
+
+      if(!env_changed) {
+         if(auto status = g.on_env_change(context, env); status != GRAPH_DSL_NS::status_t::Ok) {
+            std::cout << "on env change fail" << std::endl;
+            return -1;
+         }
+      }
 
       node_condition = !node_condition;
 
-      if((i > 0) && (i % 10) == 0) {
-         sub_graph_switch = !sub_graph_switch;
-      }
+//      if((i > 0) && (i % 10) == 0) {
+//         sub_graph_switch = !sub_graph_switch;
+//      }
 
       if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
    }
