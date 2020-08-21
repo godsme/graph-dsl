@@ -93,4 +93,19 @@ using trans_2 =
 
       static_assert(result == make_tuple(from, m1, m2, m3, m4, to));
    }
+
+   TEST_CASE("transition path") {
+      auto from = __g_STATE(device_2, __g_PREVIEW(device_1))::Root_State;
+      auto to   = __g_STATE(device_2, __g_PREVIEW(device_3))::Root_State;
+
+      auto result = trans_2::find(from, to);
+
+      REQUIRE(result.size == 6);
+      REQUIRE(result.state[0] == from);
+      REQUIRE(result.state[1] == __g_STATE(__g_PREVIEW(device_0), device_1)::Root_State);
+      REQUIRE(result.state[2] == __g_STATE(device_1, __g_PREVIEW(device_2))::Root_State);
+      REQUIRE(result.state[3] == __g_STATE(__g_PREVIEW(device_1), device_3)::Root_State);
+      REQUIRE(result.state[4] == __g_STATE(__g_PREVIEW(device_2), device_3)::Root_State);
+      REQUIRE(result.state[5] == to);
+   }
 }

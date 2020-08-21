@@ -67,6 +67,11 @@ public:
          return find_shortcut_(from, target, hana::first(parts), hana::second(parts));
       }
    }
+
+   template<typename TRANS_PAIR, typename REST>
+   constexpr static auto find_shortcut(TRANS_PAIR const& trans, REST const& rest) {
+      return find_shortcut(hana::first(trans), hana::second(trans), rest);
+   }
 };
 
 GRAPH_DSL_NS_END
