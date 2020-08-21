@@ -411,14 +411,36 @@ namespace {
 
 using namespace std::chrono_literals;
 
+GRAPH_DSL_NS::device_info devices[] = {
+   {
+      .device_id = 0,
+      .is_preview = true
+   },
+   {
+      .device_id = 1,
+      .is_preview = false
+   }
+};
+
+GRAPH_DSL_NS::root_state root_states {
+   .size = 2,
+   .device_info = devices
+};
+
 int test_2() {
    nano_caf::actor_system actor_system;
    actor_system.start(2);
 
    GRAPH_DSL_NS::graph_context context{actor_system};
+
+   context.update_root_state(root_states);
    graph g;
 
-   if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+
+   if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) {
+      std::cout << "refresh failed" << std::endl;
+      return -1;
+   }
 
    auto tid = std::thread([&]{
       for(int i = 0; i<100; i++) {

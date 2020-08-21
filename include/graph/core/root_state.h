@@ -15,6 +15,15 @@ GRAPH_DSL_NS_BEGIN
 struct root_state {
    device_info const* device_info{};
    size_t size{};
+
+   auto get_device_info(uint8_t device_id) const -> struct device_info const* {
+      for(size_t i=0; i<size; i++) {
+         if(device_info[i].device_id == device_id) {
+            return device_info + i;
+         }
+      }
+      return nullptr;
+   }
 };
 
 inline constexpr auto operator==(root_state const& lhs, root_state const& rhs) noexcept -> bool {

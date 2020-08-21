@@ -15,10 +15,14 @@ template<typename ... NODES>
 struct graph_roots final {
    using type = root_nodes<NODES...>;
 
-   auto start(graph_context& context) -> status_t {
-      auto status = tuple_foreach(roots_, [&](auto& root) { return root.start(context); });
-      if(status != status_t::Ok) { stop(); }
-      return status;
+   auto build(graph_context& context) -> status_t {
+      GRAPH_EXPECT_SUCC(tuple_foreach(roots_, [&](auto& root) { return root.build(context); }));
+      context.update_root_nodes(roots_);
+      return status_t::Ok;
+   }
+
+   auto cleanup() {
+      tuple_foreach_void(roots_, [&](auto& root) { root.cleanup(); });
    }
 
    auto stop() { tuple_foreach_void(roots_, [](auto& root){ root.stop(); }); }

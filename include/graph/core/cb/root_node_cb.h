@@ -22,14 +22,31 @@ template<typename NODE>
 struct root_node_cb  {
    using node_type = NODE;
 
-   nano_caf::actor_handle actor_handle_;
+   nano_caf::actor_handle actor_handle_{};
 
    inline auto present() const -> bool { return present_; }
 
-//   auto build(graph_context& context) -> status_t {
-//      auto const& state = context.get_root_state();
-//      if(state.)
-//   }
+   auto build(graph_context& context) -> status_t {
+      auto device_info = context.get_root_state().get_device_info(node_type::id);
+      present_ = (device_info != nullptr);
+      return status_t::Ok;
+   }
+
+   auto start(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+      if(present_ && !running_) {
+         actor_handle_ = NODE::spawn(context, std::move(ports));
+         GRAPH_EXPECT_TRUE(actor_handle_.exists());
+         running_ = true;
+      }
+
+      return status_t::Ok;
+   }
+
+   auto cleanup() {
+      if(!present_) {
+         stop();
+      }
+   }
 
    auto stop() {
       if(!running_) return;
@@ -42,10 +59,9 @@ struct root_node_cb  {
    }
 
    auto update_ports(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+      GRAPH_EXPECT_TRUE(present_);
       if(!running_) {
-         actor_handle_ = NODE::spawn(context, std::move(ports));
-         GRAPH_EXPECT_TRUE(actor_handle_.exists());
-         running_ = true;
+         GRAPH_EXPECT_SUCC(start(context, std::move(ports)));
       } else {
          GRAPH_EXPECT_SUCC(update_ports_(context.get_actor_context(), std::move(ports)));
       }

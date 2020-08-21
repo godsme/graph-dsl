@@ -56,27 +56,30 @@ struct state_select_condition {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-template<typename PAIR>
-struct target_state_entry;
+namespace detail {
+   template<typename PAIR>
+   struct target_state_entry;
 
-template<typename COND, typename STATE>
-struct target_state_entry<auto (COND) -> STATE> {
-   constexpr static size_t Num_Of_Conditions = COND::Num_Of_Conditions;
+   template<typename COND, typename STATE>
+   struct target_state_entry<auto (COND) -> STATE> {
+      constexpr static size_t Num_Of_Conditions = COND::Num_Of_Conditions;
 
-   template<typename ENV>
-   inline static auto return_if_matches(ENV const& env, root_state& result) -> bool {
-      if(!COND::matches(env)) return false;
-      result = STATE::Root_State;
-      return true;
-   }
-};
+      template<typename ENV>
+      inline static auto return_if_matches(ENV const& env, root_state& result) -> bool {
+         if(!COND::matches(env)) return false;
+         result = STATE::Root_State;
+         return true;
+      }
+   };
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 template<typename ... ENTRIES>
 struct target_state_selector {
 private:
    constexpr static auto Sorted_Entries =
-      hana::sort(hana::tuple_t<target_state_entry<ENTRIES>...>, [](auto l, auto r) {
+      hana::sort(hana::tuple_t<detail::target_state_entry<ENTRIES>...>, [](auto l, auto r) {
       return hana::size_c<decltype(l)::type::Num_Of_Conditions> > hana::size_c<decltype(r)::type::Num_Of_Conditions>;
    });
 

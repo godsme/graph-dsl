@@ -32,18 +32,20 @@ struct graph final {
 
 private:
    inline auto build(graph_context& context) -> status_t {
-      context.update_root_nodes(roots_.roots_);
+      GRAPH_EXPECT_SUCC(roots_.build(context));
       return tuple_foreach(sub_graphs_, [&](auto& sub) {
          return sub.build(context);
       });
    }
 
    auto start(graph_context& context) -> status_t {
+      roots_.cleanup();
       tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.cleanup(); });
       GRAPH_EXPECT_SUCC(tuple_foreach(sub_graphs_, [&](auto& sub) {
          return sub.start(context);
       }));
       GRAPH_EXPECT_SUCC(tuple_foreach(roots_.roots_, [&](auto& root) {
+         if(!root.present()) return status_t::Ok;
          auto ports = std::make_unique<root_ports>();
          auto status = tuple_foreach(sub_graphs_, [&](auto& sub) {
             return sub.connect_root(context, root, *ports);
