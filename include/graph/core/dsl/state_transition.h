@@ -15,14 +15,20 @@
 #include <nano-caf/util/macro_pp_size.h>
 #include <nano-caf/util/macro_struct.h>
 #include <nano-caf/util/macro_reflex_call.h>
+#include <optional>
 
 GRAPH_DSL_NS_BEGIN
 
 namespace hana = boost::hana;
 
 struct state_path {
-   root_state const* state;
-   size_t size;
+   root_state const* state{nullptr};
+   size_t size{0};
+
+   auto get_last() const noexcept -> std::optional<root_state> {
+      if(size == 0) return std::nullopt;
+      return state[size - 1];
+   }
 };
 
 template<typename ... Ts> struct transition_trait;

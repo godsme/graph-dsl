@@ -157,33 +157,33 @@ struct device_state {
 
 template<uint8_t SCENE>
 struct scene {
-   template<typename DICT>
-   static auto matches(const DICT& dict) -> bool {
-      return dict.get_scene() == SCENE;
+   template<typename ENV>
+   static auto matches(const ENV& env) -> bool {
+      return env.get_scene() == SCENE;
    }
 };
 
 template<typename INTERVAL>
 struct condition_1 {
-   template<typename DICT>
-   inline static auto matches(const DICT& dict) -> bool {
-      return INTERVAL::contains(dict.get_condition_1());
+   template<typename ENV>
+   inline static auto matches(ENV const& env) -> bool {
+      return INTERVAL::contains(env.get_condition_1());
    }
 };
 
 template<typename INTERVAL>
 struct condition_2 {
-   template<typename DICT>
-   inline static auto matches(const DICT& dict) -> bool {
-      return INTERVAL::contains(dict.get_condition_2());
+   template<typename ENV>
+   inline static auto matches(ENV const& env) -> bool {
+      return INTERVAL::contains(env.get_condition_2());
    }
 };
 
 template<typename INTERVAL>
 struct condition_3 {
-   template<typename DICT>
-   inline static auto matches(const DICT& dict) -> bool {
-      return INTERVAL::contains(dict.get_condition_3());
+   template<typename ENV>
+   inline static auto matches(ENV const& env) -> bool {
+      return INTERVAL::contains(env.get_condition_3());
    }
 };
 
@@ -191,9 +191,9 @@ struct condition_3 {
 template<typename ... CONDs>
 struct state_select_condition {
    constexpr static size_t Num_Of_Conditions = sizeof...(CONDs);
-   template<typename DICT>
-   inline static auto matches(const DICT& dict) -> bool {
-      return (CONDs::matches(dict) && ...);
+   template<typename ENV>
+   inline static auto matches(ENV const& env) -> bool {
+      return (CONDs::matches(env) && ...);
    }
 };
 
@@ -204,13 +204,12 @@ struct target_state_entry;
 template<typename COND, typename STATE>
 struct target_state_entry<auto (COND) -> STATE> {
    constexpr static size_t Num_Of_Conditions = COND::Num_Of_Conditions;
-   template<typename DICT>
-   inline static auto return_if_matches(const DICT& dict, root_state& result) -> bool {
-      if(COND::matches(dict)) {
-         result = STATE::Root_State;
-         return true;
-      }
-      return false;
+
+   template<typename ENV>
+   inline static auto return_if_matches(ENV const& env, root_state& result) -> bool {
+      if(!COND::matches(env)) return false;
+      result = STATE::Root_State;
+      return true;
    }
 };
 
@@ -224,17 +223,22 @@ private:
    });
 
 public:
-   template<typename ... Entries>
+   template<typename ... ALL_ENTRIES>
    struct entries_type {
-      template<typename DICT>
-      static auto find(const DICT& dict) {
+      template<typename ENV>
+      static auto find(const ENV& env) {
          root_state result;
-         (Entries::return_if_matches(dict, result) || ...);
+         (ALL_ENTRIES::return_if_matches(env, result) || ...);
          return result;
       }
    };
 
    using sorted_entries = hana_tuple_trait_t<decltype(Sorted_Entries), entries_type>;
+
+   template<typename ENV>
+   inline static auto find(ENV const& env) -> root_state {
+      return sorted_entries::find(env);
+   }
 };
 
 GRAPH_DSL_NS_END
