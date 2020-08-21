@@ -10,12 +10,13 @@
 
 GRAPH_DSL_NS_BEGIN
 
+// NODES: root_node_cb
 template<typename ... NODES>
 struct graph_roots final {
    using type = root_nodes<NODES...>;
 
    auto start(graph_context& context) -> status_t {
-      auto status = tuple_foreach(roots_, [&](auto& root) { return root.build(context); });
+      auto status = tuple_foreach(roots_, [&](auto& root) { return root.start(context); });
       if(status != status_t::Ok) { stop(); }
       return status;
    }

@@ -12,17 +12,41 @@
 
 GRAPH_DSL_NS_BEGIN
 
-template<typename GRAPH, typename MULTI_DEVICE>
+template<typename GRAPH, typename STATE_SELECTOR, typename STATE_TRANSITION>
 struct multi_device_graph : private GRAPH {
    using GRAPH::stop;
 
-   auto start(graph_context& context) -> status_t {
-      root_state init_state = MULTI_DEVICE::Init_State;
+   template<typename ENV>
+   auto on_env_change(graph_context& context, ENV const& env) -> status_t {
+      paths_ = multi_device_.get_transitions(env);
+
+      if(paths_.size > 0) {
+         current_state_ = paths_.size == 1 ? 0 : 1;
+         context.update_root_state(paths_.state[current_state_]);
+         return GRAPH::refresh(context);
+      } else {
+         current_state_ = 0;
+      }
+
       return status_t::Ok;
    }
 
+   auto on_switch_done(graph_context& context) -> status_t {
+      if(current_state_ < paths_.size) {
+         multi_device_.update_state(paths_.state[current_state_]);
+         if((++current_state_) < paths_.size) {
+            context.update_root_state(paths_.state[current_state_]);
+            return GRAPH::refresh(context);
+         }
+      } else {
+         return status_t::Ok;
+      }
+   }
+
 private:
-   MULTI_DEVICE multi_device_{};
+   multi_device<STATE_SELECTOR, STATE_TRANSITION> multi_device_{};
+   state_path paths_{};
+   size_t current_state_{0};
 };
 
 GRAPH_DSL_NS_END

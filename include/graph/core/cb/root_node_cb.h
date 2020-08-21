@@ -26,15 +26,10 @@ struct root_node_cb  {
 
    inline auto present() const -> bool { return present_; }
 
-   auto start(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
-      if(!running_) {
-         actor_handle_ = NODE::spawn(context, ports);
-         GRAPH_EXPECT_TRUE(actor_handle_.exists());
-         running_ = true;
-      }
-
-      return status_t::Ok;
-   }
+//   auto build(graph_context& context) -> status_t {
+//      auto const& state = context.get_root_state();
+//      if(state.)
+//   }
 
    auto stop() {
       if(!running_) return;

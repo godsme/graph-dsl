@@ -38,8 +38,8 @@ namespace {
 
       uint8_t scene{1};
       double condition_1{1.5};
-      unsigned int condition_2{4};
-      unsigned int condition_3{6};
+      unsigned int condition_2{20};
+      unsigned int condition_3{20};
    };
 
    using selector =
@@ -82,26 +82,36 @@ namespace {
 
    using init_state = __g_STATE(device_0, __g_PREVIEW(device_1));
 
-   GRAPH_DSL_NS::multi_device<init_state, selector, transitions> multi_device_instance;
+   GRAPH_DSL_NS::multi_device<selector, transitions> multi_device_instance;
 
    TEST_CASE("select a direct transition") {
       environment env{};
-      env.condition_3 = 15;
+
       auto result = multi_device_instance.get_transitions(env);
-      REQUIRE(result.size == 2);
-      REQUIRE(result.state[1] == __g_STATE(__g_PREVIEW(device_2), device_1)::Root_State);
+      REQUIRE(result.size == 1);
+      REQUIRE(result.state[0] == __g_STATE(device_0, __g_PREVIEW(device_1))::Root_State);
+      multi_device_instance.update_state(result.state[0]);
 
       WHEN("condition changed") {
-         env.condition_1 = 3.0;
-         env.condition_2 = 12;
-         env.condition_3 = 8;
-
+         env.condition_2 = 4;
          result = multi_device_instance.get_transitions(env);
-         REQUIRE(result.size == 4);
-         REQUIRE(result.state[0] == __g_STATE(__g_PREVIEW(device_2), device_1)::Root_State);
-         REQUIRE(result.state[1] == __g_STATE(__g_PREVIEW(device_1), device_3)::Root_State);
-         REQUIRE(result.state[2] == __g_STATE(__g_PREVIEW(device_2), device_3)::Root_State);
-         REQUIRE(result.state[3] == __g_STATE(device_2, __g_PREVIEW(device_3))::Root_State);
+         REQUIRE(result.size == 2);
+         REQUIRE(result.state[1] == __g_STATE(__g_PREVIEW(device_2), device_1)::Root_State);
+
+         multi_device_instance.update_state(result.state[1]);
+
+         WHEN("condition changed") {
+            env.condition_1 = 3.0;
+            env.condition_2 = 12;
+            env.condition_3 = 8;
+
+            result = multi_device_instance.get_transitions(env);
+            REQUIRE(result.size == 4);
+            REQUIRE(result.state[0] == __g_STATE(__g_PREVIEW(device_2), device_1)::Root_State);
+            REQUIRE(result.state[1] == __g_STATE(__g_PREVIEW(device_1), device_3)::Root_State);
+            REQUIRE(result.state[2] == __g_STATE(__g_PREVIEW(device_2), device_3)::Root_State);
+            REQUIRE(result.state[3] == __g_STATE(device_2, __g_PREVIEW(device_3))::Root_State);
+         }
       }
    }
 }

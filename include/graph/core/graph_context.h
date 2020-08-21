@@ -7,7 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <nano-caf/core/actor_system.h>
-#include <tuple>
+#include <graph/core/root_state.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -40,10 +40,19 @@ struct graph_context {
       return actor_context_;
    }
 
+   auto get_root_state() const -> decltype(auto) {
+      return (root_state_);
+   }
+
+   auto update_root_state(const root_state& state) {
+      root_state_ = state;
+   }
+
 private:
    void*                    roots_{};
    void*                    subgraph_nodes_{};
    nano_caf::actor_context& actor_context_;
+   root_state               root_state_{};
 };
 
 GRAPH_DSL_NS_END

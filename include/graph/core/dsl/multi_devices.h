@@ -11,26 +11,27 @@
 
 GRAPH_DSL_NS_BEGIN
 
-template<typename INIT_STATE, typename STATE_SELECTOR, typename STATE_TRANSITION>
+template<typename STATE_SELECTOR, typename STATE_TRANSITION>
 struct multi_device {
-   constexpr static root_state Init_State = INIT_STATE::Root_State;
-
    template<typename ENV>
    auto get_transitions(const ENV& env) -> state_path {
-      root_state target = STATE_SELECTOR::find(env);
-      if(target.size == 0) {
+      target_state_ = STATE_SELECTOR::find(env);
+      if(target_state_.size == 0) {
          return {};
-      } else {
-         state_path result = STATE_TRANSITION::find(state_, target);
-         if(result.size > 1) {
-            state_ = *result.get_last();
-         }
-         return result;
       }
+      if(state_.size == 0) {
+         return {.size = 1, .state = &target_state_ };
+      }
+      return STATE_TRANSITION::find(state_, target_state_);
+   }
+
+   auto update_state(root_state const& state) {
+      state_ = state;
    }
 
 private:
-   root_state state_{Init_State};
+   root_state state_{};
+   root_state target_state_{};
 };
 
 GRAPH_DSL_NS_END
