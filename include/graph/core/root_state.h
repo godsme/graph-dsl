@@ -24,6 +24,11 @@ struct root_state {
       }
       return nullptr;
    }
+
+   auto cleanup() {
+      device_info = nullptr;
+      size = 0;
+   }
 };
 
 inline constexpr auto operator==(root_state const& lhs, root_state const& rhs) noexcept -> bool {

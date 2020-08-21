@@ -49,11 +49,18 @@ add_executable(graph_ut
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl} include/holo/holo_ns.h include/holo/types/type_c.h include/holo/types/tuple_t.h include/holo/algo/fold_left.h include/holo/algo/find_if.h include/holo/algo/transform.h include/holo/algo/filter.h include/graph/core/dsl/graph.h include/graph/core/dsl/sub_graph_selector.h include/graph/core/dsl/graph_roots.h include/graph/function/tuple_foreach.h include/graph/util/number_string.h include/graph/core/dsl/target_state_selector.h include/graph/util/interval.h include/graph/core/dsl/state_transition.h include/graph/core/transition_shortcut_search.h include/graph/core/dsl/multi_devices.h include/graph/core/dsl/multi_device_graph.h include/graph/core/device_info.h include/graph/core/root_state.h include/graph/core/dsl/device_state.h)
+        ${graph_dsl})
+
+add_executable(graph_multi_device
+        ${graph_dsl}
+        tests/ft/test_multi_device.cpp)
 
 target_link_libraries(graph_ut
         ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
 
 target_link_libraries(graph_ft
+        ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
+
+target_link_libraries(graph_multi_device
         ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
 

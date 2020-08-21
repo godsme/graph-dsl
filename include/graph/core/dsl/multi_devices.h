@@ -29,6 +29,11 @@ struct multi_device {
       state_ = state;
    }
 
+   auto cleanup() {
+      state_.cleanup();
+      target_state_.cleanup();
+   }
+
 private:
    root_state state_{};
    root_state target_state_{};

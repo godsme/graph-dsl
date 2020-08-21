@@ -13,7 +13,7 @@
 GRAPH_DSL_NS_BEGIN
 
 template<typename ROOTS, typename ... SUB_GRAPH_SELECTOR>
-struct graph final {
+struct graph {
    auto refresh(graph_context& context) -> status_t {
       GRAPH_EXPECT_SUCC(build(context));
       GRAPH_EXPECT_SUCC(start(context));

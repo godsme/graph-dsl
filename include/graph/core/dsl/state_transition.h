@@ -29,6 +29,11 @@ struct state_path {
       if(size == 0) return std::nullopt;
       return state[size - 1];
    }
+
+   auto cleanup() {
+      state = nullptr;
+      size  = 0;
+   }
 };
 
 template<typename ... Ts> struct transition_trait;

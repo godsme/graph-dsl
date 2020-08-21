@@ -14,8 +14,6 @@ GRAPH_DSL_NS_BEGIN
 
 template<typename GRAPH, typename STATE_SELECTOR, typename STATE_TRANSITION>
 struct multi_device_graph : private GRAPH {
-   using GRAPH::stop;
-
    template<typename ENV>
    auto on_env_change(graph_context& context, ENV const& env) -> status_t {
       paths_ = multi_device_.get_transitions(env);
@@ -42,6 +40,16 @@ struct multi_device_graph : private GRAPH {
          return status_t::Ok;
       }
    }
+
+   auto stop() {
+      GRAPH::stop();
+      multi_device_.cleanup();
+      current_state_ = 0;
+      paths_.cleanup();
+   }
+
+   using GRAPH::get_root;
+   using GRAPH::refresh;
 
 private:
    multi_device<STATE_SELECTOR, STATE_TRANSITION> multi_device_{};
