@@ -403,7 +403,7 @@ namespace {
 
 
    using graph = __g_GRAPH(
-      __g_ROOTS(node_1, node_2),
+      (node_1, node_2),
       (cond_3) -> sub_graph_1,
       (cond_4) -> sub_graph_2);
 }

@@ -417,7 +417,7 @@ namespace {
               , (port_12) -> node_15));
 
    using graph = __g_GRAPH(
-      __g_ROOTS(root_0, root_1, root_2, root_3),
+      (root_0, root_1, root_2, root_3),
       (cond_3) -> sub_graph_1,
       (cond_4) -> sub_graph_2);
 }
@@ -427,28 +427,28 @@ using namespace std::chrono_literals;
 
 using selector =
 __g_STATE_SELECTOR(
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ))
+      (__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ))
    -> __g_STATE(root_0, __g_PREVIEW(root_1)),
 
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ), __g_COND_2(1, 5))
+      (__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ), __g_COND_2(1, 5))
    -> __g_STATE(__g_PREVIEW(root_2), root_1),
 
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [1.5, 2.0} ), __g_COND_2(1, 5), __g_COND_3(3, 5))
+      (__g_SCENE_MODE(1), __g_COND_1( [1.5, 2.0} ), __g_COND_2(1, 5), __g_COND_3(3, 5))
    -> __g_STATE(root_2, __g_PREVIEW(root_1)),
 
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [2.0, 3.0} ), __g_COND_2(1, 5), __g_COND_3(3, 5))
+      (__g_SCENE_MODE(1), __g_COND_1( [2.0, 3.0} ), __g_COND_2(1, 5), __g_COND_3(3, 5))
    -> __g_STATE(root_1, __g_PREVIEW(root_0)),
 
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [2.0, 3.0} ), __g_COND_2( [5, 10} ), __g_COND_3(3, 5))
+      (__g_SCENE_MODE(1), __g_COND_1( [2.0, 3.0} ), __g_COND_2( [5, 10} ), __g_COND_3(3, 5))
    -> __g_STATE(root_1, __g_PREVIEW(root_2)),
 
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [2.0, 3.0} ), __g_COND_2( [5, 10} ), __g_COND_3([5, 10}))
+      (__g_SCENE_MODE(1), __g_COND_1( [2.0, 3.0} ), __g_COND_2( [5, 10} ), __g_COND_3([5, 10}))
    -> __g_STATE(root_3, __g_PREVIEW(root_1)),
 
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [3.0, 4.0} ), __g_COND_2( [5, 10} ), __g_COND_3([5, 10}))
+      (__g_SCENE_MODE(1), __g_COND_1( [3.0, 4.0} ), __g_COND_2( [5, 10} ), __g_COND_3([5, 10}))
    -> __g_STATE(root_3, __g_PREVIEW(root_2)),
 
-      __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [3.0, 4.0} ), __g_COND_2( [10, 15} ), __g_COND_3([5, 10}))
+      (__g_SCENE_MODE(1), __g_COND_1( [3.0, 4.0} ), __g_COND_2( [10, 15} ), __g_COND_3([5, 10}))
    -> __g_STATE(root_2, __g_PREVIEW(root_3)));
 
 using transitions =

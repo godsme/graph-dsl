@@ -51,13 +51,13 @@ namespace {
 
    using selector =
       __g_STATE_SELECTOR(
-         __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ))
+         (__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ))
       -> __g_STATE(device_0, __g_PREVIEW(device_1)),
 
-         __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ), __g_COND_2(1, 5))
+         (__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ), __g_COND_2(1, 5))
       -> __g_STATE(__g_PREVIEW(device_0), device_1),
 
-         __g_WHEN(__g_SCENE_MODE(1), __g_COND_1( [1.5, 2.0} ), __g_COND_2(1, 5), __g_COND_3(3, 5))
+         (__g_SCENE_MODE(1), __g_COND_1( [1.5, 2.0} ), __g_COND_2(1, 5), __g_COND_3(3, 5))
       -> __g_STATE(device_2, __g_PREVIEW(device_1)));
 
    TEST_CASE("selector 1") {

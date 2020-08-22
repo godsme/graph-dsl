@@ -69,8 +69,4 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
 
 GRAPH_DSL_NS_END
 
-
-
-#define __g_IF(cond) auto(cond)
-
 #endif //GRAPH_SUB_GRAPH_SELECTOR_H
