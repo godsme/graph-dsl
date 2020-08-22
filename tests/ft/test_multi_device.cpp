@@ -387,39 +387,39 @@ namespace {
 
    using sub_graph_1 = __g_SUB_GRAPH(
       __g_ROOT( root_0
-         , __g_PORT(port_1) -> node_8
-         , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_6)
-         , __g_PORT(port_3) -> __g_EITHER(cond_1, node_8, node_4)
-         , __g_PORT(port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
+              , (port_1) -> node_8
+              , (port_2) -> __g_MAYBE(cond_2, node_6)
+              , (port_3) -> __g_EITHER(cond_1, node_8, node_4)
+              , (port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
       __g_ROOT( root_1
-         , __g_PORT(port_1) -> node_7),
+              , (port_1) -> node_7),
       __g_NODE( node_5
-         , __g_PORT(port_5) -> node_8
-         , __g_PORT(port_6) -> __g_FORK(node_4, __g_MAYBE(cond_2, node_8))),
+              , (port_5) -> node_8
+              , (port_6) -> __g_FORK(node_4, __g_MAYBE(cond_2, node_8))),
       __g_NODE( node_6
-         , __g_PORT(port_7) -> node_4
-         , __g_PORT(port_8) -> __g_FORK(node_8, node_9)
-         , __g_PORT(port_9) -> node_7));
+              , (port_7) -> node_4
+              , (port_8) -> __g_FORK(node_8, node_9)
+              , (port_9) -> node_7));
 
 
    using sub_graph_2 = __g_SUB_GRAPH(
       __g_ROOT( root_1
-         , __g_PORT(port_1) -> node_9),
+              , (port_1) -> node_9),
       __g_ROOT( root_2
-         , __g_PORT(port_1) -> node_10
-         , __g_PORT(port_2) -> __g_MAYBE(cond_2, node_11)
-         , __g_PORT(port_3) -> __g_EITHER(cond_1, node_12, node_13)),
+              , (port_1) -> node_10
+              , (port_2) -> __g_MAYBE(cond_2, node_11)
+              , (port_3) -> __g_EITHER(cond_1, node_12, node_13)),
       __g_ROOT( root_3
-         , __g_PORT(port_1) -> node_12),
-      __g_NODE(node_11
-         , __g_PORT(port_10) -> node_12
-         , __g_PORT(port_11) -> __g_FORK(node_13, node_14)
-         , __g_PORT(port_12) -> node_15));
+              , (port_1) -> node_12),
+      __g_NODE( node_11
+              , (port_10) -> node_12
+              , (port_11) -> __g_FORK(node_13, node_14)
+              , (port_12) -> node_15));
 
    using graph = __g_GRAPH(
       __g_ROOTS(root_0, root_1, root_2, root_3),
-      __g_IF(cond_3) -> sub_graph_1,
-      __g_IF(cond_4) -> sub_graph_2);
+      (cond_3) -> sub_graph_1,
+      (cond_4) -> sub_graph_2);
 }
 
 

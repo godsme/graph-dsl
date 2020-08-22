@@ -87,6 +87,6 @@ struct down_stream_trait<down_stream_fork<NODEs_LIKE...>, void> {
 
 GRAPH_DSL_NS_END
 
-#define __g_FORK(...) GRAPH_DSL_NS::down_stream_fork<__VA_ARGS__>
+#define __g_FORK(...) std::decay_t<decltype(std::declval<GRAPH_DSL_NS::down_stream_fork<__VA_ARGS__>>())>
 
 #endif //GRAPH_DOWN_STREAM_FORK_H

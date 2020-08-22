@@ -10,6 +10,10 @@
 #include <graph/util/assertion.h>
 #include <graph/core/graph_context.h>
 #include <graph/core/dsl/graph_port.h>
+#include <nano-caf/util/macro_basic.h>
+#include <nano-caf/util/macro_pp_size.h>
+#include <nano-caf/util/macro_struct.h>
+#include <nano-caf/util/macro_reflex_call.h>
 #include <tuple>
 #include <boost/hana.hpp>
 #include <graph/function/unique.h>
@@ -85,7 +89,12 @@ struct graph_node final {
 
 GRAPH_DSL_NS_END
 
-#define __g_NODE(...) GRAPH_DSL_NS::graph_node<false, __VA_ARGS__>
-#define __g_ROOT(...) GRAPH_DSL_NS::graph_node<true,  __VA_ARGS__>
+#define __gRaPh_port(...) auto (__VA_ARGS__)
+#define __gRaPh_each_link(n, x) , __gRaPh_port x
+#define __gRaPh_links(node, ...) \
+node __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__gRaPh_each_link, 0, __VA_ARGS__)
+
+#define __g_NODE(...) GRAPH_DSL_NS::graph_node<false, __gRaPh_links(__VA_ARGS__)>
+#define __g_ROOT(...) GRAPH_DSL_NS::graph_node<true,  __gRaPh_links(__VA_ARGS__)>
 
 #endif //GRAPH_SUBGRAPH_NODE_CB_H

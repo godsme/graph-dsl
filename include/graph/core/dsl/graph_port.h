@@ -57,6 +57,4 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
 
 GRAPH_DSL_NS_END
 
-#define __g_PORT(name) auto (name)
-
 #endif //GRAPH_GRAPH_PORT_H

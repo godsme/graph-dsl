@@ -99,6 +99,6 @@ struct down_stream_trait<down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>, voi
 
 GRAPH_DSL_NS_END
 
-#define __g_EITHER(...) GRAPH_DSL_NS::down_stream_either<__VA_ARGS__>
+#define __g_EITHER(...) std::decay_t<decltype(std::declval<GRAPH_DSL_NS::down_stream_either<__VA_ARGS__>>())>
 
 #endif //GRAPH_DOWN_STREAM_EITHER_H

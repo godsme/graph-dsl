@@ -75,6 +75,6 @@ struct down_stream_trait<down_stream_maybe<COND, NODE_LIKE>, void> {
 
 GRAPH_DSL_NS_END
 
-#define __g_MAYBE(...) GRAPH_DSL_NS::down_stream_maybe<__VA_ARGS__>
+#define __g_MAYBE(...) std::decay_t<decltype(std::declval<GRAPH_DSL_NS::down_stream_maybe<__VA_ARGS__>>())>
 
 #endif //GRAPH_DOWN_STREAM_MAYBE_H

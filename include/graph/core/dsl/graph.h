@@ -68,6 +68,12 @@ private:
 
 GRAPH_DSL_NS_END
 
-#define __g_GRAPH(...) GRAPH_DSL_NS::graph<__VA_ARGS__>
+#define __sUb_gRaPh_condition(...) auto (__VA_ARGS__)
+#define __sUb_gRaPh_each_condition(n, x) , __sUb_gRaPh_condition x
+#define __sUb_gRaPh_conditions(roots, ...) \
+roots __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__sUb_gRaPh_each_condition, 0, __VA_ARGS__)
+
+#define __g_GRAPH(...) GRAPH_DSL_NS::graph<__sUb_gRaPh_conditions(__VA_ARGS__)>
+
 
 #endif //GRAPH_GRAPH_H
