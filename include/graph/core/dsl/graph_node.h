@@ -89,8 +89,7 @@ struct graph_node final {
 
 GRAPH_DSL_NS_END
 
-#define __gRaPh_port(...) auto (__VA_ARGS__)
-#define __gRaPh_each_link(n, x) , __gRaPh_port x
+#define __gRaPh_each_link(n, x) , auto x
 #define __gRaPh_links(node, ...) \
 node __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__gRaPh_each_link, 0, __VA_ARGS__)
 
