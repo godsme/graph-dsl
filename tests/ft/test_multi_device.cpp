@@ -493,7 +493,7 @@ struct hardware_actor : nano_caf::actor {
       : graph_{graph}, which_msg_{which} {}
 
    auto on_init() -> void override {
-      every(33ms, [this]{
+      repeat(33ms, [this]{
          auto msg = std::make_unique<const image_buf>();
          if(which_msg_) {
             graph_.get_root<0>().send<image_buf_msg_1>(std::move(msg));
@@ -586,7 +586,7 @@ struct user_actor : nano_caf::actor {
       std::default_random_engine regen{r()};
       std::uniform_int_distribution<size_t> uniform(0, 10);
 
-      after(nano_caf::duration{uniform(regen), nano_caf::timer_unit::seconds}, [this]{
+      after(std::chrono::seconds(uniform(regen)), [this]{
          environment env;
          std::random_device r;
          std::default_random_engine regen{r()};
@@ -603,9 +603,9 @@ private:
    nano_caf::actor_handle session_;
 };
 
-int test_1() {
+int main() {
    nano_caf::actor_system system;
-   system.start(2);
+   system.start(4);
 
    environment env;
 
@@ -634,9 +634,5 @@ int test_1() {
    system.shutdown();
 
    return 0;
-}
-
-int main() {
-   return test_1();
 }
 
