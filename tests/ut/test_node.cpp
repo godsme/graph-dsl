@@ -14,11 +14,11 @@
 
 
 
-struct node_1 : graph_dsl::node_signature{
+struct node_1 : graph_dsl::root_signature{
    constexpr static auto root_id = 0;
 };
 
-struct node_2 : graph_dsl::node_signature{
+struct node_2 : graph_dsl::root_signature{
    constexpr static auto root_id = 1;
 };
 
@@ -118,24 +118,24 @@ struct cond_2 {
 namespace {
 
    using root_node =
-   __g_ROOT(node_1
+   __g_NODE(node_1
          , (port_1) -> node_8
          , (port_2) -> __g_MAYBE(cond_2, node_3)
          , (port_3) -> __g_EITHER(cond_1, node_8, node_3)
          , (port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8)));
 
    using grap_def = __g_SUB_GRAPH(
-   __g_ROOT(node_1
+   ( node_1
          , (port_1) -> node_8
          , (port_2) -> __g_MAYBE(cond_2, node_3)
          , (port_3) -> __g_EITHER(cond_1, node_8, node_3)
          , (port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
-   __g_ROOT(node_2
+   ( node_2
          , (port_1) -> node_7 ),
-   __g_NODE(node_5
+   ( node_5
          , (port_5) -> node_8
          , (port_6) -> __g_FORK(node_4, __g_MAYBE(cond_2, node_3))),
-   __g_NODE(node_3
+   ( node_3
          , (port_7) -> node_4
          , (port_8) -> __g_FORK(node_8, node_6)
          , (port_9) -> node_7));

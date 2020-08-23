@@ -135,7 +135,7 @@ private:
    int id_;
 };
 
-struct root_0 : graph_dsl::node_signature{
+struct root_0 : graph_dsl::root_signature{
    constexpr static auto Device_Id = 0;
    constexpr static auto id = 0;
    template<typename ... Args>
@@ -144,7 +144,7 @@ struct root_0 : graph_dsl::node_signature{
    }
 };
 
-struct root_1 : graph_dsl::node_signature{
+struct root_1 : graph_dsl::root_signature {
    constexpr static auto Device_Id = 1;
    constexpr static auto id = 1;
    template<typename ... Args>
@@ -153,7 +153,7 @@ struct root_1 : graph_dsl::node_signature{
    }
 };
 
-struct root_2 : graph_dsl::node_signature{
+struct root_2 : graph_dsl::root_signature {
    constexpr static auto Device_Id = 2;
    constexpr static auto id = 2;
    template<typename ... Args>
@@ -162,7 +162,7 @@ struct root_2 : graph_dsl::node_signature{
    }
 };
 
-struct root_3 : graph_dsl::node_signature{
+struct root_3 : graph_dsl::root_signature {
    constexpr static auto Device_Id = 3;
    constexpr static auto id = 3;
    template<typename ... Args>
@@ -386,32 +386,32 @@ struct cond_4 {
 namespace {
 
    using sub_graph_1 = __g_SUB_GRAPH(
-      __g_ROOT( root_0
+      ( root_0
               , (port_1) -> node_8
               , (port_2) -> __g_MAYBE(cond_2, node_6)
               , (port_3) -> __g_EITHER(cond_1, node_8, node_4)
               , (port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
-      __g_ROOT( root_1
+      ( root_1
               , (port_1) -> node_7),
-      __g_NODE( node_5
+      ( node_5
               , (port_5) -> node_8
               , (port_6) -> __g_FORK(node_4, __g_MAYBE(cond_2, node_8))),
-      __g_NODE( node_6
+      ( node_6
               , (port_7) -> node_4
               , (port_8) -> __g_FORK(node_8, node_9)
               , (port_9) -> node_7));
 
 
    using sub_graph_2 = __g_SUB_GRAPH(
-      __g_ROOT( root_1
+      ( root_1
               , (port_1) -> node_9),
-      __g_ROOT( root_2
+      ( root_2
               , (port_1) -> node_10
               , (port_2) -> __g_MAYBE(cond_2, node_11)
               , (port_3) -> __g_EITHER(cond_1, node_12, node_13)),
-      __g_ROOT( root_3
+      ( root_3
               , (port_1) -> node_12),
-      __g_NODE( node_11
+      ( node_11
               , (port_10) -> node_12
               , (port_11) -> __g_FORK(node_13, node_14)
               , (port_12) -> node_15));

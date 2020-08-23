@@ -7,6 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <graph/core/sub_graph_analizer.h>
+#include <graph/core/dsl/graph_node.h>
 #include <graph/util/hana_tuple_trait.h>
 #include <boost/hana.hpp>
 
@@ -78,8 +79,16 @@ struct sub_graph final {
    };
 };
 
+template<typename, typename ... NODES>
+using sub_graph_t = sub_graph<NODES...>;
+
 GRAPH_DSL_NS_END
 
-#define __g_SUB_GRAPH(...) GRAPH_DSL_NS::sub_graph<__VA_ARGS__>
+
+#define __sUb_gRaPh_each_node(n, x) , __sUb_gRaPh_node x
+#define __sUb_gRaPh_nodes(...) \
+void __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__sUb_gRaPh_each_node, 0, __VA_ARGS__)
+
+#define __g_SUB_GRAPH(...) GRAPH_DSL_NS::sub_graph_t<__sUb_gRaPh_nodes(__VA_ARGS__)>
 
 #endif //GRAPH_SUB_GRAPH_H

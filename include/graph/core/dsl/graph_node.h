@@ -14,6 +14,7 @@
 #include <nano-caf/util/macro_pp_size.h>
 #include <nano-caf/util/macro_struct.h>
 #include <nano-caf/util/macro_reflex_call.h>
+#include <nano-caf/util/macro_reflex_call_2.h>
 #include <tuple>
 #include <boost/hana.hpp>
 #include <graph/function/unique.h>
@@ -24,9 +25,11 @@ GRAPH_DSL_NS_BEGIN
 
 namespace hana = boost::hana;
 
-template<bool ROOT, typename NODE, typename ... PORTS>
+struct root_signature {};
+
+template<typename NODE, typename ... PORTS>
 struct graph_node final {
-   constexpr static auto is_root = hana::bool_c<ROOT>;
+   constexpr static auto is_root = hana::bool_c<std::is_base_of_v<root_signature, NODE>>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
       unique(hana::flatten(hana::make_tuple(graph_port<PORTS>::node_list...)));
@@ -84,16 +87,17 @@ struct graph_node final {
    };
 
    template<typename ROOTS_CB, typename NODES_CB>
-   using instance_type = instance_trait<ROOTS_CB, NODES_CB, ROOT>;
+   using instance_type = instance_trait<ROOTS_CB, NODES_CB, is_root>;
 };
 
 GRAPH_DSL_NS_END
 
 #define __gRaPh_each_link(n, x) , auto x
 #define __gRaPh_links(node, ...) \
-node __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__gRaPh_each_link, 0, __VA_ARGS__)
+node __CUB_overload(__CUB_repeat_call_2_, __VA_ARGS__) (__gRaPh_each_link, 0, __VA_ARGS__)
+#define __sUb_gRaPh_node(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
 
-#define __g_NODE(...) GRAPH_DSL_NS::graph_node<false, __gRaPh_links(__VA_ARGS__)>
-#define __g_ROOT(...) GRAPH_DSL_NS::graph_node<true,  __gRaPh_links(__VA_ARGS__)>
+#define __g_NODE(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
+
 
 #endif //GRAPH_SUBGRAPH_NODE_CB_H
