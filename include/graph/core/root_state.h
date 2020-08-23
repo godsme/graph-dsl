@@ -13,28 +13,28 @@
 GRAPH_DSL_NS_BEGIN
 
 struct root_state {
-   device_info const* device_info{};
-   size_t size{};
+   device_info const* device_info_{};
+   size_t size_{};
 
    auto get_device_info(uint8_t device_id) const -> struct device_info const* {
-      for(size_t i=0; i<size; i++) {
-         if(device_info[i].device_id == device_id) {
-            return device_info + i;
+      for(size_t i=0; i < size_; i++) {
+         if(device_info_[i].device_id == device_id) {
+            return device_info_ + i;
          }
       }
       return nullptr;
    }
 
    auto cleanup() {
-      device_info = nullptr;
-      size = 0;
+       device_info_ = nullptr;
+       size_ = 0;
    }
 };
 
 inline constexpr auto operator==(root_state const& lhs, root_state const& rhs) noexcept -> bool {
-   if(lhs.size != rhs.size) return false;
-   for(auto i=0; i<lhs.size; i++) {
-      if(lhs.device_info[i] != rhs.device_info[i]) return false;
+   if(lhs.size_ != rhs.size_) return false;
+   for(auto i=0; i<lhs.size_; i++) {
+      if(lhs.device_info_[i] != rhs.device_info_[i]) return false;
    }
    return true;
 }

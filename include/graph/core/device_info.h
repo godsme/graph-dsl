@@ -12,8 +12,8 @@
 GRAPH_DSL_NS_BEGIN
 
 struct device_info {
-   const bool is_preview;
    const uint8_t device_id;
+   const bool is_preview;
 
    inline constexpr auto tie() const noexcept {
       return std::tie(device_id, is_preview);

@@ -53,7 +53,7 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
    template <typename MSG>
    void forward(const MSG& msg) {
       for(auto& [port, handlers] : *ports_) {
-         handlers.send<MSG>(msg);
+         handlers.template send<MSG>(msg);
       }
    }
 
@@ -121,7 +121,7 @@ struct root_actor : nano_caf::behavior_based_actor {
    template<typename MSG>
    void forward(const MSG& msg) {
       for(auto& [port, handles] : *ports_) {
-         handles.send<MSG>(msg);
+         handles.template send<MSG>(msg);
       }
    }
 

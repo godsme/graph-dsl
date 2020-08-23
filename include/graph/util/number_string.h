@@ -220,11 +220,15 @@ namespace num_s {
 
 GRAPH_DSL_NS_END
 
+#ifdef __CLANG__
 _Pragma("GCC diagnostic push")
 #pragma GCC diagnostic ignored "-Wgnu-string-literal-operator-template"
+#endif
 template <typename T, T ... CHs>
 constexpr auto operator "" _number_str() -> GRAPH_DSL_NS::num_s::number_string<CHs...> { return {}; }
+#ifdef __CLANG__
 _Pragma("GCC diagnostic pop")
+#endif
 
 #define __CUB_number_string(s) decltype(#s ##_number_str)
 

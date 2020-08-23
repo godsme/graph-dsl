@@ -46,9 +46,9 @@ struct device_state {
    template<typename ... Ts>
    struct devices_type {
       constexpr static device_info Devices[] = {
-         {Ts::Is_Preview, Ts::Device_Id}...
+         {Ts::Device_Id, Ts::Is_Preview}...
       };
-      constexpr static root_state Root_State { .device_info = Devices, .size = Num_Of_Devices };
+      constexpr static root_state Root_State { .device_info_ = Devices, .size_ = Num_Of_Devices };
    };
 
    using devices = hana_tuple_trait_t<decltype(Sorted_Devices), devices_type>;

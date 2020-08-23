@@ -16,11 +16,11 @@ struct multi_device {
    template<typename ENV>
    auto get_transitions(const ENV& env) -> state_path {
       target_state_ = STATE_SELECTOR::find(env);
-      if(target_state_.size == 0) {
+      if(target_state_.size_ == 0) {
          return {};
       }
-      if(state_.size == 0) {
-         return {.size = 1, .state = &target_state_ };
+      if(state_.size_ == 0) {
+         return { .state = &target_state_, .size = 1 };
       }
       return STATE_TRANSITION::find(state_, target_state_);
    }

@@ -51,7 +51,7 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
    template <typename MSG>
    void forward(const MSG& msg) {
       for(auto& [port, targets] : *ports_) {
-         targets.send<MSG>(msg);
+         targets.template send<MSG>(msg);
       }
    }
 
@@ -119,7 +119,7 @@ struct root_actor : nano_caf::behavior_based_actor {
    template<typename MSG>
    void forward(const MSG& msg) {
       for(auto& [port, handles] : *ports_) {
-         handles.send<MSG>(msg);
+         handles.template send<MSG>(msg);
       }
    }
 
@@ -425,8 +425,8 @@ GRAPH_DSL_NS::device_info devices[] = {
 };
 
 GRAPH_DSL_NS::root_state root_states {
-   .size = 2,
-   .device_info = devices
+   .device_info_ = devices,
+   .size_ = 2
 };
 
 int test_2() {
