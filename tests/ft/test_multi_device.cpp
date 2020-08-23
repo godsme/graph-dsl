@@ -67,11 +67,11 @@ struct leaf_actor : nano_caf::behavior_based_actor {
       std::cout << node_id_ << ": leaf created ----------------------> " << std::endl;
    }
 
-   ~leaf_actor() {
+   ~leaf_actor() override {
       std::cout << node_id_ << ": leaf destroyed <-------------------- " << std::endl;
    }
 
-   nano_caf::behavior get_behavior() {
+   nano_caf::behavior get_behavior() override {
       return {
          [this](const image_buf_msg_1&) {
             std::cout << node_id_ << ": leaf image buf 1 received : " << ++counter << std::endl;
@@ -96,11 +96,11 @@ struct root_actor : nano_caf::behavior_based_actor {
       std::cout << id_ << ": root created" << std::endl;
    }
 
-   ~root_actor() {
+   ~root_actor() override {
       std::cout << id_ << ": root destroyed" << std::endl;
    }
 
-   nano_caf::behavior get_behavior() {
+   nano_caf::behavior get_behavior() override {
       return {
          [this](graph_dsl::ports_update_msg_atom, std::unique_ptr<graph_dsl::actor_ports> ports) {
             ports_ = std::move(ports);
