@@ -52,7 +52,7 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
       }
 
       template <typename ROOT>
-      auto connect_root(graph_context& context, ROOT& root, root_ports& ports) -> status_t {
+      auto connect_root(graph_context& context, ROOT& root, actor_ports& ports) -> status_t {
          if(selected_) {
             GRAPH_EXPECT_TRUE(alive_);
             return subgraph_.connect_root(context, root, ports);

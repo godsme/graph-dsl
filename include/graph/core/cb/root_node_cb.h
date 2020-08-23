@@ -32,7 +32,7 @@ struct root_node_cb  {
       return status_t::Ok;
    }
 
-   auto start(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+   auto start(graph_context& context, std::unique_ptr<actor_ports> ports) -> status_t {
       if(present_ && !running_) {
          actor_handle_ = NODE::spawn(context, std::move(ports));
          GRAPH_EXPECT_TRUE(actor_handle_.exists());
@@ -58,7 +58,7 @@ struct root_node_cb  {
       return (actor_handle_);
    }
 
-   auto update_ports(graph_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+   auto update_ports(graph_context& context, std::unique_ptr<actor_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present_);
       if(!running_) {
          GRAPH_EXPECT_SUCC(start(context, std::move(ports)));
@@ -70,9 +70,9 @@ struct root_node_cb  {
    }
 
 private:
-   auto update_ports_(nano_caf::actor_context& context, std::unique_ptr<root_ports> ports) -> status_t {
+   auto update_ports_(nano_caf::actor_context& context, std::unique_ptr<actor_ports> ports) -> status_t {
       GRAPH_EXPECT_TRUE(present_ && running_);
-      auto result = context.send<root_ports_update_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
+      auto result = context.send<ports_update_msg, nano_caf::message::urgent>(actor_handle_, std::move(ports));
       return result != nano_caf::status_t::ok ? status_t::Failed : status_t::Ok;
    }
 

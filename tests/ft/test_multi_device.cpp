@@ -32,7 +32,7 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
 
    nano_caf::behavior get_behavior() {
       return {
-         [this](GRAPH_DSL_NS::subgraph_ports_update_msg_atom, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) {
+         [this](GRAPH_DSL_NS::ports_update_msg_atom, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) {
             ports_ = std::move(ports);
          },
          [this](const image_buf_msg_1& msg) {
@@ -51,10 +51,8 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
 
    template <typename MSG>
    void forward(const MSG& msg) {
-      for(auto& port : *ports_) {
-         for(auto& handle : port.actor_handles_) {
-            nano_caf::actor_handle(handle).send<MSG>(msg);
-         }
+      for(auto& [port, handlers] : *ports_) {
+         handlers.send<MSG>(msg);
       }
    }
 
@@ -91,7 +89,7 @@ struct leaf_actor : nano_caf::behavior_based_actor {
 };
 
 struct root_actor : nano_caf::behavior_based_actor {
-   root_actor(int id, std::unique_ptr<graph_dsl::root_ports> ports)
+   root_actor(int id, std::unique_ptr<graph_dsl::actor_ports> ports)
       : id_(id)
       , ports_{std::move(ports)} {
       std::cout << id_ << ": root created" << std::endl;
@@ -103,7 +101,7 @@ struct root_actor : nano_caf::behavior_based_actor {
 
    nano_caf::behavior get_behavior() {
       return {
-         [this](graph_dsl::root_ports_update_msg_atom, std::unique_ptr<graph_dsl::root_ports> ports) {
+         [this](graph_dsl::ports_update_msg_atom, std::unique_ptr<graph_dsl::actor_ports> ports) {
             ports_ = std::move(ports);
             std::cout << id_ << ": root ports updated" << std::endl;
          },
@@ -122,16 +120,12 @@ struct root_actor : nano_caf::behavior_based_actor {
    template<typename MSG>
    void forward(const MSG& msg) {
       for(auto& [port, handles] : *ports_) {
-         for(auto handle : handles) {
-            if(handle.send<MSG>(msg) != nano_caf::status_t::ok) {
-               std::cout << id_ << ": send failed" << std::endl;
-            }
-         }
+         handles.send<MSG>(msg);
       }
    }
 
 private:
-   std::unique_ptr<graph_dsl::root_ports> ports_{};
+   std::unique_ptr<graph_dsl::actor_ports> ports_{};
    int id_;
 };
 
@@ -275,7 +269,7 @@ struct node_15 : graph_dsl::node_signature{
 };
 
 struct port_1 {
-   constexpr static graph_dsl::port_id_t root_port_id = 1;
+   constexpr static graph_dsl::port_id_t port_id = 1;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
@@ -283,51 +277,56 @@ struct port_1 {
 };
 
 struct port_2 {
-   constexpr static graph_dsl::port_id_t root_port_id = 2;
+   constexpr static graph_dsl::port_id_t port_id = 2;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_3 {
-   constexpr static graph_dsl::port_id_t root_port_id = 3;
+   constexpr static graph_dsl::port_id_t port_id = 3;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_4 {
-   constexpr static graph_dsl::port_id_t root_port_id = 4;
+   constexpr static graph_dsl::port_id_t port_id = 4;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_5 {
+   constexpr static graph_dsl::port_id_t port_id = 5;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_6 {
+   constexpr static graph_dsl::port_id_t port_id = 6;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_7 {
+   constexpr static graph_dsl::port_id_t port_id = 7;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_8 {
+   constexpr static graph_dsl::port_id_t port_id = 8;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
    }
 };
 struct port_9 {
+   constexpr static graph_dsl::port_id_t port_id = 9;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
@@ -335,6 +334,7 @@ struct port_9 {
 };
 
 struct port_10 {
+   constexpr static graph_dsl::port_id_t port_id = 10;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
@@ -342,6 +342,7 @@ struct port_10 {
 };
 
 struct port_11 {
+   constexpr static graph_dsl::port_id_t port_id = 11;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;
@@ -349,6 +350,7 @@ struct port_11 {
 };
 
 struct port_12 {
+   constexpr static graph_dsl::port_id_t port_id = 12;
    constexpr static graph_dsl::port_format format{};
    static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
       return format;

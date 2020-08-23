@@ -62,12 +62,12 @@ struct graph_node final {
          return self::build_(context, node_index<NODE, ROOTS_CB>::get_root_node(context).present());
       }
 
-      auto collect_actor_ports(graph_context& context, root_ports& ports) -> status_t {
+      auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
          if(!tuple_exists(self::ports_, [](auto& port) { return port.enabled(); })) {
             return status_t::Ok;
          }
          return tuple_foreach(self::ports_, [&](auto& port) {
-            return port.collect_actor_port(context, ports);
+            return port.collect_actor_handles(context, ports);
          });
       }
    };

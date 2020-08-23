@@ -46,7 +46,7 @@ private:
       }));
       GRAPH_EXPECT_SUCC(tuple_foreach(roots_.roots_, [&](auto& root) {
          if(!root.present()) return status_t::Ok;
-         auto ports = std::make_unique<root_ports>();
+         auto ports = std::make_unique<actor_ports>();
          auto status = tuple_foreach(sub_graphs_, [&](auto& sub) {
             return sub.connect_root(context, root, *ports);
          });

@@ -44,7 +44,7 @@ struct sub_graph final {
       }
 
       template<typename ROOT>
-      auto connect_root(graph_context& context, ROOT& root, root_ports& ports) -> status_t {
+      auto connect_root(graph_context& context, ROOT& root, actor_ports& ports) -> status_t {
          context.switch_subgraph_context(nodes_cb_);
          constexpr auto Index = tuple_element_index_v<typename ROOT::node_type, nodes_links, desc_node_type>;
          if constexpr (Index >= 0) {

@@ -31,15 +31,16 @@ using actor_handle_set = std::vector<nano_caf::actor_handle>;
 struct actor_port {
    port_format format_;
    actor_handle_set actor_handles_;
+
+   template<typename MSG, typename ... Args>
+   auto send(Args&& ... args) {
+      for(auto& handle : actor_handles_) {
+         handle.send<MSG>(std::forward<Args>(args)...);
+      }
+   }
 };
 
-struct root_actor_port {
-   port_id_t port_id;
-   actor_handle_set handles;
-};
-
-using actor_ports = std::vector<actor_port>;
-using root_ports = std::map<port_id_t, actor_handle_set>;
+using actor_ports = std::map<port_id_t, actor_port>;
 
 GRAPH_DSL_NS_END
 
