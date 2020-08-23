@@ -67,7 +67,7 @@ struct graph_node final {
             return status_t::Ok;
          }
          return tuple_foreach(self::ports_, [&](auto& port) {
-            return port.collect_actor_handles(context, ports);
+            return port.template collect_actor_port<true>(context, ports);
          });
       }
    };
@@ -81,7 +81,7 @@ struct graph_node final {
 
       auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
          return tuple_foreach(self::ports_, [&](auto& port) {
-            return port.collect_actor_port(context, ports);
+            return port.template collect_actor_port<false>(context, ports);
          });
       }
    };

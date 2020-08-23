@@ -31,17 +31,13 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
          down_stream_node_.release(context);
       }
 
+      template<bool Is_Root>
       auto collect_actor_port(graph_context& context, actor_ports& ports) -> status_t {
          if(down_stream_node_.enabled()) {
             GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, ports[PORT::port_id].actor_handles_));
-            ports[PORT::port_id].format_ = PORT::get_port_format(context);
-         }
-         return status_t::Ok;
-      }
-
-      auto collect_actor_handles(graph_context& context, actor_ports& ports) -> status_t {
-         if(down_stream_node_.enabled()) {
-            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, ports[PORT::port_id].actor_handles_));
+            if constexpr (!Is_Root) {
+               ports[PORT::port_id].format_ = PORT::get_port_format(context);
+            }
          }
          return status_t::Ok;
       }
