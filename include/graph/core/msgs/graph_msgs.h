@@ -13,10 +13,10 @@
 GRAPH_DSL_NS_BEGIN
 
 CAF_def_message(root_ports_update_msg,
-    (ports, std::shared_ptr<root_ports>));
+    (ports, std::unique_ptr<root_ports>));
 
 CAF_def_message(subgraph_ports_update_msg,
-    (ports, std::shared_ptr<actor_ports>));
+    (ports, std::unique_ptr<actor_ports>));
 
 GRAPH_DSL_NS_END
 

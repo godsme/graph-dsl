@@ -396,7 +396,7 @@ namespace {
               , (port_1) -> node_10
               , (port_2) -> __g_MAYBE(cond_2, node_11)
               , (port_3) -> __g_EITHER(cond_1, node_12, node_13)),
-      __g_NODE(node_11
+      __g_NODE( node_11
               , (port_10) -> node_12
               , (port_11) -> __g_FORK(node_13, node_14)
               , (port_12) -> node_15));

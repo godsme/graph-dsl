@@ -32,7 +32,7 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
 
    nano_caf::behavior get_behavior() {
       return {
-         [this](GRAPH_DSL_NS::subgraph_ports_update_msg_atom, std::shared_ptr<GRAPH_DSL_NS::actor_ports> ports) {
+         [this](GRAPH_DSL_NS::subgraph_ports_update_msg_atom, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) {
             ports_ = std::move(ports);
          },
          [this](const image_buf_msg_1& msg) {
@@ -59,7 +59,7 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
    }
 
 private:
-   std::shared_ptr<GRAPH_DSL_NS::actor_ports> ports_;
+   std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports_;
    int node_id_;
 };
 
@@ -91,7 +91,7 @@ struct leaf_actor : nano_caf::behavior_based_actor {
 };
 
 struct root_actor : nano_caf::behavior_based_actor {
-   root_actor(int id, std::shared_ptr<graph_dsl::root_ports> ports)
+   root_actor(int id, std::unique_ptr<graph_dsl::root_ports> ports)
       : id_(id)
       , ports_{std::move(ports)} {
       std::cout << id_ << ": root created" << std::endl;
@@ -103,7 +103,7 @@ struct root_actor : nano_caf::behavior_based_actor {
 
    nano_caf::behavior get_behavior() {
       return {
-         [this](graph_dsl::root_ports_update_msg_atom, std::shared_ptr<graph_dsl::root_ports> ports) {
+         [this](graph_dsl::root_ports_update_msg_atom, std::unique_ptr<graph_dsl::root_ports> ports) {
             ports_ = std::move(ports);
             std::cout << id_ << ": root ports updated" << std::endl;
          },
@@ -131,7 +131,7 @@ struct root_actor : nano_caf::behavior_based_actor {
    }
 
 private:
-   std::shared_ptr<graph_dsl::root_ports> ports_{};
+   std::unique_ptr<graph_dsl::root_ports> ports_{};
    int id_;
 };
 
