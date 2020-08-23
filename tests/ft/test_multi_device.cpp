@@ -9,6 +9,7 @@
 #include <graph/core/dsl/sub_graph_selector.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <graph/core/dsl/multi_device_graph.h>
+#include <random>
 #include <iostream>
 #include <map>
 
@@ -26,11 +27,11 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
       std::cout << node_id_ << ": intermediate created ----------------------> " << std::endl;
    }
 
-   ~intermediate_actor() {
+   ~intermediate_actor() override {
       std::cout << node_id_ << ": intermediate destroyed <----------------------" << std::endl;
    }
 
-   nano_caf::behavior get_behavior() {
+   nano_caf::behavior get_behavior() override {
       return {
          [this](GRAPH_DSL_NS::ports_update_msg_atom, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) {
             ports_ = std::move(ports);
@@ -468,16 +469,16 @@ __g_STATE_TRANSITIONS(
 using md_graph = GRAPH_DSL_NS::multi_device_graph<graph, selector, transitions>;
 
 struct environment {
-   auto get_scene() const -> uint8_t {
+   [[nodiscard]] auto get_scene() const -> uint8_t {
       return scene;
    }
-   auto get_condition_1() const -> double {
+   [[nodiscard]] auto get_condition_1() const -> double {
       return condition_1;
    }
-   auto get_condition_2() const -> unsigned int {
+   [[nodiscard]] auto get_condition_2() const -> unsigned int {
       return condition_2;
    }
-   auto get_condition_3() const -> unsigned int {
+   [[nodiscard]] auto get_condition_3() const -> unsigned int {
       return condition_3;
    }
 
@@ -487,67 +488,150 @@ struct environment {
    unsigned int condition_3{20};
 };
 
+struct hardware_actor : nano_caf::actor {
+   hardware_actor(md_graph& graph, int which)
+      : graph_{graph}, which_msg_{which} {}
 
-int test_1() {
-   nano_caf::actor_system actor_system;
-   actor_system.start(2);
-
-   GRAPH_DSL_NS::graph_context context{actor_system};
-
-   md_graph g;
-
-   environment env;
-   if(auto status = g.on_env_change(context, env); status != GRAPH_DSL_NS::status_t::Ok) {
-      std::cout << "refresh failed" << std::endl;
-      return -1;
+   auto on_init() -> void override {
+      every(33ms, [this]{
+         auto msg = std::make_unique<const image_buf>();
+         if(which_msg_) {
+            graph_.get_root<0>().send<image_buf_msg_1>(std::move(msg));
+            graph_.get_root<2>().send<image_buf_msg_2>(std::move(msg));
+         } else {
+            graph_.get_root<1>().send<image_buf_msg_1>(std::move(msg));
+            graph_.get_root<3>().send<image_buf_msg_2>(std::move(msg));
+         }
+      });
    }
 
-   auto tid = std::thread([&]{
-      auto duration = 33ms;
-      for(int i = 0; i<1000; i++) {
-         auto msg = std::make_unique<const image_buf>();
-         g.get_root<0>().send<image_buf_msg_1>(std::move(msg));
-         std::this_thread::sleep_for(duration);
-         g.get_root<1>().send<image_buf_msg_2>(std::move(msg));
-         std::this_thread::sleep_for(duration);
-         g.get_root<2>().send<image_buf_msg_1>(std::move(msg));
-         std::this_thread::sleep_for(duration);
-         g.get_root<3>().send<image_buf_msg_2>(std::move(msg));
-         std::this_thread::sleep_for(duration);
-      }
-   });
+private:
+   md_graph& graph_;
+   int which_msg_{0};
+};
 
-   env.condition_1 = 3.0;
-   env.condition_2 = 12;
-   env.condition_3 = 8;
+CAF_def_message(start, (env, environment));
+CAF_def_message(env_change, (env, environment));
+CAF_def_message(meta_change);
+CAF_def_message(switch_done);
+CAF_def_message(stop);
+
+struct session_actor : nano_caf::behavior_based_actor {
+   session_actor() : context(*this) {}
+
+   auto on_init() -> void override {
+      hw_1 = spawn<hardware_actor>(graph, 0);
+      hw_2 = spawn<hardware_actor>(graph, 1);
+   }
+
+   nano_caf::behavior get_behavior() override {
+      return {
+         [this](start_atom, const environment& env) {
+            on_env_change(env);
+         },
+         [this](env_change_atom, const environment& env) {
+            on_env_change(env);
+         },
+         [this](meta_change_atom) {
+            if(graph.refresh(context) != GRAPH_DSL_NS::status_t::Ok) {
+               std::cout << "refresh fail" << std::endl;
+               exit(nano_caf::exit_reason::unhandled_exception);
+            }
+         },
+         [this](switch_done_atom) {
+            if(graph.on_switch_done(context) != GRAPH_DSL_NS::status_t::Ok) {
+               std::cout << "on_switch_done fail" << std::endl;
+               exit(nano_caf::exit_reason::unhandled_exception);
+            }
+         },
+         [this](const stop&) {
+            cleanup();
+            exit(nano_caf::exit_reason::normal);
+         },
+         [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
+            cleanup();
+         }
+      };
+   }
+
+   auto on_env_change(const environment& env) -> void {
+      if(auto status = graph.on_env_change(context, env); status != GRAPH_DSL_NS::status_t::Ok) {
+         std::cout << "refresh failed" << std::endl;
+         exit(nano_caf::exit_reason::unhandled_exception);
+      }
+   }
+
+   auto cleanup() -> void {
+      graph.stop();
+      hw_1.exit_and_wait();
+      hw_2.exit_and_wait();
+   }
+
+   GRAPH_DSL_NS::graph_context context;
+   md_graph graph;
+   nano_caf::actor_handle hw_1;
+   nano_caf::actor_handle hw_2;
+};
+
+struct user_actor : nano_caf::actor {
+   explicit user_actor(nano_caf::actor_handle session)
+      : session_{std::move(session)} {}
+
+   auto on_init()  -> void override {
+      user_op();
+   }
+
+   auto user_op() -> void {
+      std::random_device r;
+      std::default_random_engine regen{r()};
+      std::uniform_int_distribution<size_t> uniform(0, 10);
+
+      after(nano_caf::duration{uniform(regen), nano_caf::timer_unit::seconds}, [this]{
+         environment env;
+         std::random_device r;
+         std::default_random_engine regen{r()};
+         std::uniform_int_distribution<size_t> uniform_1(0, 15);
+         env.condition_1 = 3.0;
+         env.condition_2 = uniform_1(regen);
+         env.condition_3 = uniform_1(regen);
+         session_.send<env_change>(env);
+         user_op();
+      });
+   }
+
+private:
+   nano_caf::actor_handle session_;
+};
+
+int test_1() {
+   nano_caf::actor_system system;
+   system.start(2);
+
+   environment env;
+
+   auto session = system.spawn<session_actor>();
+   session.send<start>(env);
+
+   auto user = system.spawn<user_actor>(session);
 
    bool env_changed = false;
    for(auto i=0; i<40; i++) {
-      if(g.on_switch_done(context) != GRAPH_DSL_NS::status_t::Ok) {
-         std::cout << "on_switch_done fail" << std::endl;
-      }
+      session.send<switch_done>();
 
-      std::this_thread::sleep_for(5s);
-
-      if(!env_changed) {
-         if(auto status = g.on_env_change(context, env); status != GRAPH_DSL_NS::status_t::Ok) {
-            std::cout << "on env change fail" << std::endl;
-            return -1;
-         }
-      }
+      std::this_thread::sleep_for(1s);
 
       node_condition = !node_condition;
-
-//      if((i > 0) && (i % 10) == 0) {
-//         sub_graph_switch = !sub_graph_switch;
-//      }
-
-      if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+      session.send<meta_change>();
    }
 
-   tid.join();
-   g.stop();
-   actor_system.shutdown();
+   user.exit_and_wait();
+
+   session.send<stop>();
+
+   session.wait_for_exit();
+   session.release();
+
+   system.shutdown();
 
    return 0;
 }
