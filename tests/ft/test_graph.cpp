@@ -128,16 +128,16 @@ private:
    int id_;
 };
 
-struct node_1 : graph_dsl::root_signature{
-   constexpr static auto id = 1;
+struct root_0 : graph_dsl::root_signature {
+   constexpr static auto id = 0;
    template<typename ... Args>
    static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
       return context.get_actor_context().spawn<root_actor>(id, std::forward<Args>(args)...);
    }
 };
 
-struct node_2 : graph_dsl::root_signature{
-   constexpr static auto id = 2;
+struct root_1 : graph_dsl::root_signature {
+   constexpr static auto id = 1;
    template<typename ... Args>
    static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
       return context.get_actor_context().spawn<root_actor>(id, std::forward<Args>(args)...);
@@ -375,12 +375,12 @@ struct cond_4 {
 namespace {
 
    using sub_graph_1 = __g_SUB_GRAPH(
-      ( node_1
+      ( root_0
               , (port_1) -> node_8
               , (port_2) -> __g_MAYBE(cond_2, node_3)
               , (port_3) -> __g_EITHER(cond_1, node_8, node_4)
               , (port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
-      ( node_2
+      ( root_1
               , (port_1) -> node_7),
       ( node_5
               , (port_5) -> node_8
@@ -392,9 +392,9 @@ namespace {
 
 
    using sub_graph_2 = __g_SUB_GRAPH(
-      ( node_1
+      ( root_0
               , (port_1) -> node_9),
-      ( node_2
+      ( root_1
               , (port_1) -> node_10
               , (port_2) -> __g_MAYBE(cond_2, node_11)
               , (port_3) -> __g_EITHER(cond_1, node_12, node_13)),
@@ -405,7 +405,7 @@ namespace {
 
 
    using graph = __g_GRAPH(
-      (node_1, node_2),
+      (root_0, root_1),
       (cond_3) -> sub_graph_1,
       (cond_4) -> sub_graph_2);
 }
@@ -429,7 +429,7 @@ GRAPH_DSL_NS::root_state root_states {
    .size_ = 2
 };
 
-int test_2() {
+int main() {
    nano_caf::actor_system actor_system;
    actor_system.start(2);
 
@@ -437,7 +437,6 @@ int test_2() {
 
    context.update_root_state(root_states);
    graph g;
-
 
    if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) {
       std::cout << "refresh failed" << std::endl;
@@ -476,9 +475,5 @@ int test_2() {
    actor_system.shutdown();
 
    return 0;
-}
-
-int main() {
-   return test_2();
 }
 

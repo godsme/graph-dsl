@@ -14,11 +14,11 @@
 
 
 
-struct node_1 : graph_dsl::root_signature{
+struct root_1 : graph_dsl::root_signature{
    constexpr static auto root_id = 0;
 };
 
-struct node_2 : graph_dsl::root_signature{
+struct root_2 : graph_dsl::root_signature{
    constexpr static auto root_id = 1;
 };
 
@@ -118,7 +118,7 @@ struct cond_2 {
 namespace {
 
    using root_node =
-   __g_NODE(node_1
+   __g_NODE(root_1
          , (port_1) -> node_8
          , (port_2) -> __g_MAYBE(cond_2, node_3)
          , (port_3) -> __g_EITHER(cond_1, node_8, node_3)
