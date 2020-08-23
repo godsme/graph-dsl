@@ -125,12 +125,12 @@ namespace {
          , (port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8)));
 
    using grap_def = __g_SUB_GRAPH(
-   ( node_1
+   ( root_1
          , (port_1) -> node_8
          , (port_2) -> __g_MAYBE(cond_2, node_3)
          , (port_3) -> __g_EITHER(cond_1, node_8, node_3)
          , (port_4) -> __g_FORK(node_5, node_4, __g_MAYBE(cond_2, node_8))),
-   ( node_2
+   ( root_2
          , (port_1) -> node_7 ),
    ( node_5
          , (port_5) -> node_8
