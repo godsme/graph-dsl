@@ -12,8 +12,8 @@
 #include <graph/status.h>
 #include <graph/core/node_category.h>
 #include <cstdint>
-#include <iostream>
 #include <graph/core/msgs/graph_msgs.h>
+#include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -37,13 +37,16 @@ struct subgraph_node_base {
    }
 
    auto cleanup() -> status_t {
-      if(refs_ == 0) { return stop(); }
+      if(refs_ == 0) {
+         return stop();
+      }
       return status_t::Ok;
    }
 
    inline auto actor_handle() -> decltype(auto) {
       return (actor_handle_);
    }
+
 protected:
    nano_caf::actor_handle actor_handle_{};
    uint8_t refs_{0};
@@ -91,6 +94,7 @@ public:
       static_assert(Index >= 0, "");
 
       if(!self::present()) return status_t::Ok;
+
       auto ports = std::make_unique<actor_ports>();
       GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
       if(!self::running_) {

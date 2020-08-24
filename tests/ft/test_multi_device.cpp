@@ -25,7 +25,7 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
    intermediate_actor(int node_id, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports)
       : node_id_(node_id)
       , ports_(std::move(ports)) {
-      spdlog::info("{}: intermediate created <----------------------", node_id_);
+      spdlog::info("{}: intermediate created ---------------------->", node_id_);
    }
 
    ~intermediate_actor() override {
@@ -46,7 +46,6 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-            spdlog::info("{}: intermediate exit", node_id_);
          }
       };
    }
@@ -66,7 +65,7 @@ private:
 
 struct leaf_actor : nano_caf::behavior_based_actor {
    leaf_actor(int node_id) : node_id_(node_id) {
-      spdlog::info("{}: leaf created <-------------------- ", node_id_);
+      spdlog::info("{}: leaf created --------------------> ", node_id_);
    }
 
    ~leaf_actor() override {
@@ -82,7 +81,6 @@ struct leaf_actor : nano_caf::behavior_based_actor {
             spdlog::info("{}: leaf image buf 2 received: {}", node_id_, ++counter);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-            spdlog::info("{}: leaf exit", node_id_);
          }
       };
    }
@@ -95,27 +93,28 @@ struct root_actor : nano_caf::behavior_based_actor {
    root_actor(int id, std::unique_ptr<graph_dsl::actor_ports> ports)
       : id_(id)
       , ports_{std::move(ports)} {
-      spdlog::info("{}: root created", id_);
+      spdlog::info("{}: root created -------------------->", id_);
    }
 
    ~root_actor() override {
-      spdlog::info("{}: root destroyed", id_);
+      spdlog::info("{}: root destroyed <--------------------", id_);
    }
 
    nano_caf::behavior get_behavior() override {
       return {
          [this](graph_dsl::ports_update_msg_atom, std::unique_ptr<graph_dsl::actor_ports> ports) {
             ports_ = std::move(ports);
-            spdlog::info("{}: root ports updated", id_);
+            spdlog::info("{}: root ports updated (******) ", id_);
          },
          [this](const image_buf_msg_1& msg) {
+            spdlog::info("{}: root received msg 1", id_);
             forward(msg);
          },
          [this](const image_buf_msg_2& msg) {
+            spdlog::info("{}: root received msg 2", id_);
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-            spdlog::info("{}: root exit", id_);
          }
       };
    }
@@ -409,7 +408,7 @@ namespace {
 
    using sub_graph_2 = __g_SUB_GRAPH(
       ( root_1
-              , (port_1) -> node_9),
+              , (port_1) -> node_13),
       ( root_2
               , (port_1) -> node_10
               , (port_2) -> __g_MAYBE(cond_2, node_11)
@@ -529,18 +528,22 @@ struct session_actor : nano_caf::behavior_based_actor {
    nano_caf::behavior get_behavior() override {
       return {
          [this](start_atom, const environment& env) {
+            spdlog::info("start_atom");
             on_env_change(env);
          },
          [this](env_change_atom, const environment& env) {
+            spdlog::info("env_change_atom");
             on_env_change(env);
          },
          [this](meta_change_atom) {
+            spdlog::info("meta_change_atom");
             if(graph.refresh(context) != GRAPH_DSL_NS::status_t::Ok) {
                spdlog::error("refresh fail");
                exit(nano_caf::exit_reason::unhandled_exception);
             }
          },
          [this](switch_done_atom) {
+            spdlog::info("switch_done_atom");
             if(graph.on_switch_done(context) != GRAPH_DSL_NS::status_t::Ok) {
                spdlog::error("on_switch_done fail");
                exit(nano_caf::exit_reason::unhandled_exception);
@@ -589,6 +592,7 @@ struct user_actor : nano_caf::actor {
       std::uniform_int_distribution<size_t> uniform(0, 10);
 
       after(std::chrono::seconds(uniform(regen)), [this]{
+         spdlog::warn("environment changed ===========================");
          environment env;
          std::random_device r;
          std::default_random_engine regen{r()};
@@ -617,7 +621,7 @@ int main() {
    auto user = system.spawn<user_actor>(session);
 
    bool env_changed = false;
-   for(auto i=0; i<40; i++) {
+   for(auto i=0; i<30; i++) {
       session.send<switch_done>();
 
       std::this_thread::sleep_for(1s);

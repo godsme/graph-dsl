@@ -9,6 +9,7 @@
 #include <graph/core/dsl/sub_graph_selector.h>
 #include <graph/util/assertion.h>
 #include <graph/function/tuple_foreach.h>
+#include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -40,7 +41,9 @@ private:
 
    auto start(graph_context& context) -> status_t {
       roots_.cleanup();
-      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.cleanup(); });
+      tuple_foreach_void(sub_graphs_, [](auto& sub){
+         sub.cleanup();
+      });
       GRAPH_EXPECT_SUCC(tuple_foreach(sub_graphs_, [&](auto& sub) {
          return sub.start(context);
       }));

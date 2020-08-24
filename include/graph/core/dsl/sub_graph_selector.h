@@ -39,7 +39,7 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
 
       auto cleanup() {
          if(alive_) {
-            if(!selected_) { subgraph_.cleanup(); }
+            if(selected_) { subgraph_.cleanup(); }
             else { stop(); }
          }
       }

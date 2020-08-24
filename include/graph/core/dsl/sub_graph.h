@@ -10,6 +10,7 @@
 #include <graph/core/dsl/graph_node.h>
 #include <graph/util/hana_tuple_trait.h>
 #include <boost/hana.hpp>
+#include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
 
