@@ -8,6 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/core/dsl/target_state_selector.h>
 #include <graph/core/dsl/state_transition.h>
+#include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -17,11 +18,28 @@ struct multi_device {
    auto get_transitions(const ENV& env) -> state_path {
       target_state_ = STATE_SELECTOR::find(env);
       if(target_state_.size_ == 0) {
+         spdlog::error("no state selected");
          return {};
       }
       if(state_.size_ == 0) {
          return { .state = &target_state_, .size = 1 };
       }
+      spdlog::error("{} ({}-{}) -> {} ({}-{}) ",
+                    state_.size_,
+                           state_.device_info_[0].is_preview ?
+                           state_.device_info_[0].device_id :
+                           state_.device_info_[1].device_id,
+                           state_.device_info_[0].is_preview ?
+                           state_.device_info_[1].device_id :
+                           state_.device_info_[0].device_id,
+                    target_state_.size_,
+                    target_state_.device_info_[0].is_preview ?
+                    target_state_.device_info_[0].device_id :
+                    target_state_.device_info_[1].device_id,
+                    target_state_.device_info_[0].is_preview ?
+                    target_state_.device_info_[1].device_id :
+                    target_state_.device_info_[0].device_id);
+
       return STATE_TRANSITION::find(state_, target_state_);
    }
 

@@ -38,11 +38,11 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
             ports_ = std::move(ports);
          },
          [this](const image_buf_msg_1& msg) {
-            spdlog::info("{}: intermediate image buf 1 received: {}", node_id_, ++counter);
+            //spdlog::info("{}: intermediate image buf 1 received: {}", node_id_, ++counter);
             forward(msg);
          },
          [this](const image_buf_msg_2& msg) {
-            spdlog::info("{}: intermediate image buf 2 received: {}", node_id_, ++counter);
+            //spdlog::info("{}: intermediate image buf 2 received: {}", node_id_, ++counter);
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
@@ -75,10 +75,10 @@ struct leaf_actor : nano_caf::behavior_based_actor {
    nano_caf::behavior get_behavior() override {
       return {
          [this](const image_buf_msg_1&) {
-            spdlog::info("{}: leaf image buf 1 received: {}", node_id_, ++counter);
+            //spdlog::info("{}: leaf image buf 1 received: {}", node_id_, ++counter);
          },
          [this](const image_buf_msg_2&) {
-            spdlog::info("{}: leaf image buf 2 received: {}", node_id_, ++counter);
+            //spdlog::info("{}: leaf image buf 2 received: {}", node_id_, ++counter);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
          }
@@ -93,11 +93,11 @@ struct root_actor : nano_caf::behavior_based_actor {
    root_actor(int id, std::unique_ptr<graph_dsl::actor_ports> ports)
       : id_(id)
       , ports_{std::move(ports)} {
-      spdlog::info("{}: root created -------------------->", id_);
+      spdlog::warn("{}: root created -------------------->", id_);
    }
 
    ~root_actor() override {
-      spdlog::info("{}: root destroyed <--------------------", id_);
+      spdlog::warn("{}: root destroyed <--------------------", id_);
    }
 
    nano_caf::behavior get_behavior() override {
@@ -107,11 +107,11 @@ struct root_actor : nano_caf::behavior_based_actor {
             spdlog::info("{}: root ports updated (******) ", id_);
          },
          [this](const image_buf_msg_1& msg) {
-            spdlog::info("{}: root received msg 1", id_);
+            //spdlog::info("{}: root received msg 1", id_);
             forward(msg);
          },
          [this](const image_buf_msg_2& msg) {
-            spdlog::info("{}: root received msg 2", id_);
+            //spdlog::info("{}: root received msg 2", id_);
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
@@ -434,6 +434,15 @@ __g_STATE_SELECTOR(
       (__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ))
    -> __g_STATE(root_0, __g_PREVIEW(root_1)),
 
+      (__g_SCENE_MODE(1), __g_COND_1( [2.0, 3.0} ))
+   -> __g_STATE(root_1, __g_PREVIEW(root_2)),
+
+      (__g_SCENE_MODE(1), __g_COND_1( [3.0, 4.0} ))
+   -> __g_STATE(root_2, __g_PREVIEW(root_3)),
+
+      (__g_SCENE_MODE(1), __g_COND_1( [4.0, 5.0} ))
+   -> __g_STATE(root_3, __g_PREVIEW(root_1)),
+
       (__g_SCENE_MODE(1), __g_COND_1( [1.0, 2.0} ), __g_COND_2(1, 5))
    -> __g_STATE(__g_PREVIEW(root_2), root_1),
 
@@ -464,8 +473,8 @@ __g_STATE_TRANSITIONS(
    ((__g_PREVIEW(root_0), root_1) -> root_1, __g_PREVIEW(root_2)),
    ((root_1, __g_PREVIEW(root_2)) -> __g_PREVIEW(root_1), root_3),
    ((__g_PREVIEW(root_1), root_3) -> __g_PREVIEW(root_2), root_3),
-   ((__g_PREVIEW(root_2), root_3) -> root_2, __g_PREVIEW(root_3))
-);
+   ((__g_PREVIEW(root_2), root_3) -> root_2, __g_PREVIEW(root_3)),
+   ((root_2, __g_PREVIEW(root_3)) -> root_1, __g_PREVIEW(root_2)));
 
 using md_graph = GRAPH_DSL_NS::multi_device_graph<graph, selector, transitions>;
 
@@ -528,7 +537,6 @@ struct session_actor : nano_caf::behavior_based_actor {
    nano_caf::behavior get_behavior() override {
       return {
          [this](start_atom, const environment& env) {
-            spdlog::info("start_atom");
             on_env_change(env);
          },
          [this](env_change_atom, const environment& env) {
@@ -589,15 +597,16 @@ struct user_actor : nano_caf::actor {
    auto user_op() -> void {
       std::random_device r;
       std::default_random_engine regen{r()};
-      std::uniform_int_distribution<size_t> uniform(0, 10);
+      std::uniform_int_distribution<size_t> uniform(5, 10);
 
       after(std::chrono::seconds(uniform(regen)), [this]{
          spdlog::warn("environment changed ===========================");
          environment env;
          std::random_device r;
          std::default_random_engine regen{r()};
-         std::uniform_int_distribution<size_t> uniform_1(0, 15);
-         env.condition_1 = 3.0;
+         std::uniform_int_distribution<size_t> uniform_1(0, 12);
+         std::uniform_int_distribution<size_t> uniform_2(1, 4);
+         env.condition_1 = 1.1 * uniform_2(regen);
          env.condition_2 = uniform_1(regen);
          env.condition_3 = uniform_1(regen);
          session_.send<env_change>(env);
@@ -621,7 +630,7 @@ int main() {
    auto user = system.spawn<user_actor>(session);
 
    bool env_changed = false;
-   for(auto i=0; i<30; i++) {
+   for(auto i=0; i<60; i++) {
       session.send<switch_done>();
 
       std::this_thread::sleep_for(1s);
@@ -629,6 +638,8 @@ int main() {
       node_condition = !node_condition;
       session.send<meta_change>();
    }
+
+   std::this_thread::sleep_for(1s);
 
    user.exit_and_wait();
 
