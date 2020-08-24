@@ -8,6 +8,7 @@ include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party/hana/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/third-party"
 )
 
 

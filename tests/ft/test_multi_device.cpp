@@ -9,6 +9,7 @@
 #include <graph/core/dsl/sub_graph_selector.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <graph/core/dsl/multi_device_graph.h>
+#include <spdlog/spdlog.h>
 #include <random>
 #include <iostream>
 #include <map>
@@ -24,11 +25,11 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
    intermediate_actor(int node_id, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports)
       : node_id_(node_id)
       , ports_(std::move(ports)) {
-      std::cout << node_id_ << ": intermediate created ----------------------> " << std::endl;
+      spdlog::info("{}: intermediate created <----------------------", node_id_);
    }
 
    ~intermediate_actor() override {
-      std::cout << node_id_ << ": intermediate destroyed <----------------------" << std::endl;
+      spdlog::info("{}: intermediate destroyed <----------------------", node_id_);
    }
 
    nano_caf::behavior get_behavior() override {
@@ -37,15 +38,15 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
             ports_ = std::move(ports);
          },
          [this](const image_buf_msg_1& msg) {
-            std::cout << node_id_ << ": intermediate image buf 1 received" << std::endl;
+            spdlog::info("{}: intermediate image buf 1 received: {}", node_id_, ++counter);
             forward(msg);
          },
          [this](const image_buf_msg_2& msg) {
-            std::cout << node_id_ << ": intermediate image buf 2 received" << std::endl;
+            spdlog::info("{}: intermediate image buf 2 received: {}", node_id_, ++counter);
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-            std::cout << node_id_ << ": intermediate exit" << std::endl;
+            spdlog::info("{}: intermediate exit", node_id_);
          }
       };
    }
@@ -59,28 +60,29 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
 
 private:
    std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports_;
+   int counter{0};
    int node_id_;
 };
 
 struct leaf_actor : nano_caf::behavior_based_actor {
    leaf_actor(int node_id) : node_id_(node_id) {
-      std::cout << node_id_ << ": leaf created ----------------------> " << std::endl;
+      spdlog::info("{}: leaf created <-------------------- ", node_id_);
    }
 
    ~leaf_actor() override {
-      std::cout << node_id_ << ": leaf destroyed <-------------------- " << std::endl;
+      spdlog::info("{}: leaf destroyed <-------------------- ", node_id_);
    }
 
    nano_caf::behavior get_behavior() override {
       return {
          [this](const image_buf_msg_1&) {
-            std::cout << node_id_ << ": leaf image buf 1 received : " << ++counter << std::endl;
+            spdlog::info("{}: leaf image buf 1 received: {}", node_id_, ++counter);
          },
          [this](const image_buf_msg_2&) {
-            std::cout << node_id_ << ": leaf image buf 2 received : " << ++counter << std::endl;
+            spdlog::info("{}: leaf image buf 2 received: {}", node_id_, ++counter);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-            std::cout << node_id_ << ": leaf exit" << std::endl;
+            spdlog::info("{}: leaf exit", node_id_);
          }
       };
    }
@@ -93,18 +95,18 @@ struct root_actor : nano_caf::behavior_based_actor {
    root_actor(int id, std::unique_ptr<graph_dsl::actor_ports> ports)
       : id_(id)
       , ports_{std::move(ports)} {
-      std::cout << id_ << ": root created" << std::endl;
+      spdlog::info("{}: root created", id_);
    }
 
    ~root_actor() override {
-      std::cout << id_ << ": root destroyed" << std::endl;
+      spdlog::info("{}: root destroyed", id_);
    }
 
    nano_caf::behavior get_behavior() override {
       return {
          [this](graph_dsl::ports_update_msg_atom, std::unique_ptr<graph_dsl::actor_ports> ports) {
             ports_ = std::move(ports);
-            std::cout << id_ << ": root ports updated" << std::endl;
+            spdlog::info("{}: root ports updated", id_);
          },
          [this](const image_buf_msg_1& msg) {
             forward(msg);
@@ -113,7 +115,7 @@ struct root_actor : nano_caf::behavior_based_actor {
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-            std::cout << id_ << ": root exit" << std::endl;
+            spdlog::info("{}: root exit", id_);
          }
       };
    }
@@ -534,13 +536,13 @@ struct session_actor : nano_caf::behavior_based_actor {
          },
          [this](meta_change_atom) {
             if(graph.refresh(context) != GRAPH_DSL_NS::status_t::Ok) {
-               std::cout << "refresh fail" << std::endl;
+               spdlog::error("refresh fail");
                exit(nano_caf::exit_reason::unhandled_exception);
             }
          },
          [this](switch_done_atom) {
             if(graph.on_switch_done(context) != GRAPH_DSL_NS::status_t::Ok) {
-               std::cout << "on_switch_done fail" << std::endl;
+               spdlog::error("on_switch_done fail");
                exit(nano_caf::exit_reason::unhandled_exception);
             }
          },
@@ -556,7 +558,7 @@ struct session_actor : nano_caf::behavior_based_actor {
 
    auto on_env_change(const environment& env) -> void {
       if(auto status = graph.on_env_change(context, env); status != GRAPH_DSL_NS::status_t::Ok) {
-         std::cout << "refresh failed" << std::endl;
+         spdlog::error("refresh failed");
          exit(nano_caf::exit_reason::unhandled_exception);
       }
    }
