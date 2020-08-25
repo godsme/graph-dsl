@@ -46,29 +46,24 @@ struct down_stream_either {
          }
          return status_t::Ok;
       }
+
+      template<size_t N>
+      auto cleanup(graph_context& context) {
+         std::get<N>(node_).release(context);
+         node_ = std::monostate{};
+      }
    public:
       auto build(graph_context& context) -> status_t {
          return COND{}(context).with_value([&](auto satisfied) {
-            if(satisfied) {
-               return move_to<2, 1, node_1>(context);
-            } else {
-               return move_to<1, 2, node_2>(context);
-            }
+            if(satisfied) { return move_to<2, 1, node_1>(context); }
+            else          { return move_to<1, 2, node_2>(context); }
          });
       }
 
       auto release(graph_context& context) {
          switch(node_.index()) {
-            case 1: {
-               std::get<1>(node_).release(context);
-               node_ = std::monostate{};
-               break;
-            }
-            case 2: {
-               std::get<2>(node_).release(context);
-               node_ = std::monostate{};
-               break;
-            }
+            case 1: { cleanup<1>(context); break; }
+            case 2: { cleanup<2>(context); break; }
             default: break;
          }
       }
