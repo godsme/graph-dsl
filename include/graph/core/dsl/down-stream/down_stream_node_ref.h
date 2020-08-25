@@ -30,7 +30,6 @@ struct down_stream_node_ref {
             node_index<NODE, TUPLE>::get_node(context).add_ref();
             enabled_ = true;
          }
-
          return status_t::Ok;
       }
 

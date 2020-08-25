@@ -49,9 +49,7 @@ struct down_stream_maybe {
          return node_.collect_actor_handle(context, actor_handles);
       }
 
-      auto enabled() const -> bool {
-         return satisfied_;
-      }
+      auto enabled() const -> bool { return satisfied_; }
 
    private:
       auto build_(graph_context& context) -> status_t {

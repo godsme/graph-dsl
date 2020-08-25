@@ -635,8 +635,10 @@ int main() {
 
       std::this_thread::sleep_for(1s);
 
-      node_condition = !node_condition;
-      session.send<meta_change>();
+      if(i % 5 == 0) {
+         node_condition = !node_condition;
+         session.send<meta_change>();
+      }
    }
 
    std::this_thread::sleep_for(1s);
