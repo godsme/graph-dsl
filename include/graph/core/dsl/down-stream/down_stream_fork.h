@@ -12,6 +12,7 @@
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <boost/hana/fwd/tuple.hpp>
 #include <boost/hana/flatten.hpp>
+#include <graph/function/tuple_foreach.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -22,57 +23,24 @@ struct down_stream_fork {
    constexpr static auto node_list =
       hana::flatten(hana::make_tuple(down_stream_trait<NODEs_LIKE>::type::node_list...));
 
-   constexpr static auto sequence = std::make_index_sequence<sizeof...(NODEs_LIKE)>{};
    template<typename TUPLE>
    struct instance_type {
       auto build(graph_context& context) -> status_t {
-         return build(context, sequence);
+         return tuple_foreach(nodes_, [&](auto& node) { return node.build(context); });
       }
-
       auto release(graph_context& context) {
-         release(context, sequence);
+         tuple_foreach_void(nodes_, [&](auto& node) { node.release(context); });
       }
-
       auto enabled() const -> bool {
-         return enabled(sequence);
+         return tuple_exists(nodes_, [](auto& node) { return node.enabled(); });
       }
-
       auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
-         return collect_actor_handle(context, actor_handles, sequence);
-      }
-
-   private:
-      template<size_t ... I>
-      auto build(graph_context& context, std::index_sequence<I...>) -> status_t {
-         status_t status = status_t::Ok;
-         return (((status = std::get<I>(nodes_).build(context)) == status_t::Ok) && ...) ?
-                status_t::Ok : status;
-      }
-
-      template<size_t ... I>
-      auto release(graph_context& context, std::index_sequence<I...>) {
-         (std::get<I>(nodes_).release(context), ...);
-      }
-
-      template<size_t ... I>
-      auto enabled(std::index_sequence<I...>) const -> bool {
-         return (std::get<I>(nodes_).enabled() || ...);
-      }
-
-   private:
-      template <size_t ... I>
-      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles, std::index_sequence<I...>) -> status_t {
-         status_t status = status_t::Ok;
-         return (((status = collect_actor_handle(std::get<I>(nodes_), context, actor_handles)) == status_t::Ok) && ...) ?
-                status_t::Ok : status;
-      }
-
-      template<typename NODE>
-      auto collect_actor_handle(NODE& node, graph_context& context, actor_handle_set& actor_handles) -> status_t {
-         if(node.enabled()) {
-            return node.collect_actor_handle(context, actor_handles);
-         }
-         return status_t::Ok;
+         return tuple_foreach(nodes_, [&](auto& node) {
+            if (node.enabled()) {
+               return node.collect_actor_handle(context, actor_handles);
+            }
+            return status_t::Ok;
+         });
       }
 
    private:
