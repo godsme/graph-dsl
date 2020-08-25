@@ -32,8 +32,8 @@ struct down_stream_maybe {
                return build_(context);
             } else {
                release(context);
+               return status_t::Ok;
             }
-            return status_t::Ok;
          });
       }
 
