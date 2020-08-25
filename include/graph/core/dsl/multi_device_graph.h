@@ -23,7 +23,7 @@ struct multi_device_graph : private GRAPH {
          spdlog::critical("new paths found {} : {}, {}, {}, {}", paths_.size, env.get_scene(), env.get_condition_1(), env.get_condition_2(), env.get_condition_3());
          current_state_ = paths_.size == 1 ? 0 : 1;
          context.update_root_state(paths_.state[current_state_]);
-         spdlog::error("goto ({}-{}) ",
+         spdlog::critical("goto ({}-{}) ",
                        paths_.state[current_state_].device_info_[0].is_preview ?
                        paths_.state[current_state_].device_info_[0].device_id :
                        paths_.state[current_state_].device_info_[1].device_id,
@@ -32,7 +32,7 @@ struct multi_device_graph : private GRAPH {
                        paths_.state[current_state_].device_info_[0].device_id);
          return GRAPH::refresh(context);
       } else {
-         spdlog::critical("nothing changed, {}, {}, {}, {}", env.get_scene(), env.get_condition_1(), env.get_condition_2(), env.get_condition_3());
+         spdlog::info("nothing changed, {}, {}, {}, {}", env.get_scene(), env.get_condition_1(), env.get_condition_2(), env.get_condition_3());
          current_state_ = 0;
       }
 
@@ -44,7 +44,7 @@ struct multi_device_graph : private GRAPH {
          multi_device_.update_state(paths_.state[current_state_]);
          if((++current_state_) < paths_.size) {
             context.update_root_state(paths_.state[current_state_]);
-            spdlog::error("goto ({}-{}) ",
+            spdlog::critical("goto ({}-{}) ",
                           paths_.state[current_state_].device_info_[0].is_preview ?
                           paths_.state[current_state_].device_info_[0].device_id :
                           paths_.state[current_state_].device_info_[1].device_id,

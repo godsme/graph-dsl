@@ -540,20 +540,20 @@ struct session_actor : nano_caf::behavior_based_actor {
             on_env_change(env);
          },
          [this](env_change_atom, const environment& env) {
-            spdlog::info("env_change_atom");
+            spdlog::info("session: env_change_atom");
             on_env_change(env);
          },
          [this](meta_change_atom) {
-            spdlog::info("meta_change_atom");
+            spdlog::info("session: meta_change_atom");
             if(graph.refresh(context) != GRAPH_DSL_NS::status_t::Ok) {
-               spdlog::error("refresh fail");
+               spdlog::error("session: refresh fail");
                exit(nano_caf::exit_reason::unhandled_exception);
             }
          },
          [this](switch_done_atom) {
-            spdlog::info("switch_done_atom");
+            spdlog::info("session: switch_done_atom");
             if(graph.on_switch_done(context) != GRAPH_DSL_NS::status_t::Ok) {
-               spdlog::error("on_switch_done fail");
+               spdlog::error("session: on_switch_done fail");
                exit(nano_caf::exit_reason::unhandled_exception);
             }
          },
@@ -569,7 +569,7 @@ struct session_actor : nano_caf::behavior_based_actor {
 
    auto on_env_change(const environment& env) -> void {
       if(auto status = graph.on_env_change(context, env); status != GRAPH_DSL_NS::status_t::Ok) {
-         spdlog::error("refresh failed");
+         spdlog::error("session: refresh failed");
          exit(nano_caf::exit_reason::unhandled_exception);
       }
    }
