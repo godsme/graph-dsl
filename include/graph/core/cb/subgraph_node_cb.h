@@ -29,8 +29,7 @@ struct subgraph_node_base {
    auto stop() -> status_t {
       if(running_) {
          running_ = false;
-         auto result = actor_handle_.exit_and_wait();
-         GRAPH_EXPECT_TRUE(result.is_ok());
+         actor_handle_.exit_and_release();
       }
 
       return status_t::Ok;

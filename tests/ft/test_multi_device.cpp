@@ -11,7 +11,6 @@
 #include <graph/core/dsl/multi_device_graph.h>
 #include <spdlog/spdlog.h>
 #include <random>
-#include <iostream>
 #include <map>
 
 struct image_buf {
@@ -38,11 +37,11 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
             ports_ = std::move(ports);
          },
          [this](const image_buf_msg_1& msg) {
-            //spdlog::info("{}: intermediate image buf 1 received: {}", node_id_, ++counter);
+            spdlog::debug("{}: intermediate image buf 1 received: {}", node_id_, ++counter);
             forward(msg);
          },
          [this](const image_buf_msg_2& msg) {
-            //spdlog::info("{}: intermediate image buf 2 received: {}", node_id_, ++counter);
+            spdlog::debug("{}: intermediate image buf 2 received: {}", node_id_, ++counter);
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
@@ -75,10 +74,10 @@ struct leaf_actor : nano_caf::behavior_based_actor {
    nano_caf::behavior get_behavior() override {
       return {
          [this](const image_buf_msg_1&) {
-            //spdlog::info("{}: leaf image buf 1 received: {}", node_id_, ++counter);
+            spdlog::debug("{}: leaf image buf 1 received: {}", node_id_, ++counter);
          },
          [this](const image_buf_msg_2&) {
-            //spdlog::info("{}: leaf image buf 2 received: {}", node_id_, ++counter);
+            spdlog::debug("{}: leaf image buf 2 received: {}", node_id_, ++counter);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
          }
@@ -107,11 +106,11 @@ struct root_actor : nano_caf::behavior_based_actor {
             spdlog::info("{}: root ports updated (******) ", id_);
          },
          [this](const image_buf_msg_1& msg) {
-            //spdlog::info("{}: root received msg 1", id_);
+            spdlog::debug("{}: root received msg 1", id_);
             forward(msg);
          },
          [this](const image_buf_msg_2& msg) {
-            //spdlog::info("{}: root received msg 2", id_);
+            spdlog::debug("{}: root received msg 2", id_);
             forward(msg);
          },
          [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
@@ -542,13 +541,15 @@ struct session_actor : nano_caf::behavior_based_actor {
          [this](env_change_atom, const environment& env) {
             spdlog::info("session: env_change_atom");
             on_env_change(env);
+            spdlog::info("session: env_change_atom done");
          },
          [this](meta_change_atom) {
-            spdlog::info("session: meta_change_atom");
+            spdlog::info("session: meta_change_atom 1");
             if(graph.refresh(context) != GRAPH_DSL_NS::status_t::Ok) {
                spdlog::error("session: refresh fail");
                exit(nano_caf::exit_reason::unhandled_exception);
             }
+            spdlog::info("session: env_change_atom 1 done");
          },
          [this](switch_done_atom) {
             spdlog::info("session: switch_done_atom");
@@ -619,8 +620,10 @@ private:
 };
 
 int main() {
+   spdlog::set_level(spdlog::level::debug);
+
    nano_caf::actor_system system;
-   system.start(4);
+   system.start(1);
 
    environment env;
 
