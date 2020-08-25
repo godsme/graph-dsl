@@ -35,27 +35,25 @@ struct down_stream_either {
       using node_1 = typename decorated_node_1::template instance_type<TUPLE>;
       using node_2 = typename decorated_node_2::template instance_type<TUPLE>;
 
+      template<size_t FROM, size_t TO, typename NODE>
+      auto move_to(graph_context& context) -> status_t {
+         if(node_.index() == FROM) {
+            std::get<FROM>(node_).release(context);
+         }
+         if(node_.index() != TO) {
+            node_ = NODE{};
+            GRAPH_EXPECT_SUCC(std::get<TO>(node_).build(context));
+         }
+         return status_t::Ok;
+      }
    public:
       auto build(graph_context& context) -> status_t {
          return COND{}(context).with_value([&](auto satisfied) {
             if(satisfied) {
-               if(node_.index() == 2) {
-                  std::get<2>(node_).release(context);
-               }
-               if(node_.index() != 1) {
-                  node_ = node_1{};
-                  GRAPH_EXPECT_SUCC(std::get<1>(node_).build(context));
-               }
+               return move_to<2, 1, node_1>(context);
             } else {
-               if(node_.index() == 1) {
-                  std::get<1>(node_).release(context);
-               }
-               if(node_.index() != 2) {
-                  node_ = node_2{};
-                  GRAPH_EXPECT_SUCC(std::get<2>(node_).build(context));
-               }
+               return move_to<1, 2, node_2>(context);
             }
-            return status_t::Ok;
          });
       }
 
@@ -83,9 +81,7 @@ struct down_stream_either {
          }
       }
 
-      auto enabled() const -> bool {
-         return node_.index() != 0;
-      }
+      auto enabled() const -> bool { return node_.index() != 0; }
 
    private:
       std::variant<std::monostate, node_1, node_2> node_;
