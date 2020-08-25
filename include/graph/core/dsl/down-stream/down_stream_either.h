@@ -48,7 +48,7 @@ struct down_stream_either {
       }
 
       template<size_t N>
-      auto cleanup(graph_context& context) {
+      inline auto cleanup(graph_context& context) {
          std::get<N>(node_).release(context);
          node_ = std::monostate{};
       }

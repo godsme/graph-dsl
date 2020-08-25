@@ -51,7 +51,11 @@ private:
       hana::ap(hana::make_tuple(hana::make_pair),
          unique(hana::tuple_t<typename TRANS::from_state ...>),
          unique(hana::tuple_t<typename TRANS::to_state ...>)),
-      [](auto const& elem) { return hana::first(elem) == hana::second(elem); });
+      [](auto const& elem) {
+         using from_type = typename std::decay_t<decltype(hana::first(elem))>::type;
+         using to_type   = typename std::decay_t<decltype(hana::second(elem))>::type;
+         return from_type::template equals<to_type>();
+      });
 
    constexpr static auto Sorted_Possible_Transitions = hana::sort(All_Possible_Transitions, [](auto l, auto r){
       using l_from = typename std::decay_t<decltype(hana::first(l))>::type;
@@ -86,6 +90,7 @@ private:
    using key_type = std::pair<root_state, root_state>;
    using elem_type = std::pair<key_type, state_path>;
 
+public:
    constexpr static auto All_Transitions_Paths =
       hana::fold_left(hana::transform(hana::remove_if(hana::transform(Sorted_Possible_Transitions,
    [](auto const& elem) {
@@ -120,14 +125,6 @@ private:
    }
 
    constexpr static auto sequence = std::make_index_sequence<std::tuple_size_v<decltype(All_Transitions_Paths)>>{};
-//   using array = std::array<elem_type, std::tuple_size_v<decltype(All_Transitions_Paths)>>;
-//
-//   template<size_t ... I>
-//   constexpr static auto to_array(std::index_sequence<I...>) -> array {
-//      return { std::get<I>(All_Transitions_Paths)...};
-//   }
-//
-//   constexpr static array All_Transition_Paths_Array = to_array(sequence);
 
 public:
    static auto find(const root_state& from, const root_state& to) -> state_path {

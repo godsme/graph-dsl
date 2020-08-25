@@ -24,7 +24,8 @@ struct multi_device {
       if(state_.size_ == 0) {
          return { .state = &target_state_, .size = 1 };
       }
-      spdlog::error("{} ({}-{}) -> {} ({}-{}) ",
+
+      spdlog::critical("{} ({}-{}) -> {} ({}-{}) ",
                     state_.size_,
                            state_.device_info_[0].is_preview ?
                            state_.device_info_[0].device_id :
@@ -40,6 +41,7 @@ struct multi_device {
                     target_state_.device_info_[1].device_id :
                     target_state_.device_info_[0].device_id);
 
+      if(state_ == target_state_) return {};
       return STATE_TRANSITION::find(state_, target_state_);
    }
 
