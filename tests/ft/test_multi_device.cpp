@@ -499,7 +499,13 @@ struct environment {
 
 struct hardware_actor : nano_caf::actor {
    hardware_actor(md_graph& graph, int which)
-      : graph_{graph}, which_msg_{which} {}
+      : graph_{graph}, which_msg_{which} {
+      spdlog::info("{}: hardware_actor created", which_msg_);
+   }
+
+   ~hardware_actor() {
+      spdlog::info("{}: hardware_actor destroyed", which_msg_);
+   }
 
    auto on_init() -> void override {
       repeat(33ms, [this]{
@@ -513,6 +519,14 @@ struct hardware_actor : nano_caf::actor {
          }
       });
    }
+
+//   nano_caf::behavior get_behavior() override {
+//      return {
+//         [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
+//            spdlog::info("{}: hardware_actor exit", which_msg_);
+//         }
+//      };
+//   }
 
 private:
    md_graph& graph_;
@@ -531,6 +545,10 @@ struct session_actor : nano_caf::behavior_based_actor {
    auto on_init() -> void override {
       hw_1 = spawn<hardware_actor>(graph, 0);
       hw_2 = spawn<hardware_actor>(graph, 1);
+   }
+
+   ~session_actor() {
+      spdlog::info("session_actor destroyed");
    }
 
    nano_caf::behavior get_behavior() override {
@@ -558,7 +576,7 @@ struct session_actor : nano_caf::behavior_based_actor {
                exit(nano_caf::exit_reason::unhandled_exception);
             }
          },
-         [this](const stop&) {
+         [this](stop_atom) {
             cleanup();
             exit(nano_caf::exit_reason::normal);
          },
@@ -577,8 +595,8 @@ struct session_actor : nano_caf::behavior_based_actor {
 
    auto cleanup() -> void {
       graph.stop();
-      hw_1.exit_and_wait();
-      hw_2.exit_and_wait();
+      hw_1.exit_and_release();
+      hw_2.exit_and_release();
    }
 
    GRAPH_DSL_NS::graph_context context;
@@ -590,6 +608,10 @@ struct session_actor : nano_caf::behavior_based_actor {
 struct user_actor : nano_caf::actor {
    explicit user_actor(nano_caf::actor_handle session)
       : session_{std::move(session)} {}
+
+   ~user_actor() {
+      spdlog::info("user actor destroyed");
+   }
 
    auto on_init()  -> void override {
       user_op();
@@ -620,7 +642,7 @@ private:
 };
 
 int main() {
-   spdlog::set_level(spdlog::level::debug);
+   spdlog::set_level(spdlog::level::info);
 
    nano_caf::actor_system system;
    system.start(1);
@@ -632,12 +654,9 @@ int main() {
 
    auto user = system.spawn<user_actor>(session);
 
-   bool env_changed = false;
-   for(auto i=0; i<60; i++) {
+   for(auto i=0; i<10; i++) {
       session.send<switch_done>();
-
       std::this_thread::sleep_for(1s);
-
       if(i % 5 == 0) {
          node_condition = !node_condition;
          session.send<meta_change>();
@@ -646,13 +665,16 @@ int main() {
 
    std::this_thread::sleep_for(1s);
 
+   spdlog::info("ready for exit");
    user.exit_and_wait();
 
    session.send<stop>();
 
+   spdlog::info("wait for session exit");
    session.wait_for_exit();
    session.release();
 
+   spdlog::info("system shutdown");
    system.shutdown();
 
    return 0;
