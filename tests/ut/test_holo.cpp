@@ -10,6 +10,9 @@
 #include <holo/algo/find_if.h>
 #include <holo/algo/transform.h>
 #include <holo/algo/filter.h>
+#include <holo/algo/contains.h>
+#include <holo/algo/append.h>
+#include <holo/algo/remove_if.h>
 
 namespace {
    TEST_CASE("holo fold left") {
@@ -67,6 +70,16 @@ namespace {
       static_assert(result == holo::tuple_t<int, float>);
    }
 
+   TEST_CASE("holo remove_if") {
+      constexpr auto result = holo::remove_if(
+         [](auto elem) constexpr {
+            return elem == holo::type_c<double>;
+         },
+         holo::tuple_t<int, double, float>);
+
+      static_assert(result == holo::tuple_t<int, float>);
+   }
+
    TEST_CASE("std constexpr test") {
       constexpr std::optional<int> i = 10;
       static_assert(*i == 10, "");
@@ -76,4 +89,14 @@ namespace {
       static_assert(pair == std::make_pair(holo::type_c<int>, holo::type_c<double>));
    }
 
+   TEST_CASE("contains") {
+      static_assert(holo::contains(holo::type_c<int>, holo::tuple_t<int, double, float>));
+      static_assert(!holo::contains(holo::type_c<long>, holo::tuple_t<int, double, float>));
+   }
+
+   TEST_CASE("append") {
+      static_assert(holo::tuple_t<int, double, float, long> == holo::append(holo::type_c<long>, holo::tuple_t<int, double, float>));
+      static_assert(holo::tuple_t<long, int, double, float> == holo::prepend(holo::type_c<long>, holo::tuple_t<int, double, float>));
+      static_assert(holo::tuple_t<long, char, int, double, float> == holo::concat(holo::tuple_t<long, char>, holo::tuple_t<int, double, float>));
+   }
 }
