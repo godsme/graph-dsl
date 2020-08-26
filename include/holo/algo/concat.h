@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/26.
 //
 
-#ifndef GRAPH_APPEND_H
-#define GRAPH_APPEND_H
+#ifndef GRAPH_CONCAT_H
+#define GRAPH_CONCAT_H
 
 #include <holo/holo_ns.h>
 #include <holo/types/type_c.h>
@@ -29,4 +29,4 @@ constexpr auto concat(TUPLE1&& tuple1, TUPLE2&& tuple2) {
 
 HOLO_NS_END
 
-#endif //GRAPH_APPEND_H
+#endif //GRAPH_CONCAT_H

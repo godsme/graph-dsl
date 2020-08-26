@@ -50,7 +50,7 @@ add_executable(graph_ut
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl} include/holo/algo/append.h include/holo/algo/contains.h include/holo/algo/remove_if.h include/holo/algo/detail/filter_algo.h)
+        ${graph_dsl} include/holo/algo/concat.h include/holo/algo/contains.h include/holo/algo/remove_if.h include/holo/algo/detail/filter_algo.h include/holo/algo/reverse.h include/holo/algo/sort.h include/holo/algo/head.h include/holo/algo/partition.h include/holo/types/sizeof_c.h)
 
 add_executable(graph_multi_device
         ${graph_dsl}
