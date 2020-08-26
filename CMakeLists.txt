@@ -63,5 +63,5 @@ target_link_libraries(graph_ft
 
 target_link_libraries(graph_multi_device
         pthread
-        ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-debug/libnano_caf.a)
+        ${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/cmake-build-release/libnano_caf.a)
 

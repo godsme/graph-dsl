@@ -97,39 +97,37 @@ public:
          holo::transform(
             [](auto const& elem) {
                using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
-               return holo::make_pair(holo::first(elem), path::Path);
+               return holo::make_pair(holo::first(elem), path{});
             },
             holo::remove_if(
                [](auto const& elem) { return holo::size(holo::second(elem)) == holo::size_c<0>; },
                holo::transform(
                   [](auto const& elem) {
-                     auto from_state = std::decay_t<decltype(holo::first(elem))>::type::Root_State;
-                     auto to_state   = std::decay_t<decltype(holo::second(elem))>::type::Root_State;
-                     return holo::make_pair(holo::make_pair(from_state, to_state), state_transition_algo::find_shortcut(elem, All_Direct_Transitions));
+                     using from_state = typename std::decay_t<decltype(holo::first(elem))>::type;
+                     using to_state   = typename std::decay_t<decltype(holo::second(elem))>::type;
+                     return holo::make_pair(holo::make_pair(from_state{}, to_state{}), state_transition_algo::find_shortcut(elem, All_Direct_Transitions));
                      },
                      Sorted_Possible_Transitions))));
 
 
-   static auto matches(const elem_type& elem, const root_state& from, const root_state& to, state_path& path) {
-      auto& [key, value] = elem;
-      if((key.first == from) && (key.second == to)) {
-         path = value;
+    template<typename FROM, typename TO, typename PATH>
+   static auto matches(holo::pair<holo::pair<FROM, TO>, PATH>, const root_state& from, const root_state& to, state_path& path) {
+      if((FROM::Root_State == from) && (TO::Root_State == to)) {
+         path = PATH::Path;
          return true;
       }
       return false;
    }
 
-   template<size_t ... I>
-   inline static auto find(const root_state& from, const root_state& to, state_path& path, std::index_sequence<I...>) {
-      return (matches(std::get<I>(All_Transitions_Paths), from, to, path) || ...);
+   template<typename ... Ts>
+   inline static auto find(const root_state& from, const root_state& to, state_path& path, holo::tuple<Ts...>) {
+      return (matches(Ts{}, from, to, path) || ...);
    }
-
-   constexpr static auto sequence = std::make_index_sequence<std::tuple_size_v<decltype(All_Transitions_Paths)>>{};
 
 public:
    static auto find(const root_state& from, const root_state& to) -> state_path {
       state_path path{};
-      find(from, to, path, sequence);
+      find(from, to, path, All_Transitions_Paths);
       return path;
    }
 };
