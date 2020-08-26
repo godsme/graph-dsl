@@ -11,12 +11,9 @@
 #include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
-#include <boost/hana/fwd/tuple.hpp>
 #include <vector>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 //////////////////////////////////////////////////////////////////////////////
 template<typename COND, typename NODE_LIKE>

@@ -19,6 +19,16 @@ namespace detail {
 }
 
 template <typename TUPLE>
+constexpr auto empty(const TUPLE& tuple) {
+   return std::tuple_size_v<TUPLE> == 0;
+}
+
+template <typename TUPLE>
+constexpr auto size(const TUPLE& tuple) {
+   return std::tuple_size_v<TUPLE>;
+}
+
+template <typename TUPLE>
 constexpr auto head(const TUPLE& tuple) {
    static_assert(std::tuple_size_v<TUPLE> > 0, "empty list");
    return std::get<0>(tuple);

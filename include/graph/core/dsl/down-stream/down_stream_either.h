@@ -11,13 +11,10 @@
 #include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
-#include <boost/hana/fwd/tuple.hpp>
-#include <boost/hana/concat.hpp>
+#include <holo/algo/concat.h>
 #include <vector>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
 struct down_stream_either {
@@ -25,7 +22,7 @@ struct down_stream_either {
    using decorated_node_2 = typename down_stream_trait<NODE_LIKE_2>::type;
 
    constexpr static auto node_list = \
-      hana::concat
+      holo::concat
       (down_stream_trait<NODE_LIKE_1>::type::node_list
          , down_stream_trait<NODE_LIKE_2>::type::node_list);
 

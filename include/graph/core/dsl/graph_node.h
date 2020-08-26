@@ -16,23 +16,23 @@
 #include <nano-caf/util/macro_reflex_call.h>
 #include <nano-caf/util/macro_reflex_call_2.h>
 #include <tuple>
-#include <boost/hana.hpp>
 #include <graph/function/unique.h>
 #include <graph/function/tuple_foreach.h>
 #include <graph/core/cb/subgraph_node_cb.h>
+#include <holo/types/bool_c.h>
+#include <holo/algo/unique.h>
+#include <holo/algo/flatten.h>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 struct root_signature {};
 
 template<typename NODE, typename ... PORTS>
 struct graph_node final {
-   constexpr static auto is_root = hana::bool_c<std::is_base_of_v<root_signature, NODE>>;
+   constexpr static auto is_root = holo::bool_c<std::is_base_of_v<root_signature, NODE>>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
-      unique(hana::flatten(hana::make_tuple(graph_port<PORTS>::node_list...)));
+      holo::unique(holo::flatten(std::make_tuple(graph_port<PORTS>::node_list...)));
 
    template<typename NODES_CB, bool IS_ROOT>
    struct instance_type_base {

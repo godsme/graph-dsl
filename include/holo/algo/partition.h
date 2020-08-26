@@ -8,6 +8,7 @@
 #include <holo/holo_ns.h>
 #include <holo/types/type_c.h>
 #include <holo/types/tuple_t.h>
+#include <holo/algo/concat.h>
 #include <type_traits>
 #include <tuple>
 #include <holo/algo/detail/filter_algo.h>

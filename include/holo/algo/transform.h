@@ -14,16 +14,16 @@ HOLO_NS_BEGIN
 
 namespace detail {
    template <size_t ... I, typename TUPLE, typename F>
-   constexpr auto transform(F&& f, TUPLE&& tuple, std::index_sequence<I...>) {
+   constexpr auto transform(F&& f, const TUPLE& tuple, std::index_sequence<I...>) {
       return std::tuple{f(std::get<I>(tuple))...};
    }
 }
 
 template <typename TUPLE, typename F>
-constexpr auto transform(F&& f, TUPLE&& tuple) {
+constexpr auto transform(F&& f, const TUPLE& tuple) {
    return detail::transform
       ( std::forward<F>(f)
-      , std::forward<TUPLE>(tuple)
+      , tuple
       , std::make_index_sequence<std::tuple_size_v<std::decay_t<TUPLE>>>{});
 }
 

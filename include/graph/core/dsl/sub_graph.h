@@ -8,13 +8,10 @@
 #include <graph/graph_ns.h>
 #include <graph/core/sub_graph_analizer.h>
 #include <graph/core/dsl/graph_node.h>
-#include <graph/util/hana_tuple_trait.h>
-#include <boost/hana.hpp>
+#include <holo/types/tuple_trait.h>
 #include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 template<typename ... NODES>
 struct sub_graph final {
@@ -25,15 +22,16 @@ struct sub_graph final {
    private:
       template<typename ... Ts>
       using cb_container = std::tuple<subgraph_node_cb<typename Ts::node_type, Ts::category>...>;
-      using nodes_cb = hana_tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
+      static_assert(holo::size(all_sorted_nodes) > 0, "");
+      using nodes_cb = holo::tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
 
    private:
       constexpr static auto sorted_nodes_desc = sub_graph_analizer<NODES...>::sorted_nodes_desc;
-      static_assert(hana::size(sorted_nodes_desc) == sizeof...(NODES));
+      static_assert(holo::size(sorted_nodes_desc) == sizeof...(NODES));
 
       template<typename ... Ts>
       using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;
-      using nodes_links = hana_tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
+      using nodes_links = holo::tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
 
       template<typename T> struct desc_node_type { using type = typename T::node_type; };
    public:

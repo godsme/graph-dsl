@@ -11,17 +11,15 @@
 #include <graph/core/node_index.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <graph/core/actor_ports.h>
-#include <boost/hana.hpp>
+#include <holo/types/tuple_t.h>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 struct node_signature {};
 
 template <typename NODE>
 struct down_stream_node_ref {
-   constexpr static auto node_list = hana::tuple_t<NODE>;
+   constexpr static auto node_list = holo::tuple_t<NODE>;
 
    template<typename TUPLE>
    struct instance_type : node_index<NODE, TUPLE> {

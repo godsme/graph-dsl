@@ -5,7 +5,6 @@
 #ifndef GRAPH_SIZEOF_C_H
 #define GRAPH_SIZEOF_C_H
 
-
 #include <holo/holo_ns.h>
 #include <type_traits>
 

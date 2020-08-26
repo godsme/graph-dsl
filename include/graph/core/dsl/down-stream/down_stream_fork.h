@@ -10,18 +10,15 @@
 #include <graph/core/graph_context.h>
 #include <graph/util/result_t.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
-#include <boost/hana/fwd/tuple.hpp>
-#include <boost/hana/flatten.hpp>
 #include <graph/function/tuple_foreach.h>
+#include <holo/algo/flatten.h>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 template<typename ... NODEs_LIKE>
 struct down_stream_fork {
    constexpr static auto node_list =
-      hana::flatten(hana::make_tuple(down_stream_trait<NODEs_LIKE>::type::node_list...));
+      holo::flatten(std::make_tuple(down_stream_trait<NODEs_LIKE>::type::node_list...));
 
    template<typename TUPLE>
    struct instance_type {

@@ -7,7 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <graph/util/hana_tuple_trait.h>
-#include <graph/function/unique.h>
+#include <holo/algo/unique.h>
 #include <boost/hana.hpp>
 #include <graph/core/dsl/target_state_selector.h>
 #include <iostream>
