@@ -19,6 +19,16 @@ constexpr auto is_nothing(const T& v) {
    return false;
 }
 
+template<typename T>
+constexpr auto is_just(const std::optional<T>& v) {
+   return true;
+}
+
+template<typename T>
+constexpr auto is_just(const T& v) {
+   return false;
+}
+
 HOLO_NS_END
 
 #endif //GRAPH_IS_NOTHING_H

@@ -8,10 +8,11 @@
 #include <graph/graph_ns.h>
 #include <graph/util/interval.h>
 #include <graph/core/dsl/device_state.h>
+#include <holo/algo/sort.h>
+#include <holo/types/size_c.h>
+#include <holo/types/tuple_trait.h>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 template<uint8_t SCENE>
 struct scene_mode {
@@ -79,9 +80,9 @@ template<typename ... ENTRIES>
 struct target_state_selector {
 private:
    constexpr static auto Sorted_Entries =
-      hana::sort(hana::tuple_t<detail::target_state_entry<ENTRIES>...>, [](auto l, auto r) {
-      return hana::size_c<decltype(l)::type::Num_Of_Conditions> > hana::size_c<decltype(r)::type::Num_Of_Conditions>;
-   });
+      holo::sort([](auto l, auto r) {
+      return holo::size_c<decltype(l)::type::Num_Of_Conditions> > holo::size_c<decltype(r)::type::Num_Of_Conditions>;
+   }, holo::tuple_t<detail::target_state_entry<ENTRIES>...>);
 
 public:
    template<typename ... ALL_ENTRIES>
@@ -94,7 +95,7 @@ public:
       }
    };
 
-   using sorted_entries = hana_tuple_trait_t<decltype(Sorted_Entries), entries_type>;
+   using sorted_entries = holo::tuple_trait_t<decltype(Sorted_Entries), entries_type>;
 
    template<typename ENV>
    inline static auto find(ENV const& env) -> root_state {

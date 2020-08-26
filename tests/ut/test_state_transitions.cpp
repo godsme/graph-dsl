@@ -23,8 +23,6 @@ struct device_3 {
    constexpr static uint8_t Device_Id = 3;
 };
 
-using namespace boost::hana;
-
 namespace {
 using trans =
 __g_STATE_TRANSITIONS(
@@ -35,36 +33,38 @@ __g_STATE_TRANSITIONS(
    template<typename T> struct S;
    TEST_CASE("state transitions") {
       constexpr auto result = trans::All_Direct_Transitions;
-      constexpr auto expected = make_tuple(
-       make_pair(
-         type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>,
-         type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_1>>),
-       make_pair(
-         type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>,
-         type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>),
-       make_pair(
-          type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>,
-          type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>));
+      constexpr auto expected = std::make_tuple(
+       std::make_pair(
+         holo::type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>,
+         holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_1>>),
+       std::make_pair(
+          holo::type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>,
+          holo::type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>),
+       std::make_pair(
+          holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>,
+          holo::type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>));
 
       static_assert(expected == result);
    }
 
    TEST_CASE("find a direct transitions") {
-      constexpr auto from = type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>;
-      constexpr auto to   = type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_1>>;
+      constexpr auto from = holo::type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>;
+      constexpr auto to   = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_1>>;
+
 
       constexpr auto result = GRAPH_DSL_NS::state_transition_algo::find_shortcut(from, to, trans::All_Direct_Transitions);
-      static_assert(result == make_tuple(from, to));
+      //S<decltype(trans::All_Direct_Transitions)> s;
+      static_assert(result == std::make_tuple(from, to));
    }
 
    TEST_CASE("find a indirect transition") {
-      constexpr auto from = type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>;
-      constexpr auto to   = type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>;
+      constexpr auto from = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>;
+      constexpr auto to   = holo::type_c<graph_dsl::device_state<device_0, __g_PREVIEW(device_1)>>;
 
       constexpr auto result = GRAPH_DSL_NS::state_transition_algo::find_shortcut(from, to, trans::All_Direct_Transitions);
 
-      constexpr auto middle = type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>;
-      static_assert(result == make_tuple(from, middle, to));
+      constexpr auto middle = holo::type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>;
+      static_assert(result == std::make_tuple(from, middle, to));
    }
 
 using trans_2 =
@@ -80,18 +80,21 @@ using trans_2 =
       );
 
    TEST_CASE("find a long indirect transition") {
-      auto from = type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>;
-      auto to   = type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_3)>>;
+      auto from = holo::type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>;
+      auto to   = holo::type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_3)>>;
 
       constexpr auto result = GRAPH_DSL_NS::state_transition_algo::find_shortcut(from, to, trans_2::All_Direct_Transitions);
-      static_assert(size(result) == size_c<6>);
 
-      constexpr auto m1 = type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>;
-      constexpr auto m2 = type_c<graph_dsl::device_state<device_1, __g_PREVIEW(device_2)>>;
-      constexpr auto m3 = type_c<graph_dsl::device_state<__g_PREVIEW(device_1), device_3>>;
-      constexpr auto m4 = type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_3>>;
+      //static_assert(holo::size(result) == holo::size_c<6>);
 
-      static_assert(result == make_tuple(from, m1, m2, m3, m4, to));
+      constexpr auto m1 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>;
+      constexpr auto m2 = holo::type_c<graph_dsl::device_state<device_1, __g_PREVIEW(device_2)>>;
+      constexpr auto m3 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_1), device_3>>;
+      constexpr auto m4 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_3>>;
+
+      //std::cout << "size = " << std::tuple_size_v<decltype(std::make_tuple(from, m1, m2, m3, m4, to))> << std::endl;
+
+      static_assert(result == std::make_tuple(from, m1, m2, m3, m4, to));
    }
 
    TEST_CASE("transition path") {

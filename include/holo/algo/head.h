@@ -8,6 +8,7 @@
 #include <holo/holo_ns.h>
 #include <tuple>
 #include <holo/types/tuple_t.h>
+#include <holo/types/size_c.h>
 
 HOLO_NS_BEGIN
 
@@ -20,12 +21,12 @@ namespace detail {
 
 template <typename TUPLE>
 constexpr auto empty(const TUPLE& tuple) {
-   return std::tuple_size_v<TUPLE> == 0;
+   return std::integral_constant<bool, std::tuple_size_v<TUPLE> == 0>{};
 }
 
 template <typename TUPLE>
 constexpr auto size(const TUPLE& tuple) {
-   return std::tuple_size_v<TUPLE>;
+   return holo::size_c<std::tuple_size_v<TUPLE>>;
 }
 
 template <typename TUPLE>

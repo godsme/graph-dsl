@@ -15,7 +15,7 @@ HOLO_NS_BEGIN
 namespace detail {
    template <size_t ... I, typename TUPLE, typename F>
    constexpr auto transform(F&& f, const TUPLE& tuple, std::index_sequence<I...>) {
-      return std::tuple{f(std::get<I>(tuple))...};
+      return std::make_tuple(f(std::get<I>(tuple))...);
    }
 }
 

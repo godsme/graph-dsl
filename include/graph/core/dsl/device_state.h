@@ -8,13 +8,14 @@
 #include <graph/graph_ns.h>
 #include <graph/util/hana_tuple_trait.h>
 #include <graph/core/root_state.h>
-#include <boost/hana.hpp>
 #include <type_traits>
 #include <tuple>
+#include <holo/types/tuple_t.h>
+#include <holo/algo/sort.h>
+#include <holo/types/char_c.h>
+#include <holo/types/tuple_trait.h>
 
 GRAPH_DSL_NS_BEGIN
-
-namespace hana = boost::hana;
 
 ///////////////////////////////////////////////////////////////////////////////
 template<typename DEVICE>
@@ -39,9 +40,9 @@ template<typename ... DEVICEs>
 struct device_state {
    constexpr static size_t Num_Of_Devices = sizeof...(DEVICEs);
    constexpr static auto Sorted_Devices =
-      hana::sort(hana::tuple_t<detail::device_trait<DEVICEs>...>, [](auto l, auto r) {
-         return hana::char_c<decltype(l)::type::Device_Id> < hana::char_c<decltype(r)::type::Device_Id>;
-      });
+      holo::sort([](auto l, auto r) {
+         return holo::char_c<decltype(l)::type::Device_Id> < holo::char_c<decltype(r)::type::Device_Id>;
+      }, holo::tuple_t<detail::device_trait<DEVICEs>...>);
 
    template<typename ... Ts>
    struct devices_type {
@@ -51,7 +52,7 @@ struct device_state {
       constexpr static root_state Root_State { .device_info_ = Devices, .size_ = Num_Of_Devices };
    };
 
-   using devices = hana_tuple_trait_t<decltype(Sorted_Devices), devices_type>;
+   using devices = holo::tuple_trait_t<decltype(Sorted_Devices), devices_type>;
    constexpr static auto Devices = devices::Devices;
 
    constexpr static auto Root_State = devices::Root_State;
@@ -69,12 +70,12 @@ struct device_state {
    template<typename DEVICE>
    inline static constexpr auto equals() noexcept {
       if constexpr (Num_Of_Devices != DEVICE::Num_Of_Devices) {
-         return hana::integral_constant<bool, false>{};
+         return std::integral_constant<bool, false>{};
       } else {
          if constexpr (content_equal<DEVICE>()) {
-            return hana::integral_constant<bool, true>{};
+            return std::integral_constant<bool, true>{};
          } else {
-            return hana::integral_constant<bool, false>{};
+            return std::integral_constant<bool, false>{};
          }
       }
    }
@@ -92,14 +93,14 @@ struct device_state {
    template<typename DEVICE>
    inline static constexpr auto less_than() noexcept {
       if constexpr (Num_Of_Devices < DEVICE::Num_Of_Devices) {
-         return hana::integral_constant<bool, true>{};
+         return std::integral_constant<bool, true>{};
       } else if constexpr(Num_Of_Devices > DEVICE::Num_Of_Devices) {
-         return hana::integral_constant<bool, false>{};
+         return std::integral_constant<bool, false>{};
       } else {
          if constexpr (content_less_than<DEVICE>()) {
-            return hana::integral_constant<bool, true>{};
+            return std::integral_constant<bool, true>{};
          } else {
-            return hana::integral_constant<bool, false>{};
+            return std::integral_constant<bool, false>{};
          }
       }
    }
