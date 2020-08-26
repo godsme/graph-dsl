@@ -520,14 +520,6 @@ struct hardware_actor : nano_caf::actor {
       });
    }
 
-//   nano_caf::behavior get_behavior() override {
-//      return {
-//         [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
-//            spdlog::info("{}: hardware_actor exit", which_msg_);
-//         }
-//      };
-//   }
-
 private:
    md_graph& graph_;
    int which_msg_{0};
@@ -540,15 +532,17 @@ CAF_def_message(switch_done);
 CAF_def_message(stop);
 
 struct session_actor : nano_caf::behavior_based_actor {
-   session_actor() : context(*this) {}
-
-   auto on_init() -> void override {
-      hw_1 = spawn<hardware_actor>(graph, 0);
-      hw_2 = spawn<hardware_actor>(graph, 1);
+   session_actor() : context(*this) {
+      spdlog::info("session_actor created");
    }
 
    ~session_actor() {
       spdlog::info("session_actor destroyed");
+   }
+
+   auto on_init() -> void override {
+      hw_1 = spawn<hardware_actor>(graph, 0);
+      hw_2 = spawn<hardware_actor>(graph, 1);
    }
 
    nano_caf::behavior get_behavior() override {
@@ -595,8 +589,8 @@ struct session_actor : nano_caf::behavior_based_actor {
 
    auto cleanup() -> void {
       graph.stop();
-      hw_1.exit_and_release();
-      hw_2.exit_and_release();
+      hw_1.exit();
+      hw_2.exit();
    }
 
    GRAPH_DSL_NS::graph_context context;
@@ -607,7 +601,9 @@ struct session_actor : nano_caf::behavior_based_actor {
 
 struct user_actor : nano_caf::actor {
    explicit user_actor(nano_caf::actor_handle session)
-      : session_{std::move(session)} {}
+      : session_{std::move(session)} {
+      spdlog::info("user actor created");
+   }
 
    ~user_actor() {
       spdlog::info("user actor destroyed");
@@ -642,7 +638,7 @@ private:
 };
 
 int main() {
-   spdlog::set_level(spdlog::level::info);
+   spdlog::set_level(spdlog::level::debug);
 
    nano_caf::actor_system system;
    system.start(1);
@@ -654,7 +650,7 @@ int main() {
 
    auto user = system.spawn<user_actor>(session);
 
-   for(auto i=0; i<10; i++) {
+   for(auto i=0; i<60; i++) {
       session.send<switch_done>();
       std::this_thread::sleep_for(1s);
       if(i % 5 == 0) {
