@@ -10,15 +10,16 @@
 #include <type_traits>
 #include <tuple>
 #include <holo/algo/head.h>
+#include <holo/types/integral_c.h>
 
 HOLO_NS_BEGIN
 
 template <typename TUPLE, typename T>
 constexpr auto contains(T&& value, const TUPLE& tuple) {
    if constexpr (std::tuple_size_v<TUPLE> == 0) {
-      return std::integral_constant<bool, false>{};
-   } else if constexpr (std::is_same_v<std::integral_constant<bool, true>, decltype(holo::head(tuple) == value)>) {
-      return std::integral_constant<bool, true>{};
+      return integral_c<bool, false>{};
+   } else if constexpr (std::is_same_v<integral_c<bool, true>, decltype(holo::head(tuple) == value)>) {
+      return integral_c<bool, true>{};
    } else {
       return contains(std::forward<T>(value), holo::tail(tuple));
    }

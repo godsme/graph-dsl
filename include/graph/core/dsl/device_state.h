@@ -70,12 +70,12 @@ struct device_state {
    template<typename DEVICE>
    inline static constexpr auto equals() noexcept {
       if constexpr (Num_Of_Devices != DEVICE::Num_Of_Devices) {
-         return std::integral_constant<bool, false>{};
+         return holo::integral_c<bool, false>{};
       } else {
          if constexpr (content_equal<DEVICE>()) {
-            return std::integral_constant<bool, true>{};
+            return holo::integral_c<bool, true>{};
          } else {
-            return std::integral_constant<bool, false>{};
+            return holo::integral_c<bool, false>{};
          }
       }
    }
@@ -93,14 +93,14 @@ struct device_state {
    template<typename DEVICE>
    inline static constexpr auto less_than() noexcept {
       if constexpr (Num_Of_Devices < DEVICE::Num_Of_Devices) {
-         return std::integral_constant<bool, true>{};
+         return holo::integral_c<bool, true>{};
       } else if constexpr(Num_Of_Devices > DEVICE::Num_Of_Devices) {
-         return std::integral_constant<bool, false>{};
+         return holo::integral_c<bool, false>{};
       } else {
          if constexpr (content_less_than<DEVICE>()) {
-            return std::integral_constant<bool, true>{};
+            return holo::integral_c<bool, true>{};
          } else {
-            return std::integral_constant<bool, false>{};
+            return holo::integral_c<bool, false>{};
          }
       }
    }

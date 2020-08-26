@@ -5,7 +5,7 @@
 #ifndef GRAPH_TYPE_C_H
 #define GRAPH_TYPE_C_H
 
-#include <holo/holo_ns.h>
+#include <holo/types/integral_c.h>
 #include <type_traits>
 
 HOLO_NS_BEGIN
@@ -20,12 +20,12 @@ struct type_c_t {
 
 template <typename U, typename V>
 inline constexpr auto operator==(type_c_t<U> const& lhs, type_c_t<V> const& rhs) noexcept {
-   return std::integral_constant<bool, std::is_same_v<U, V>>{};
+   return integral_c<bool, std::is_same_v<U, V>>{};
 }
 
 template <typename U, typename V>
 inline constexpr auto operator!=(type_c_t<U> const& lhs, type_c_t<V> const& rhs) noexcept {
-   return std::integral_constant<bool, !std::is_same_v<U, V>>{};
+   return integral_c<bool, !std::is_same_v<U, V>>{};
 }
 
 template <typename T>

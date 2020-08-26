@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <tuple>
 #include <holo/algo/detail/filter_algo.h>
+#include <holo/types/integral_c.h>
 
 HOLO_NS_BEGIN
 
@@ -20,7 +21,7 @@ namespace detail {
    constexpr auto partition(F&& f, TUPLE&& tuple, SECOND_PART&& second, Args&& ... args) {
       if constexpr (I == std::tuple_size_v<std::decay_t<TUPLE>>) {
          return std::make_pair(std::make_tuple<Args...>(std::forward<Args>(args)...), std::forward<SECOND_PART>(second));
-      } else if constexpr (std::is_same_v<decltype(f(std::get<I>(tuple))), std::integral_constant<bool, true>>) {
+      } else if constexpr (std::is_same_v<decltype(f(std::get<I>(tuple))), integral_c<bool, true>>) {
          return partition<I+1>(std::forward<F>(f), std::forward<TUPLE>(tuple), std::forward<SECOND_PART>(second), std::forward<Args>(args)..., std::get<I>(tuple));
       } else {
          return partition<I+1>(std::forward<F>(f), std::forward<TUPLE>(tuple), append(std::get<I>(tuple), second), std::forward<Args>(args)...);

@@ -7,6 +7,7 @@
 
 #include <holo/holo_ns.h>
 #include <holo/types/type_c.h>
+#include <holo/types/integral_c.h>
 #include <type_traits>
 #include <tuple>
 #include <optional>
@@ -19,7 +20,7 @@ namespace detail {
       if constexpr (I == std::tuple_size_v<std::decay_t<TUPLE>>) {
          return std::nullopt;
       }
-      else if constexpr (std::is_same_v<decltype(f(std::get<I>(tuple))), std::integral_constant<bool, true>>) {
+      else if constexpr (std::is_same_v<decltype(f(std::get<I>(tuple))), integral_c<bool, true>>) {
          return std::optional{std::get<I>(tuple)};
       }
       else {

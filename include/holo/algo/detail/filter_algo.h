@@ -17,7 +17,7 @@ namespace detail {
    constexpr auto filter_algo(F&& f, TUPLE&& tuple, Args&& ... args) {
       if constexpr (I == std::tuple_size_v<std::decay_t<TUPLE>>) {
          return std::make_tuple<Args...>(std::forward<Args>(args)...);
-      } else if constexpr (std::is_same_v<decltype(f(std::get<I>(tuple))), std::integral_constant<bool, IN>>) {
+      } else if constexpr (std::is_same_v<decltype(f(std::get<I>(tuple))), integral_c<bool, IN>>) {
          return filter_algo<IN, I+1>(std::forward<F>(f), std::forward<TUPLE>(tuple), std::forward<Args>(args)..., std::get<I>(tuple));
       } else {
          return filter_algo<IN, I+1>(std::forward<F>(f), std::forward<TUPLE>(tuple), std::forward<Args>(args)...);

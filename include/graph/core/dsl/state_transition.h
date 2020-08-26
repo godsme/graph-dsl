@@ -61,14 +61,14 @@ private:
       using r_from = typename std::decay_t<decltype(r.first)>::type;
 
       if constexpr(l_from::template less_than<r_from>()) {
-         return std::integral_constant<bool, true>{};
+         return holo::integral_c<bool, true>{};
       }
       else if constexpr(l_from::template equals<r_from>()) {
          using l_to = typename std::decay_t<decltype(l.second)>::type;
          using r_to = typename std::decay_t<decltype(r.second)>::type;
          return l_to::template less_than<r_to>();
       } else {
-         return std::integral_constant<bool, false>{};
+         return holo::integral_c<bool, false>{};
       }
    }, All_Possible_Transitions);
 
