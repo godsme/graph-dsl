@@ -57,15 +57,15 @@ namespace {
       static_assert(result == holo::tuple_t<w<int>, w<double>, w<float>>);
    }
 
-//   TEST_CASE("holo filter") {
-//      constexpr auto result = holo::filter(
-//         [](auto elem) constexpr {
-//            return elem != holo::type_c<double>;
-//         },
-//         holo::tuple_t<int, double, float>);
-//
-//      static_assert(result == holo::tuple_t<int, float>);
-//   }
+   TEST_CASE("holo filter") {
+      constexpr auto result = holo::filter(
+         [](auto elem) constexpr {
+            return elem != holo::type_c<double>;
+         },
+         holo::tuple_t<int, double, float>);
+
+      static_assert(result == holo::tuple_t<int, float>);
+   }
 
    TEST_CASE("std constexpr test") {
       constexpr std::optional<int> i = 10;
