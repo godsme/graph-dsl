@@ -9,6 +9,7 @@
 #include <graph/core/sub_graph_analizer.h>
 #include <graph/core/dsl/graph_node.h>
 #include <holo/types/tuple_trait.h>
+#include <holo/algo/head.h>
 #include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN

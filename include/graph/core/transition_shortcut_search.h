@@ -9,11 +9,11 @@
 #include <graph/util/hana_tuple_trait.h>
 #include <holo/algo/unique.h>
 #include <graph/core/dsl/target_state_selector.h>
-#include <iostream>
-#include <holo/algo/is_nothing.h>
 #include <holo/algo/find_if.h>
 #include <holo/algo/transform.h>
 #include <holo/algo/remove_if.h>
+#include <holo/algo/head.h>
+#include <holo/types/maybe.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -23,7 +23,7 @@ class state_transition_algo {
    constexpr static auto
    search_next_layer(FROM const &from, TARGET const &target, TRANSITIONS const &transitions, REST const &rest) {
       auto all_paths = holo::transform([&](auto const &elem) {
-         return find_shortcut(elem.second, target, rest);
+         return find_shortcut(holo::second(elem), target, rest);
       }, transitions);
 
       auto all_non_empty_paths = holo::remove_if([](auto const &elem) {
@@ -47,13 +47,13 @@ class state_transition_algo {
    constexpr static auto
    find_shortcut_(FROM const &from, TARGET const &target, TRANSITIONS const& direct_transition, REST const &rest) {
       auto result = holo::find_if([&](auto elem) {
-         using to = typename std::decay_t<decltype(elem.second)>::type;
+         using to = typename std::decay_t<decltype(holo::second(elem))>::type;
          return std::decay_t<decltype(target)>::type::template equals<to>();
       }, direct_transition);
 
       if constexpr (!holo::is_nothing(result)) {
          // we got the shortcut
-         return std::make_tuple(from, (*result).second);
+         return holo::make_tuple(from, holo::second(result));
       } else {
          return search_next_layer(from, target, direct_transition, rest);
       }
@@ -64,18 +64,18 @@ public:
    constexpr static auto find_shortcut(FROM const& from, TARGET const& target, REST const& rest) {
       auto parts = holo::partition([&](auto elem) {
          using from_type = typename std::decay_t<decltype(from)>::type;
-         return std::decay_t<decltype(elem.first)>::type::template equals<from_type>();
+         return std::decay_t<decltype(holo::first(elem))>::type::template equals<from_type>();
       }, rest);
-      if constexpr (holo::size(parts.first) == holo::size_c<0>) {
+      if constexpr (holo::size(holo::first(parts)) == holo::size_c<0>) {
          return holo::tuple_t<>;
       } else {
-         return find_shortcut_(from, target, parts.first, parts.second);
+         return find_shortcut_(from, target, holo::first(parts), holo::second(parts));
       }
    }
 
-   template<typename TRANS_PAIR, typename REST>
-   constexpr static auto find_shortcut(TRANS_PAIR const& trans, REST const& rest) {
-      return find_shortcut(trans.first, trans.second, rest);
+   template<typename TRANS_PAIR, typename ... Ts>
+   constexpr static auto find_shortcut(TRANS_PAIR const& trans, holo::tuple<Ts...> const& rest) {
+      return find_shortcut(holo::first(trans), holo::second(trans), rest);
    }
 };
 

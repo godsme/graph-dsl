@@ -48,8 +48,8 @@ struct state_transitions {
 private:
    constexpr static auto All_Possible_Transitions = holo::remove_if(
       [](auto const& elem) {
-         using from_type = typename std::decay_t<decltype(elem.first)>::type;
-         using to_type   = typename std::decay_t<decltype(elem.second)>::type;
+         using from_type = typename std::decay_t<decltype(holo::first(elem))>::type;
+         using to_type   = typename std::decay_t<decltype(holo::second(elem))>::type;
          return from_type::template equals<to_type>();
       },
       holo::ap(
@@ -57,18 +57,18 @@ private:
          holo::unique(holo::tuple_t<typename TRANS::to_state ...>)));
 
    constexpr static auto Sorted_Possible_Transitions = holo::sort([](auto l, auto r){
-      using l_from = typename std::decay_t<decltype(l.first)>::type;
-      using r_from = typename std::decay_t<decltype(r.first)>::type;
+      using l_from = typename std::decay_t<decltype(holo::first(l))>::type;
+      using r_from = typename std::decay_t<decltype(holo::first(r))>::type;
 
       if constexpr(l_from::template less_than<r_from>()) {
-         return holo::integral_c<bool, true>{};
+         return holo::bool_c<true>;
       }
       else if constexpr(l_from::template equals<r_from>()) {
-         using l_to = typename std::decay_t<decltype(l.second)>::type;
-         using r_to = typename std::decay_t<decltype(r.second)>::type;
+         using l_to = typename std::decay_t<decltype(holo::second(l))>::type;
+         using r_to = typename std::decay_t<decltype(holo::second(r))>::type;
          return l_to::template less_than<r_to>();
       } else {
-         return holo::integral_c<bool, false>{};
+         return holo::bool_c<false>;
       }
    }, All_Possible_Transitions);
 
@@ -83,29 +83,29 @@ private:
 
 public:
    constexpr static auto All_Direct_Transitions =
-      std::make_tuple(std::make_pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
+      holo::make_tuple(holo::make_pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
 
 private:
-   using key_type = std::pair<root_state, root_state>;
-   using elem_type = std::pair<key_type, state_path>;
+   using key_type = holo::pair<root_state, root_state>;
+   using elem_type = holo::pair<key_type, state_path>;
 
 public:
    constexpr static auto All_Transitions_Paths =
       holo::fold_left(
-         std::tuple<>{},
-         [](auto const& acc, auto const& elem) { return std::tuple_cat(acc, std::make_tuple(elem)); },
+         holo::tuple_t<>,
+         [](auto const& acc, auto const& elem) { return holo::append(elem, acc); },
          holo::transform(
             [](auto const& elem) {
-               using path = holo::tuple_trait_t<decltype(elem.second), to_path>;
-               return std::make_pair(elem.first, path::Path);
+               using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
+               return holo::make_pair(holo::first(elem), path::Path);
             },
             holo::remove_if(
-               [](auto const& elem) { return holo::size(elem.second) == holo::size_c<0>; },
+               [](auto const& elem) { return holo::size(holo::second(elem)) == holo::size_c<0>; },
                holo::transform(
                   [](auto const& elem) {
-                     auto from_state = std::decay_t<decltype(elem.first)>::type::Root_State;
-                     auto to_state   = std::decay_t<decltype(elem.second)>::type::Root_State;
-                     return std::make_pair(std::make_pair(from_state, to_state), state_transition_algo::find_shortcut(elem, All_Direct_Transitions));
+                     auto from_state = std::decay_t<decltype(holo::first(elem))>::type::Root_State;
+                     auto to_state   = std::decay_t<decltype(holo::second(elem))>::type::Root_State;
+                     return holo::make_pair(holo::make_pair(from_state, to_state), state_transition_algo::find_shortcut(elem, All_Direct_Transitions));
                      },
                      Sorted_Possible_Transitions))));
 

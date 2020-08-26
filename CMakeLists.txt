@@ -8,10 +8,9 @@ include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party/hana/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../holo/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/../nano-caf/third-party"
 )
-
-
 
 set(graph_dsl
         include/graph/core/dsl/sub_graph.h
@@ -23,7 +22,6 @@ set(graph_dsl
         include/graph/core/dsl/graph_port.h
         include/graph/util/tuple_element_by_type.h
         include/graph/core/dsl/down-stream/down_stream_trait.h
-        include/holo/algo/unique.h
         include/graph/function/group.h
         include/graph/core/sub_graph_analizer.h
         include/graph/util/result_t.h
@@ -43,14 +41,14 @@ set(graph_dsl
         include/graph/core/msgs/graph_msgs.h)
 
 add_executable(graph_ut
-        tests/ut/test_hana.cpp
         tests/ut/test_node.cpp
         tests/ut/catch.cpp
-        ${graph_dsl} tests/ut/test_holo.cpp tests/ut/test_number_string.cpp tests/ut/test_interval.cpp tests/ut/test_device.cpp tests/ut/test_state_transitions.cpp tests/ut/test_multi_device.cpp)
+        ${graph_dsl}
+        tests/ut/test_number_string.cpp tests/ut/test_interval.cpp tests/ut/test_device.cpp tests/ut/test_state_transitions.cpp tests/ut/test_multi_device.cpp)
 
 add_executable(graph_ft
         tests/ft/test_graph.cpp
-        ${graph_dsl} include/holo/algo/concat.h include/holo/algo/contains.h include/holo/algo/remove_if.h include/holo/algo/detail/filter_algo.h include/holo/algo/reverse.h include/holo/algo/sort.h include/holo/algo/head.h include/holo/algo/partition.h include/holo/types/sizeof_c.h include/holo/types/bool_c.h include/graph/function/unique.h include/holo/algo/flatten.h include/holo/types/tuple_trait.h include/holo/algo/is_nothing.h include/holo/types/size_c.h include/holo/algo/ap.h include/holo/types/char_c.h include/holo/types/integral_c.h)
+        ${graph_dsl} )
 
 add_executable(graph_multi_device
         ${graph_dsl}

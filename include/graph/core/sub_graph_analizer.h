@@ -8,7 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/core/node_category.h>
 #include <holo/types/type_c.h>
-#include <holo/types/tuple_t.h>
+#include <holo/types/tuple.h>
 #include <holo/algo/fold_left.h>
 #include <holo/algo/find_if.h>
 #include <holo/algo/concat.h>
@@ -18,8 +18,9 @@
 #include <holo/algo/reverse.h>
 #include <holo/algo/unique.h>
 #include <holo/algo/remove_if.h>
-#include <holo/algo/is_nothing.h>
-#include <holo/types/bool_c.h>
+#include <holo/types/integral_c.h>
+#include <holo/algo/filter.h>
+#include <holo/types/pair.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -31,34 +32,34 @@ struct node_trait {
 
 template<typename ... NODES>
 class sub_graph_analizer final {
-   constexpr static auto nodes_map = std::make_tuple(
-      std::make_pair(holo::type_c<typename NODES::node_type>, NODES::direct_decedents)...);
+   constexpr static auto nodes_map = holo::make_tuple(
+      holo::make_pair(holo::type_c<typename NODES::node_type>, NODES::direct_decedents)...);
 
    constexpr static auto all_nodes_desc = holo::tuple_t<NODES...>;
 
    template<typename T>
    constexpr static auto get_all_decedents(T list) {
       return holo::fold_left(holo::tuple_t<>, [](auto acc, auto elem) {
-         auto entry = holo::find_if([=](auto v){ return v.first == elem; }, nodes_map);
+         auto entry = holo::find_if([=](auto v){ return holo::first(v) == elem; }, nodes_map);
          if constexpr(holo::is_nothing(entry)) {
             return holo::append(elem, acc);
          } else {
-            return holo::concat(acc, holo::append(elem, get_all_decedents((*entry).second)));
+            return holo::concat(acc, holo::append(elem, get_all_decedents(holo::second(entry))));
          }
       }, list);
    }
 
    constexpr static auto all_decedents_map = holo::transform([](auto elem) {
-      return std::make_pair(elem.first, holo::unique(get_all_decedents(elem.second)));
+      return holo::make_pair(holo::first(elem), holo::unique(get_all_decedents(holo::second(elem))));
    }, nodes_map);
 
    constexpr static auto sorted_map = holo::sort([](auto l, auto r) {
-      return holo::contains(l.first, r.second);
+      return holo::contains(holo::first(l), holo::second(r));
    }, all_decedents_map);
 
    constexpr static auto sorted_non_leaf_nodes = holo::reverse(
       holo::transform([](auto elem) {
-         return elem.first;
+         return holo::first(elem);
       }, sorted_map));
 
    constexpr static auto nodes_partition =
@@ -86,7 +87,7 @@ class sub_graph_analizer final {
 
    constexpr static auto all_decedents = holo::unique(
       holo::fold_left(holo::tuple_t<>, [](auto acc, auto elem){
-         return holo::concat(acc, elem.second);
+         return holo::concat(acc, holo::second(elem));
       }, all_decedents_map));
 
    constexpr static auto leaf_tagged_nodes = holo::transform(
@@ -105,8 +106,8 @@ public:
             return holo::type_c<typename decltype(v)::type::node_type> == elem;
          }, all_nodes_desc);
 
-         static_assert(entry.has_value());
-         return *entry;
+         static_assert(!holo::is_nothing(entry));
+         return entry;
       }, sorted_non_leaf_nodes);
 };
 

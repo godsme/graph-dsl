@@ -10,7 +10,7 @@
 #include <graph/core/root_state.h>
 #include <type_traits>
 #include <tuple>
-#include <holo/types/tuple_t.h>
+#include <holo/types/tuple.h>
 #include <holo/algo/sort.h>
 #include <holo/types/char_c.h>
 #include <holo/types/tuple_trait.h>
@@ -41,7 +41,9 @@ struct device_state {
    constexpr static size_t Num_Of_Devices = sizeof...(DEVICEs);
    constexpr static auto Sorted_Devices =
       holo::sort([](auto l, auto r) {
-         return holo::char_c<decltype(l)::type::Device_Id> < holo::char_c<decltype(r)::type::Device_Id>;
+         return holo::char_c<decltype(l)::type::Device_Id>
+            <
+            holo::char_c<decltype(r)::type::Device_Id>;
       }, holo::tuple_t<detail::device_trait<DEVICEs>...>);
 
    template<typename ... Ts>
@@ -70,12 +72,12 @@ struct device_state {
    template<typename DEVICE>
    inline static constexpr auto equals() noexcept {
       if constexpr (Num_Of_Devices != DEVICE::Num_Of_Devices) {
-         return holo::integral_c<bool, false>{};
+         return holo::bool_c<false>;
       } else {
          if constexpr (content_equal<DEVICE>()) {
-            return holo::integral_c<bool, true>{};
+            return holo::bool_c<true>;
          } else {
-            return holo::integral_c<bool, false>{};
+            return holo::bool_c<false>;
          }
       }
    }
@@ -93,14 +95,14 @@ struct device_state {
    template<typename DEVICE>
    inline static constexpr auto less_than() noexcept {
       if constexpr (Num_Of_Devices < DEVICE::Num_Of_Devices) {
-         return holo::integral_c<bool, true>{};
+         return holo::bool_c<true>;
       } else if constexpr(Num_Of_Devices > DEVICE::Num_Of_Devices) {
-         return holo::integral_c<bool, false>{};
+         return holo::bool_c<false>;
       } else {
          if constexpr (content_less_than<DEVICE>()) {
-            return holo::integral_c<bool, true>{};
+            return holo::bool_c<true>;
          } else {
-            return holo::integral_c<bool, false>{};
+            return holo::bool_c<false>;
          }
       }
    }
