@@ -12,11 +12,11 @@
 #include <nano-caf/util/macro_pp_size.h>
 #include <nano-caf/util/macro_struct.h>
 #include <nano-caf/util/macro_reflex_call.h>
-#include <optional>
 #include <holo/algo/remove_if.h>
 #include <holo/algo/fold_left.h>
 #include <holo/algo/transform.h>
 #include <holo/algo/ap.h>
+#include <optional>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -110,7 +110,7 @@ public:
                      Sorted_Possible_Transitions))));
 
 
-    template<typename FROM, typename TO, typename PATH>
+   template<typename FROM, typename TO, typename PATH>
    static auto matches(holo::pair<holo::pair<FROM, TO>, PATH>, const root_state& from, const root_state& to, state_path& path) {
       if((FROM::Root_State == from) && (TO::Root_State == to)) {
          path = PATH::Path;

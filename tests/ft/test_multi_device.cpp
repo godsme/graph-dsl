@@ -638,7 +638,7 @@ private:
 };
 
 int main() {
-   spdlog::set_level(spdlog::level::debug);
+   spdlog::set_level(spdlog::level::info);
 
    nano_caf::actor_system system;
    system.start(1);
@@ -675,4 +675,6 @@ int main() {
 
    return 0;
 }
+
+
 
