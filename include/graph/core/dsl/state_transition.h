@@ -12,10 +12,7 @@
 #include <nano-caf/util/macro_pp_size.h>
 #include <nano-caf/util/macro_struct.h>
 #include <nano-caf/util/macro_reflex_call.h>
-#include <holo/algo/remove_if.h>
-#include <holo/algo/fold_left.h>
-#include <holo/algo/transform.h>
-#include <holo/algo/ap.h>
+#include <holo/holo.h>
 #include <optional>
 
 GRAPH_DSL_NS_BEGIN
@@ -45,33 +42,10 @@ struct transition_trait<auto (FROM) -> TO1, TOs...> {
 
 template<typename = void, typename ... TRANS>
 struct state_transitions {
+   constexpr static auto All_Direct_Transitions =
+      holo::make_tuple(holo::make_pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
+
 private:
-   constexpr static auto All_Possible_Transitions = holo::remove_if(
-      [](auto const& elem) {
-         using from_type = typename std::decay_t<decltype(holo::first(elem))>::type;
-         using to_type   = typename std::decay_t<decltype(holo::second(elem))>::type;
-         return from_type::template equals<to_type>();
-      },
-      holo::ap(
-         holo::unique(holo::tuple_t<typename TRANS::from_state ...>),
-         holo::unique(holo::tuple_t<typename TRANS::to_state ...>)));
-
-   constexpr static auto Sorted_Possible_Transitions = holo::sort([](auto l, auto r){
-      using l_from = typename std::decay_t<decltype(holo::first(l))>::type;
-      using r_from = typename std::decay_t<decltype(holo::first(r))>::type;
-
-      if constexpr(l_from::template less_than<r_from>()) {
-         return holo::bool_c<true>;
-      }
-      else if constexpr(l_from::template equals<r_from>()) {
-         using l_to = typename std::decay_t<decltype(holo::second(l))>::type;
-         using r_to = typename std::decay_t<decltype(holo::second(r))>::type;
-         return l_to::template less_than<r_to>();
-      } else {
-         return holo::bool_c<false>;
-      }
-   }, All_Possible_Transitions);
-
    template<typename ... STATES>
    struct to_path {
       constexpr static auto Num_Of_States = sizeof...(STATES);
@@ -82,34 +56,38 @@ private:
    };
 
 public:
-   constexpr static auto All_Direct_Transitions =
-      holo::make_tuple(holo::make_pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
-
-private:
-   using key_type = holo::pair<root_state, root_state>;
-   using elem_type = holo::pair<key_type, state_path>;
+   constexpr static auto All_Transitions_Paths =
+        holo::ap( holo::unique(holo::tuple_t<typename TRANS::from_state ...>),
+                  holo::unique(holo::tuple_t<typename TRANS::to_state ...>))
+      | holo::remove_if( [](auto const& elem) {
+            using from_type = typename std::decay_t<decltype(holo::first(elem))>::type;
+            using to_type   = typename std::decay_t<decltype(holo::second(elem))>::type;
+            return from_type::template equals<to_type>(); })
+//      | holo::sort([](auto l, auto r) {
+//            using l_from = typename std::decay_t<decltype(holo::first(l))>::type;
+//            using r_from = typename std::decay_t<decltype(holo::first(r))>::type;
+//
+//            if constexpr(l_from::template less_than<r_from>()) {
+//               return holo::bool_c<true>;
+//            } else if constexpr(l_from::template equals<r_from>()) {
+//               using l_to = typename std::decay_t<decltype(holo::second(l))>::type;
+//               using r_to = typename std::decay_t<decltype(holo::second(r))>::type;
+//               return l_to::template less_than<r_to>();
+//           } else {
+//              return holo::bool_c<false>;
+//           }})
+      | holo::transform([](auto const& elem) {
+            using from_state = typename std::decay_t<decltype(holo::first(elem))>::type;
+            using to_state   = typename std::decay_t<decltype(holo::second(elem))>::type;
+            auto shortcut = state_transition_algo::find_shortcut(elem, All_Direct_Transitions);
+            return holo::pair<holo::pair<from_state, to_state>, decltype(shortcut)>{}; })
+      | holo::remove_if([](auto const& elem) {
+            return holo::size(holo::second(elem)) == holo::size_c<0>; })
+      | holo::transform([](auto const& elem) {
+            using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
+            return holo::make_pair(holo::first(elem), path{}); });
 
 public:
-   constexpr static auto All_Transitions_Paths =
-      holo::fold_left(
-         holo::tuple_t<>,
-         [](auto const& acc, auto const& elem) { return holo::append(elem, acc); },
-         holo::transform(
-            [](auto const& elem) {
-               using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
-               return holo::make_pair(holo::first(elem), path{});
-            },
-            holo::remove_if(
-               [](auto const& elem) { return holo::size(holo::second(elem)) == holo::size_c<0>; },
-               holo::transform(
-                  [](auto const& elem) {
-                     using from_state = typename std::decay_t<decltype(holo::first(elem))>::type;
-                     using to_state   = typename std::decay_t<decltype(holo::second(elem))>::type;
-                     return holo::make_pair(holo::make_pair(from_state{}, to_state{}), state_transition_algo::find_shortcut(elem, All_Direct_Transitions));
-                     },
-                     Sorted_Possible_Transitions))));
-
-
    template<typename FROM, typename TO, typename PATH>
    static auto matches(holo::pair<holo::pair<FROM, TO>, PATH>, const root_state& from, const root_state& to, state_path& path) {
       if((FROM::Root_State == from) && (TO::Root_State == to)) {
