@@ -80,9 +80,10 @@ template<typename ... ENTRIES>
 struct target_state_selector {
 private:
    constexpr static auto Sorted_Entries =
-      holo::sort([](auto l, auto r) {
-      return holo::size_c<decltype(l)::type::Num_Of_Conditions> > holo::size_c<decltype(r)::type::Num_Of_Conditions>;
-   }, holo::tuple_t<detail::target_state_entry<ENTRIES>...>);
+        holo::tuple_t<detail::target_state_entry<ENTRIES>...>
+      | holo::sort([](auto l, auto r) {
+          return holo::size_c<decltype(l)::type::Num_Of_Conditions> > holo::size_c<decltype(r)::type::Num_Of_Conditions>;
+        });
 
 public:
    template<typename ... ALL_ENTRIES>

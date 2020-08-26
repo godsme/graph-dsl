@@ -22,9 +22,8 @@ struct down_stream_either {
    using decorated_node_2 = typename down_stream_trait<NODE_LIKE_2>::type;
 
    constexpr static auto node_list = \
-      holo::concat
-      (down_stream_trait<NODE_LIKE_1>::type::node_list
-         , down_stream_trait<NODE_LIKE_2>::type::node_list);
+      holo::concat( down_stream_trait<NODE_LIKE_1>::type::node_list
+                  , down_stream_trait<NODE_LIKE_2>::type::node_list);
 
    template<typename TUPLE>
    struct instance_type {

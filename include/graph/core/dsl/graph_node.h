@@ -19,9 +19,7 @@
 #include <graph/function/unique.h>
 #include <graph/function/tuple_foreach.h>
 #include <graph/core/cb/subgraph_node_cb.h>
-#include <holo/types/integral_c.h>
-#include <holo/algo/unique.h>
-#include <holo/algo/flatten.h>
+#include <holo/holo.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -32,7 +30,9 @@ struct graph_node final {
    constexpr static auto is_root = holo::bool_c<std::is_base_of_v<root_signature, NODE>>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
-      holo::unique(holo::flatten(holo::make_tuple(graph_port<PORTS>::node_list...)));
+        holo::make_tuple(graph_port<PORTS>::node_list...)
+      | holo::flatten()
+      | holo::unique();
 
    template<typename NODES_CB, bool IS_ROOT>
    struct instance_type_base {
