@@ -8,9 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/util/interval.h>
 #include <graph/core/dsl/device_state.h>
-#include <holo/algo/sort.h>
-#include <holo/types/size_c.h>
-#include <holo/types/tuple_trait.h>
+#include <holo/holo.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -82,7 +80,8 @@ private:
    constexpr static auto Sorted_Entries =
         holo::tuple_t<detail::target_state_entry<ENTRIES>...>
       | holo::sort([](auto l, auto r) {
-          return holo::size_c<decltype(l)::type::Num_Of_Conditions> > holo::size_c<decltype(r)::type::Num_Of_Conditions>;
+          return holo::size_c<decltype(l)::type::Num_Of_Conditions>
+             >   holo::size_c<decltype(r)::type::Num_Of_Conditions>;
         });
 
 public:
