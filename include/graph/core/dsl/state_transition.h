@@ -43,7 +43,7 @@ struct transition_trait<auto (FROM) -> TO1, TOs...> {
 template<typename = void, typename ... TRANS>
 struct state_transitions {
    constexpr static auto All_Direct_Transitions =
-      holo::make_tuple(holo::make_pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
+      holo::tuple(holo::pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
 
 private:
    template<typename ... STATES>
@@ -57,7 +57,7 @@ private:
 
 public:
    constexpr static auto All_Transitions_Paths =
-        holo::ap( holo::unique(holo::tuple_t<typename TRANS::from_state ...>),
+        holo::product( holo::unique(holo::tuple_t<typename TRANS::from_state ...>),
                   holo::unique(holo::tuple_t<typename TRANS::to_state ...>))
       | holo::remove_if( [](auto const& elem) {
             using from_type = typename std::decay_t<decltype(holo::first(elem))>::type;
@@ -85,7 +85,7 @@ public:
             return holo::size(holo::second(elem)) == holo::size_c<0>; })
       | holo::transform([](auto const& elem) {
             using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
-            return holo::make_pair(holo::first(elem), path{}); });
+            return holo::pair(holo::first(elem), path{}); });
 
 public:
    template<typename FROM, typename TO, typename PATH>

@@ -11,7 +11,7 @@
 #include <graph/core/node_index.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <graph/core/actor_ports.h>
-#include <holo/types/tuple.h>
+#include <holo/holo.h>
 
 GRAPH_DSL_NS_BEGIN
 

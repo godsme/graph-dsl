@@ -9,10 +9,7 @@
 #include <graph/util/hana_tuple_trait.h>
 #include <graph/core/root_state.h>
 #include <type_traits>
-#include <holo/types/tuple.h>
-#include <holo/algo/sort.h>
-#include <holo/types/char_c.h>
-#include <holo/types/tuple_trait.h>
+#include <holo/holo.h>
 #include <tuple>
 
 GRAPH_DSL_NS_BEGIN

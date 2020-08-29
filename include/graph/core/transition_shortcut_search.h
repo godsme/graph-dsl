@@ -53,7 +53,7 @@ class state_transition_algo {
 
       if constexpr (!holo::is_nothing(result)) {
          // we got the shortcut
-         return holo::make_tuple(from, holo::second(result));
+         return holo::tuple(from, holo::second(result));
       } else {
          return search_next_layer(from, target, direct_transition, rest);
       }
