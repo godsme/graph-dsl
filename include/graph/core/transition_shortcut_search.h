@@ -11,39 +11,39 @@
 
 GRAPH_DSL_NS_BEGIN
 
-   template<typename T> struct S;
 class state_transition_algo {
    template<typename FROM, typename TARGET, typename REST, typename TRANSITIONS>
    constexpr static auto
    search_next_layer(FROM const &from, TARGET const &target, TRANSITIONS const &transitions, REST const &rest) {
-      auto all_paths = holo::transform([&](auto const &elem) {
-         return find_shortcut(holo::second(elem), target, rest);
-      }, transitions);
-
-      auto all_non_empty_paths = holo::remove_if([](auto const &elem) {
-         return holo::length(elem) == holo::size_c<0>;
-      }, all_paths);
+      auto all_non_empty_paths =
+         transitions
+         | holo::transform([&](auto const &elem) {
+            return find_shortcut(holo::second(elem), target, rest); })
+         | holo::remove_if([](auto const &elem) {
+            return holo::length(elem) == holo::size_c<0>; });
 
       if constexpr (holo::length(all_non_empty_paths) == holo::size_c<0>) {
          return __HOLO_tuple_t<>;
       } else if constexpr (holo::length(all_non_empty_paths) == holo::size_c<1>) {
-         return holo::prepend(from, holo::head(all_non_empty_paths));
+         return all_non_empty_paths | holo::head() | holo::prepend(from);
       } else {
-         return holo::prepend(from, holo::head(
-            holo::sort(
-               [](auto const &l, auto const &r) {
-                  return holo::length(l) < holo::length(r);
-               }, all_non_empty_paths)));
+         return all_non_empty_paths
+                | holo::sort([](auto const &l, auto const &r) {
+                   return holo::length(l) < holo::length(r); })
+                | holo::head()
+                | holo::prepend(from);
       }
    }
 
    template<typename FROM, typename TARGET, typename REST, typename TRANSITIONS>
    constexpr static auto
    find_shortcut_(FROM const &from, TARGET const &target, TRANSITIONS const& direct_transition, REST const &rest) {
-      auto result = holo::find_if([&](auto elem) {
-         using to = typename std::decay_t<decltype(holo::second(elem))>::type;
-         return std::decay_t<decltype(target)>::type::template equals<to>();
-      }, direct_transition);
+      auto result =
+         direct_transition
+         | holo::find_if([&](auto elem) {
+            using to = typename std::decay_t<decltype(holo::second(elem))>::type;
+            return std::decay_t<decltype(target)>::type::template equals<to>();
+         });
 
       if constexpr (!holo::is_nothing(result)) {
          // we got the shortcut
@@ -56,10 +56,13 @@ class state_transition_algo {
 public:
    template<typename FROM, typename TARGET, typename REST>
    constexpr static auto find_shortcut(FROM const& from, TARGET const& target, REST const& rest) {
-      auto parts = holo::partition([&](auto elem) {
-         using from_type = typename std::decay_t<decltype(from)>::type;
-         return std::decay_t<decltype(holo::first(elem))>::type::template equals<from_type>();
-      }, rest);
+      auto parts =
+         rest
+         | holo::partition([&](auto elem) {
+            using from_type = typename std::decay_t<decltype(from)>::type;
+            return std::decay_t<decltype(holo::first(elem))>::type::template equals<from_type>();
+         });
+
       if constexpr (holo::length(holo::first(parts)) == holo::size_c<0>) {
          return __HOLO_tuple_t<>;
       } else {

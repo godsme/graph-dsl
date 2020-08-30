@@ -12,6 +12,7 @@
 #include <nano-caf/util/macro_pp_size.h>
 #include <nano-caf/util/macro_struct.h>
 #include <nano-caf/util/macro_reflex_call.h>
+#include <graph/core/root_state.h>
 #include <holo/holo.h>
 #include <optional>
 
