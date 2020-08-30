@@ -19,7 +19,7 @@ struct node_signature {};
 
 template <typename NODE>
 struct down_stream_node_ref {
-   constexpr static auto node_list = holo::tuple_t<NODE>;
+   constexpr static auto node_list = __HOLO_tuple_t<NODE>;
 
    template<typename TUPLE>
    struct instance_type : node_index<NODE, TUPLE> {

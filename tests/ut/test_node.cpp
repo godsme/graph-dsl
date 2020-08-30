@@ -141,11 +141,11 @@ namespace {
    struct S;
 
    TEST_CASE("graph_node") {
-      static_assert(holo::tuple_t<node_8, node_3, node_5, node_4> == root_node::direct_decedents);
+      static_assert(__HOLO_tuple_t<node_8, node_3, node_5, node_4> == root_node::direct_decedents);
    }
 
    TEST_CASE("graph_desc") {
-      static_assert(holo::tuple_t<
+      static_assert(__HOLO_tuple_t<
          GRAPH_DSL_NS::node_trait<node_5, GRAPH_DSL_NS::node_category::Intermediate>,
          GRAPH_DSL_NS::node_trait<node_3, GRAPH_DSL_NS::node_category::Intermediate>,
          GRAPH_DSL_NS::node_trait<node_8, GRAPH_DSL_NS::node_category::Leaf>,

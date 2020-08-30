@@ -30,7 +30,7 @@ struct graph_node final {
    constexpr static auto is_root = holo::bool_c<std::is_base_of_v<root_signature, NODE>>;
    using node_type = NODE;
    constexpr static auto direct_decedents =
-        holo::make_tuple(graph_port<PORTS>::node_list...)
+        __HOLO_make_tuple(graph_port<PORTS>::node_list...)
       | holo::flatten()
       | holo::unique();
 

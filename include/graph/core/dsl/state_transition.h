@@ -43,7 +43,7 @@ struct transition_trait<auto (FROM) -> TO1, TOs...> {
 template<typename = void, typename ... TRANS>
 struct state_transitions {
    constexpr static auto All_Direct_Transitions =
-      holo::tuple(holo::pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
+      __HOLO_make_tuple(__HOLO_make_pair(holo::type_c<typename TRANS::from_state>, holo::type_c<typename TRANS::to_state>)...);
 
 private:
    template<typename ... STATES>
@@ -57,8 +57,8 @@ private:
 
 public:
    constexpr static auto All_Transitions_Paths =
-        holo::product( holo::unique(holo::tuple_t<typename TRANS::from_state ...>),
-                  holo::unique(holo::tuple_t<typename TRANS::to_state ...>))
+        holo::product( holo::unique(__HOLO_tuple_t<typename TRANS::from_state ...>),
+                  holo::unique(__HOLO_tuple_t<typename TRANS::to_state ...>))
       | holo::remove_if( [](auto const& elem) {
             using from_type = typename std::decay_t<decltype(holo::first(elem))>::type;
             using to_type   = typename std::decay_t<decltype(holo::second(elem))>::type;
@@ -80,16 +80,16 @@ public:
             using from_state = typename std::decay_t<decltype(holo::first(elem))>::type;
             using to_state   = typename std::decay_t<decltype(holo::second(elem))>::type;
             auto shortcut = state_transition_algo::find_shortcut(elem, All_Direct_Transitions);
-            return holo::pair<holo::pair<from_state, to_state>, decltype(shortcut)>{}; })
+            return __HOLO_make_pair(__HOLO_make_pair(from_state{}, to_state{}), shortcut); })
       | holo::remove_if([](auto const& elem) {
-            return holo::size(holo::second(elem)) == holo::size_c<0>; })
+            return holo::length(holo::second(elem)) == holo::size_c<0>; })
       | holo::transform([](auto const& elem) {
             using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
-            return holo::pair(holo::first(elem), path{}); });
+            return __HOLO_make_pair(holo::first(elem), path{}); });
 
 public:
    template<typename FROM, typename TO, typename PATH>
-   static auto matches(holo::pair<holo::pair<FROM, TO>, PATH>, const root_state& from, const root_state& to, state_path& path) {
+   static auto matches(__HOLO_pair<__HOLO_pair<FROM, TO>, PATH>, const root_state& from, const root_state& to, state_path& path) {
       if((FROM::Root_State == from) && (TO::Root_State == to)) {
          path = PATH::Path;
          return true;
@@ -98,7 +98,7 @@ public:
    }
 
    template<typename ... Ts>
-   inline static auto find(const root_state& from, const root_state& to, state_path& path, holo::tuple<Ts...>) {
+   inline static auto find(const root_state& from, const root_state& to, state_path& path, __HOLO_tuple<Ts...>) {
       return (matches(Ts{}, from, to, path) || ...);
    }
 

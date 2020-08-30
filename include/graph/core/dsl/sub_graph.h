@@ -16,19 +16,19 @@ GRAPH_DSL_NS_BEGIN
 
 template<typename ... NODES>
 struct sub_graph final {
-   constexpr static auto all_sorted_nodes = sub_graph_analizer<NODES...>::all_sorted_sub_graph_nodes;
+   constexpr static auto all_sorted_nodes = sub_graph_analyzer<NODES...>::all_sorted_sub_graph_nodes;
 
    template<typename ROOTS_CB>
    struct instance_type {
    private:
       template<typename ... Ts>
       using cb_container = std::tuple<subgraph_node_cb<typename Ts::node_type, Ts::category>...>;
-      static_assert(holo::size(all_sorted_nodes) > 0, "");
+      static_assert(holo::length(all_sorted_nodes) > 0, "");
       using nodes_cb = holo::tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
 
    private:
-      constexpr static auto sorted_nodes_desc = sub_graph_analizer<NODES...>::sorted_nodes_desc;
-      static_assert(holo::size(sorted_nodes_desc) == sizeof...(NODES));
+      constexpr static auto sorted_nodes_desc = sub_graph_analyzer<NODES...>::sorted_nodes_desc;
+      static_assert(holo::length(sorted_nodes_desc) == sizeof...(NODES));
 
       template<typename ... Ts>
       using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;

@@ -10,7 +10,6 @@
 #include <graph/core/root_state.h>
 #include <type_traits>
 #include <holo/holo.h>
-#include <tuple>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -37,11 +36,12 @@ template<typename ... DEVICEs>
 struct device_state {
    constexpr static size_t Num_Of_Devices = sizeof...(DEVICEs);
    constexpr static auto Sorted_Devices =
-      holo::sort([](auto l, auto r) {
+      __HOLO_tuple_t<detail::device_trait<DEVICEs>...>
+      | holo::sort([](auto l, auto r) {
          return holo::char_c<decltype(l)::type::Device_Id>
             <
             holo::char_c<decltype(r)::type::Device_Id>;
-      }, holo::tuple_t<detail::device_trait<DEVICEs>...>);
+      });
 
    template<typename ... Ts>
    struct devices_type {

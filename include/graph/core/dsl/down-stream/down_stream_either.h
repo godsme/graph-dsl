@@ -11,7 +11,7 @@
 #include <graph/util/result_t.h>
 #include <graph/core/node_index.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
-#include <holo/algo/concat.h>
+#include <holo/holo.h>
 #include <vector>
 
 GRAPH_DSL_NS_BEGIN
