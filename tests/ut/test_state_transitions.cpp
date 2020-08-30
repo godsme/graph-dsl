@@ -84,30 +84,30 @@ using trans_2 =
 
       constexpr auto result = GRAPH_DSL_NS::state_transition_algo::find_shortcut(from, to, trans_2::All_Direct_Transitions);
 
-      //static_assert(holo::size(result) == holo::size_c<6>);
+      static_assert(holo::length(result) == holo::size_c<6>);
 
-//      constexpr auto m1 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>;
-//      constexpr auto m2 = holo::type_c<graph_dsl::device_state<device_1, __g_PREVIEW(device_2)>>;
-//      constexpr auto m3 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_1), device_3>>;
-//      constexpr auto m4 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_3>>;
-//
-//      //std::cout << "size = " << std::tuple_size_v<decltype(std::make_tuple(from, m1, m2, m3, m4, to))> << std::endl;
-//
-//      static_assert(result == __HOLO_make_tuple(from, m1, m2, m3, m4, to));
+      constexpr auto m1 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_0), device_1>>;
+      constexpr auto m2 = holo::type_c<graph_dsl::device_state<device_1, __g_PREVIEW(device_2)>>;
+      constexpr auto m3 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_1), device_3>>;
+      constexpr auto m4 = holo::type_c<graph_dsl::device_state<__g_PREVIEW(device_2), device_3>>;
+
+      //std::cout << "size = " << std::tuple_size_v<decltype(std::make_tuple(from, m1, m2, m3, m4, to))> << std::endl;
+
+      static_assert(result == __HOLO_make_tuple(from, m1, m2, m3, m4, to));
    }
 
-//   TEST_CASE("transition path") {
-//      auto from = __g_STATE(device_2, __g_PREVIEW(device_1))::Root_State;
-//      auto to   = __g_STATE(device_2, __g_PREVIEW(device_3))::Root_State;
-//
-//      auto result = trans_2::find(from, to);
-//
-//      REQUIRE(result.size == 6);
-//      REQUIRE(result.state[0] == from);
-//      REQUIRE(result.state[1] == __g_STATE(__g_PREVIEW(device_0), device_1)::Root_State);
-//      REQUIRE(result.state[2] == __g_STATE(device_1, __g_PREVIEW(device_2))::Root_State);
-//      REQUIRE(result.state[3] == __g_STATE(__g_PREVIEW(device_1), device_3)::Root_State);
-//      REQUIRE(result.state[4] == __g_STATE(__g_PREVIEW(device_2), device_3)::Root_State);
-//      REQUIRE(result.state[5] == to);
-//   }
+   TEST_CASE("transition path") {
+      auto from = __g_STATE(device_2, __g_PREVIEW(device_1))::Root_State;
+      auto to   = __g_STATE(device_2, __g_PREVIEW(device_3))::Root_State;
+
+      auto result = trans_2::find(from, to);
+
+      REQUIRE(result.size == 6);
+      REQUIRE(result.state[0] == from);
+      REQUIRE(result.state[1] == __g_STATE(__g_PREVIEW(device_0), device_1)::Root_State);
+      REQUIRE(result.state[2] == __g_STATE(device_1, __g_PREVIEW(device_2))::Root_State);
+      REQUIRE(result.state[3] == __g_STATE(__g_PREVIEW(device_1), device_3)::Root_State);
+      REQUIRE(result.state[4] == __g_STATE(__g_PREVIEW(device_2), device_3)::Root_State);
+      REQUIRE(result.state[5] == to);
+   }
 }
