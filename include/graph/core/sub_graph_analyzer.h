@@ -24,22 +24,22 @@ struct sub_graph_analyzer final {
 
    template<typename T>
    constexpr static auto get_all_decedents(T list) {
-      return holo::fold_left(__HOLO_make_tuple(), [](auto acc, auto elem) {
-         auto entry = holo::find_if([=](auto v){ return holo::first(v) == elem; }, nodes_map);
+      return list | holo::fold_left(__HOLO_make_tuple(), [](auto acc, auto elem) {
+         auto entry = nodes_map | holo::find_if([&](auto v){ return holo::first(v) == elem; });
          if constexpr(holo::is_nothing(entry)) {
             return holo::append(elem, acc);
          } else {
-            return holo::concat(acc, holo::append(elem, get_all_decedents(holo::second(entry))));
+            return
+            get_all_decedents(holo::second(entry))
+            | holo::append(elem)
+            | holo::concat(acc);
          }
-      }, list);
+      });
    }
 
-   constexpr static auto all_decedents_map =
-      nodes_map
-      | holo::transform([](auto elem) {
-         return __HOLO_make_pair(holo::first(elem), holo::unique(get_all_decedents(holo::second(elem))));
-      });
-
+   constexpr static auto all_decedents_map = nodes_map | holo::transform([](auto elem) {
+      return __HOLO_make_pair(holo::first(elem), get_all_decedents(holo::second(elem)) | holo::unique());
+   });
 
    constexpr static auto sorted_non_leaf_nodes =
       all_decedents_map
@@ -84,9 +84,11 @@ public:
    constexpr static auto sorted_nodes_desc =
       sorted_non_leaf_nodes
       | holo::transform([](auto elem){
-         constexpr auto entry = __HOLO_tuple_t<NODES...>
-                                | holo::find_if([=](auto v){
-            return holo::type_c<typename decltype(v)::type::node_type> == elem; });
+         constexpr auto entry =
+            __HOLO_tuple_t<NODES...>
+            | holo::find_if([=](auto v){
+               return holo::type_c<typename decltype(v)::type::node_type> == elem;
+            });
 
          static_assert(!holo::is_nothing(entry));
          return entry;
