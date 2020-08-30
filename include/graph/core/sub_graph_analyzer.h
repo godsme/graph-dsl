@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/15.
 //
 
-#ifndef GRAPH_SUB_GRAPH_ANALIZER_H
-#define GRAPH_SUB_GRAPH_ANALIZER_H
+#ifndef GRAPH_SUB_GRAPH_ANALYZER_H
+#define GRAPH_SUB_GRAPH_ANALYZER_H
 
 #include <graph/graph_ns.h>
 #include <graph/core/node_category.h>
@@ -95,4 +95,4 @@ public:
 
 GRAPH_DSL_NS_END
 
-#endif //GRAPH_SUB_GRAPH_ANALIZER_H
+#endif //GRAPH_SUB_GRAPH_ANALYZER_H

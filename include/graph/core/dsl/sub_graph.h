@@ -6,7 +6,7 @@
 #define GRAPH_SUB_GRAPH_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/sub_graph_analizer.h>
+#include <graph/core/sub_graph_analyzer.h>
 #include <graph/core/dsl/graph_node.h>
 #include <holo/types/tuple_trait.h>
 #include <holo/algo/head.h>

@@ -22,8 +22,7 @@ set(graph_dsl
         include/graph/core/dsl/graph_port.h
         include/graph/util/tuple_element_by_type.h
         include/graph/core/dsl/down-stream/down_stream_trait.h
-        include/graph/function/group.h
-        include/graph/core/sub_graph_analizer.h
+        include/graph/core/sub_graph_analyzer.h
         include/graph/util/result_t.h
         include/graph/util/ptr_trait.h
         include/graph/util/either.h
