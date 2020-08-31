@@ -10,15 +10,13 @@
 #include <graph/util/assertion.h>
 #include <graph/core/graph_context.h>
 #include <graph/core/dsl/graph_port.h>
-#include <nano-caf/util/macro_basic.h>
-#include <nano-caf/util/macro_pp_size.h>
-#include <nano-caf/util/macro_struct.h>
-#include <nano-caf/util/macro_reflex_call.h>
-#include <nano-caf/util/macro_reflex_call_2.h>
-#include <tuple>
 #include <graph/function/tuple_foreach.h>
 #include <graph/core/cb/subgraph_node_cb.h>
+#include <maco/basic.h>
+#include <maco/foreach.h>
+#include <maco/foreach_2.h>
 #include <holo/holo.h>
+#include <tuple>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -92,8 +90,7 @@ struct graph_node final {
 GRAPH_DSL_NS_END
 
 #define __gRaPh_each_link(n, x) , auto x
-#define __gRaPh_links(node, ...) \
-node __CUB_overload(__CUB_repeat_call_2_, __VA_ARGS__) (__gRaPh_each_link, 0, __VA_ARGS__)
+#define __gRaPh_links(node, ...) node __MACO_foreach_2(__gRaPh_each_link, __VA_ARGS__)
 #define __sUb_gRaPh_node(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
 
 #define __g_NODE(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>

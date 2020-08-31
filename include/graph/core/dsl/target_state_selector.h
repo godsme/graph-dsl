@@ -116,7 +116,7 @@ GRAPH_DSL_NS_END
 #define __gRaPh_when(...)           auto (GRAPH_DSL_NS::state_select_condition<__VA_ARGS__>)
 #define __gRaPh_each_case(n, x) , __gRaPh_when x
 #define __gRaPh_state_selector(...) \
-void __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__gRaPh_each_case, 0, __VA_ARGS__)
+void __MACO_foreach(__gRaPh_each_case, __VA_ARGS__)
 
 #define __g_STATE_SELECTOR(...) \
 GRAPH_DSL_NS::target_state_selector_t<__gRaPh_state_selector(__VA_ARGS__)>

@@ -8,11 +8,9 @@
 #include <graph/graph_ns.h>
 #include <graph/core/dsl/target_state_selector.h>
 #include <graph/core/transition_shortcut_search.h>
-#include <nano-caf/util/macro_basic.h>
-#include <nano-caf/util/macro_pp_size.h>
-#include <nano-caf/util/macro_struct.h>
-#include <nano-caf/util/macro_reflex_call.h>
 #include <graph/core/root_state.h>
+#include <maco/basic.h>
+#include <maco/foreach.h>
 #include <holo/holo.h>
 #include <optional>
 
@@ -117,6 +115,6 @@ GRAPH_DSL_NS_END
 #define __graph_StAtE_transform(...)     GRAPH_DSL_NS::transition_trait< __graph_StAtE_transform_2 __VA_ARGS__ >
 #define __graph_StAtE_each_transition(n, x) , __graph_StAtE_transform x
 #define __g_STATE_TRANSITIONS(...) \
-GRAPH_DSL_NS::state_transitions<void __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__graph_StAtE_each_transition, 0, __VA_ARGS__)>
+GRAPH_DSL_NS::state_transitions<void __MACO_foreach(__graph_StAtE_each_transition, __VA_ARGS__)>
 
 #endif //GRAPH_STATE_TRANSITION_H

@@ -73,7 +73,7 @@ GRAPH_DSL_NS_END
 
 #define __sUb_gRaPh_each_condition(n, x) , auto x
 #define __sUb_gRaPh_conditions(roots, ...) \
-__g_ROOTS roots __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__sUb_gRaPh_each_condition, 0, __VA_ARGS__)
+__g_ROOTS roots __MACO_foreach(__sUb_gRaPh_each_condition, __VA_ARGS__)
 
 #define __g_GRAPH(...) GRAPH_DSL_NS::graph<__sUb_gRaPh_conditions(__VA_ARGS__)>
 
