@@ -108,6 +108,6 @@ struct device_state {
 GRAPH_DSL_NS_END
 
 #define __g_PREVIEW(device)     GRAPH_DSL_NS::preview_tag<device>
-#define __g_STATE(...)          std::decay_t<decltype(std::declval<GRAPH_DSL_NS::device_state<__VA_ARGS__>>())>
+#define __g_STATE(...)          __MACO_template_type(GRAPH_DSL_NS::device_state<__VA_ARGS__>)
 
 #endif //GRAPH_DEVICE_STATE_H

@@ -111,9 +111,9 @@ public:
 
 GRAPH_DSL_NS_END
 
-#define __graph_StAtE_transform_2(...)   auto ( GRAPH_DSL_NS::device_state<__VA_ARGS__> )
-#define __graph_StAtE_transform(...)     GRAPH_DSL_NS::transition_trait< __graph_StAtE_transform_2 __VA_ARGS__ >
-#define __graph_StAtE_each_transition(n, x) , __graph_StAtE_transform x
+#define __graph_StAtE_transform_2(...)       auto ( GRAPH_DSL_NS::device_state<__VA_ARGS__> )
+#define __graph_StAtE_transform(...)         GRAPH_DSL_NS::transition_trait< __graph_StAtE_transform_2 __VA_ARGS__ >
+#define __graph_StAtE_each_transition(n, x)  , __graph_StAtE_transform x
 #define __g_STATE_TRANSITIONS(...) \
 GRAPH_DSL_NS::state_transitions<void __MACO_foreach(__graph_StAtE_each_transition, __VA_ARGS__)>
 

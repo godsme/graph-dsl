@@ -36,6 +36,6 @@ public:
 
 GRAPH_DSL_NS_END
 
-#define __g_ROOTS(...) std::decay_t<decltype(std::declval<GRAPH_DSL_NS::graph_roots<__VA_ARGS__>>())>
+#define __g_ROOTS(...) __MACO_template_type(GRAPH_DSL_NS::graph_roots<__VA_ARGS__>)
 
 #endif //GRAPH_GRAPH_ROOTS_H

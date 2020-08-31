@@ -92,7 +92,6 @@ GRAPH_DSL_NS_END
 #define __gRaPh_each_link(n, x) , auto x
 #define __gRaPh_links(node, ...) node __MACO_foreach_2(__gRaPh_each_link, __VA_ARGS__)
 #define __sUb_gRaPh_node(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
-
 #define __g_NODE(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
 
 

@@ -114,11 +114,10 @@ GRAPH_DSL_NS_END
 #define __g_COND_3(...)         GRAPH_DSL_NS::condition_3<__CUB_interval(__VA_ARGS__)>
 
 #define __gRaPh_when(...)           auto (GRAPH_DSL_NS::state_select_condition<__VA_ARGS__>)
-#define __gRaPh_each_case(n, x) , __gRaPh_when x
-#define __gRaPh_state_selector(...) \
-void __MACO_foreach(__gRaPh_each_case, __VA_ARGS__)
+#define __gRaPh_each_case(n, x)     , __gRaPh_when x
+#define __gRaPh_state_selector(...) __MACO_foreach(__gRaPh_each_case, __VA_ARGS__)
 
 #define __g_STATE_SELECTOR(...) \
-GRAPH_DSL_NS::target_state_selector_t<__gRaPh_state_selector(__VA_ARGS__)>
+GRAPH_DSL_NS::target_state_selector_t<void __gRaPh_state_selector(__VA_ARGS__)>
 
 #endif //GRAPH_TARGET_STATE_SELECTOR_H

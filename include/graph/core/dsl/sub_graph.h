@@ -87,8 +87,7 @@ GRAPH_DSL_NS_END
 
 
 #define __sUb_gRaPh_each_node(n, x) , __sUb_gRaPh_node x
-#define __sUb_gRaPh_nodes(...) void __MACO_foreach(__sUb_gRaPh_each_node, __VA_ARGS__)
-
-#define __g_SUB_GRAPH(...) GRAPH_DSL_NS::sub_graph_t<__sUb_gRaPh_nodes(__VA_ARGS__)>
+#define __sUb_gRaPh_nodes(...) __MACO_foreach(__sUb_gRaPh_each_node, __VA_ARGS__)
+#define __g_SUB_GRAPH(...) GRAPH_DSL_NS::sub_graph_t<void __sUb_gRaPh_nodes(__VA_ARGS__)>
 
 #endif //GRAPH_SUB_GRAPH_H
