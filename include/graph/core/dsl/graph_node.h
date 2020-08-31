@@ -94,5 +94,4 @@ GRAPH_DSL_NS_END
 #define __sUb_gRaPh_node(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
 #define __g_NODE(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
 
-
 #endif //GRAPH_SUBGRAPH_NODE_CB_H

@@ -77,5 +77,5 @@ __g_ROOTS roots __MACO_foreach(__sUb_gRaPh_each_condition, __VA_ARGS__)
 
 #define __g_GRAPH(...) GRAPH_DSL_NS::graph<__sUb_gRaPh_conditions(__VA_ARGS__)>
 
-
 #endif //GRAPH_GRAPH_H
+
