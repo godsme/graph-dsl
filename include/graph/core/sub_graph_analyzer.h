@@ -8,6 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/core/node_category.h>
 #include <holo/holo.h>
+#include <maco/detail/int_succ.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -53,7 +54,7 @@ struct sub_graph_analyzer final {
    constexpr static auto root_nodes =
       __HOLO_tuple_t<NODES...>
       | holo::filter([](auto elem){
-         return decltype(elem)::type::is_root == holo::bool_c<true>; })
+         return decltype(elem)::type::is_root == holo::true_c; })
       | holo::transform([](auto elem){
          return holo::type_c<typename decltype(elem)::type::node_type>;
       });

@@ -9,6 +9,7 @@
 #include <graph/core/dsl/sub_graph_selector.h>
 #include <graph/util/assertion.h>
 #include <graph/function/tuple_foreach.h>
+#include <maco/map.h>
 #include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
@@ -71,9 +72,9 @@ private:
 
 GRAPH_DSL_NS_END
 
-#define __sUb_gRaPh_each_condition(n, x) , auto x
+#define __sUb_gRaPh_each_condition(x) , auto x
 #define __sUb_gRaPh_conditions(roots, ...) \
-__g_ROOTS roots __MACO_foreach(__sUb_gRaPh_each_condition, __VA_ARGS__)
+__g_ROOTS roots __MACO_map(__sUb_gRaPh_each_condition, __VA_ARGS__)
 
 #define __g_GRAPH(...) GRAPH_DSL_NS::graph<__sUb_gRaPh_conditions(__VA_ARGS__)>
 

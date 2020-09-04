@@ -8,7 +8,7 @@
 #include <graph/graph_ns.h>
 #include <type_traits>
 #include <maco/basic.h>
-#include <maco/foreach.h>
+#include <maco/map.h>
 #include <graph/util/number_string.h>
 #include <cmath>
 
@@ -106,11 +106,10 @@ public:
    }
 };
 
-#define __CUB_interval_parameter(n, x) , __CUB_number_string(x)
+#define __CUB_interval_parameter(x) , __CUB_number_string(x)
 #define __CUB_interval_only(...) \
-GRAPH_DSL_NS::interval_t<void __MACO_foreach(__CUB_interval_parameter, __VA_ARGS__)>
-#define __CUB_interval(...) \
-GRAPH_DSL_NS::interval_trait<__CUB_interval_only(__VA_ARGS__)>
+GRAPH_DSL_NS::interval_t<void __MACO_map(__CUB_interval_parameter, __VA_ARGS__)>
+#define __CUB_interval(...) GRAPH_DSL_NS::interval_trait<__CUB_interval_only(__VA_ARGS__)>
 
 GRAPH_DSL_NS_END
 

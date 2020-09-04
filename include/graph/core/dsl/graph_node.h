@@ -13,8 +13,8 @@
 #include <graph/function/tuple_foreach.h>
 #include <graph/core/cb/subgraph_node_cb.h>
 #include <maco/basic.h>
-#include <maco/foreach.h>
-#include <maco/foreach_2.h>
+#include <maco/map.h>
+#include <maco/map_2.h>
 #include <holo/holo.h>
 #include <tuple>
 
@@ -90,7 +90,7 @@ struct graph_node final {
 GRAPH_DSL_NS_END
 
 #define __gRaPh_each_link(n, x) , auto x
-#define __gRaPh_links(node, ...) node __MACO_foreach_2(__gRaPh_each_link, __VA_ARGS__)
+#define __gRaPh_links(node, ...) node __MACO_map_2(__gRaPh_each_link, __VA_ARGS__)
 #define __sUb_gRaPh_node(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
 #define __g_NODE(...) GRAPH_DSL_NS::graph_node<__gRaPh_links(__VA_ARGS__)>
 
