@@ -25,7 +25,7 @@ struct sub_graph final {
       template<typename ... Ts>
       using cb_container = std::tuple<subgraph_node_cb<typename Ts::node_type, Ts::category>...>;
       static_assert(holo::length(all_sorted_nodes) > 0, "");
-      using nodes_cb = holo::type_transform_t<decltype(all_sorted_nodes), cb_container>;
+      using nodes_cb = decltype(holo::map_to<cb_container>(all_sorted_nodes));
 
    private:
       constexpr static auto sorted_nodes_desc = sub_graph_analyzer<NODES...>::sorted_nodes_desc;
@@ -33,7 +33,7 @@ struct sub_graph final {
 
       template<typename ... Ts>
       using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;
-      using nodes_links = holo::type_transform_t<decltype(sorted_nodes_desc), desc_container>;
+      using nodes_links = decltype(holo::map_to<desc_container>(sorted_nodes_desc));
 
       template<typename T> struct desc_node_type { using type = typename T::node_type; };
    public:
