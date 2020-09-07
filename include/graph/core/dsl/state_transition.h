@@ -59,27 +59,10 @@ public:
         holo::product( holo::unique(holo::type_list_t<typename TRANS::from_state ...>),
                        holo::unique(holo::type_list_t<typename TRANS::to_state ...>))
       | holo::remove_if( [](auto elem) {
-            using from_type = typename decltype(holo::first(elem))::type;
-            using to_type   = typename decltype(holo::second(elem))::type;
-            return from_type::template equals<to_type>(); })
-//      | holo::sort([](auto l, auto r) {
-//            using l_from = typename std::decay_t<decltype(holo::first(l))>::type;
-//            using r_from = typename std::decay_t<decltype(holo::first(r))>::type;
-//
-//            if constexpr(l_from::template less_than<r_from>()) {
-//               return holo::bool_c<true>;
-//            } else if constexpr(l_from::template equals<r_from>()) {
-//               using l_to = typename std::decay_t<decltype(holo::second(l))>::type;
-//               using r_to = typename std::decay_t<decltype(holo::second(r))>::type;
-//               return l_to::template less_than<r_to>();
-//           } else {
-//              return holo::bool_c<false>;
-//           }})
+           return holo::typeof_c(holo::first(elem)) == holo::typeof_c(holo::second(elem)); })
       | holo::transform([](auto elem) {
-            using from_state = typename decltype(holo::first(elem))::type;
-            using to_state   = typename decltype(holo::second(elem))::type;
             auto shortcut = state_transition_algo::find_shortcut(elem, All_Direct_Transitions);
-            return holo::make_type_pair(holo::make_type_pair(from_state{}, to_state{}), shortcut); })
+            return holo::make_type_pair(holo::make_type_pair(holo::typeof_c(holo::first(elem)), holo::typeof_c(holo::second(elem))), shortcut); })
       | holo::remove_if([](auto const& elem) {
             return holo::length(holo::second(elem)) == holo::size_c<0>; })
       | holo::transform([](auto const& elem) {

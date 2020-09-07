@@ -8,6 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/core/dsl/target_state_selector.h>
 #include <holo/holo.h>
+#include <holo/types/typeof_c.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -41,8 +42,7 @@ class state_transition_algo {
       auto result =
          direct_transition
          | holo::find_if([&](auto elem) {
-            using to = typename std::decay_t<decltype(holo::second(elem))>::type;
-            return std::decay_t<decltype(target)>::type::template equals<to>();
+            return holo::typeof_c(holo::second(elem)) == holo::typeof_c(target);
          });
 
       if constexpr (!holo::is_nothing(result)) {
@@ -59,8 +59,7 @@ public:
       auto parts =
          rest
          | holo::partition([&](auto elem) {
-            using from_type = typename std::decay_t<decltype(from)>::type;
-            return std::decay_t<decltype(holo::first(elem))>::type::template equals<from_type>();
+            return holo::typeof_c(holo::first(elem)) == holo::typeof_c(from);
          });
 
       if constexpr (holo::Is_True_V<decltype(holo::length(holo::first(parts)) == holo::size_c<0>)>) {

@@ -57,7 +57,7 @@ struct device_state {
    constexpr static auto Root_State = devices::Root_State;
 
    template<typename DEVICE>
-   inline static constexpr auto content_equal() -> bool {
+   inline static constexpr auto content_equal() noexcept{
       for(size_t i=0; i<Num_Of_Devices; i++) {
          if (Devices[i] != DEVICE::Devices[i]) {
             return false;
@@ -66,17 +66,22 @@ struct device_state {
       return true;
    }
 
-   template<typename DEVICE>
-   inline static constexpr auto equals() noexcept {
-      if constexpr (Num_Of_Devices != DEVICE::Num_Of_Devices) {
+   template<typename ... R_Devices>
+   inline constexpr auto operator==(device_state<R_Devices...> const& rhs) const noexcept {
+      if constexpr (Num_Of_Devices != device_state<R_Devices...>::Num_Of_Devices) {
          return holo::bool_c<false>;
       } else {
-         if constexpr (content_equal<DEVICE>()) {
+         if constexpr (content_equal<device_state<R_Devices...>>()) {
             return holo::bool_c<true>;
          } else {
             return holo::bool_c<false>;
          }
       }
+   }
+
+   template<typename ... R_Devices>
+   inline constexpr auto operator!=(device_state<R_Devices...> const& rhs) const noexcept {
+      return !operator==(rhs);
    }
 
    template<typename DEVICE>

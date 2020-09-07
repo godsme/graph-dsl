@@ -96,9 +96,9 @@ namespace {
    }
 
    TEST_CASE("device eq") {
-      static_assert(GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
-      static_assert(GRAPH_DSL_NS::device_state<device_2, __g_PREVIEW(device_1)>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
-      static_assert(!GRAPH_DSL_NS::device_state<device_1, device_2>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
-      static_assert(!GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1)>::equals<GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>>());
+      static_assert(GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{} == GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
+      static_assert(GRAPH_DSL_NS::device_state<device_2, __g_PREVIEW(device_1)>{} == GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
+      static_assert(GRAPH_DSL_NS::device_state<device_1, device_2>{} != GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
+      static_assert(GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1)>{} != GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
    }
 }
