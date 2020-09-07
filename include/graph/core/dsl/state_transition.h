@@ -66,7 +66,7 @@ public:
       | holo::remove_if([](auto const& elem) {
             return holo::length(holo::second(elem)) == holo::size_c<0>; })
       | holo::transform([](auto const& elem) {
-            using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
+            using path = holo::type_transform_t<decltype(holo::second(elem)), to_path>;
             return holo::make_type_pair(holo::first(elem), path{}); });
 
 public:

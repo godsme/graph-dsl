@@ -6,7 +6,6 @@
 #define GRAPH_DEVICE_STATE_H
 
 #include <graph/graph_ns.h>
-#include <graph/util/hana_tuple_trait.h>
 #include <graph/core/root_state.h>
 #include <type_traits>
 #include <holo/holo.h>
@@ -51,7 +50,7 @@ struct device_state {
       constexpr static root_state Root_State { .device_info_ = Devices, .size_ = Num_Of_Devices };
    };
 
-   using devices = holo::tuple_trait_t<decltype(Sorted_Devices), devices_type>;
+   using devices = holo::type_transform_t<decltype(Sorted_Devices), devices_type>;
    constexpr static auto Devices = devices::Devices;
 
    constexpr static auto Root_State = devices::Root_State;

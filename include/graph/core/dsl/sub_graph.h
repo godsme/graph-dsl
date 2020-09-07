@@ -8,7 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/core/sub_graph_analyzer.h>
 #include <graph/core/dsl/graph_node.h>
-#include <holo/types/tuple_trait.h>
+#include <holo/types/type_transform.h>
 #include <holo/algo/head.h>
 #include <spdlog/spdlog.h>
 #include <maco/map_2.h>
@@ -25,7 +25,7 @@ struct sub_graph final {
       template<typename ... Ts>
       using cb_container = std::tuple<subgraph_node_cb<typename Ts::node_type, Ts::category>...>;
       static_assert(holo::length(all_sorted_nodes) > 0, "");
-      using nodes_cb = holo::tuple_trait_t<decltype(all_sorted_nodes), cb_container>;
+      using nodes_cb = holo::type_transform_t<decltype(all_sorted_nodes), cb_container>;
 
    private:
       constexpr static auto sorted_nodes_desc = sub_graph_analyzer<NODES...>::sorted_nodes_desc;
@@ -33,7 +33,7 @@ struct sub_graph final {
 
       template<typename ... Ts>
       using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;
-      using nodes_links = holo::tuple_trait_t<decltype(sorted_nodes_desc), desc_container>;
+      using nodes_links = holo::type_transform_t<decltype(sorted_nodes_desc), desc_container>;
 
       template<typename T> struct desc_node_type { using type = typename T::node_type; };
    public:

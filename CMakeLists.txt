@@ -34,7 +34,6 @@ set(graph_dsl
         include/graph/core/dsl/down-stream/down_stream_either.h
         include/graph/core/dsl/down-stream/down_stream_fork.h
         include/graph/core/dsl/down-stream/down_stream_trait_decl.h
-        include/graph/util/hana_tuple_trait.h
         include/graph/core/actor_ports.h
         include/graph/core/cb/root_node_cb.h
         include/graph/core/node_category.h

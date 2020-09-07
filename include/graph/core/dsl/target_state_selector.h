@@ -96,7 +96,7 @@ public:
       }
    };
 
-   using sorted_entries = holo::tuple_trait_t<decltype(Sorted_Entries), entries_type>;
+   using sorted_entries = holo::type_transform_t<decltype(Sorted_Entries), entries_type>;
 
    template<typename ENV>
    inline static auto find(ENV const& env) -> root_state {
