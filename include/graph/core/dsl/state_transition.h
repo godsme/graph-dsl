@@ -56,11 +56,11 @@ private:
 
 public:
    constexpr static auto All_Transitions_Paths =
-        holo::product( holo::unique(__HOLO_tuple_t<typename TRANS::from_state ...>),
-                  holo::unique(__HOLO_tuple_t<typename TRANS::to_state ...>))
-      | holo::remove_if( [](auto const& elem) {
-            using from_type = typename std::decay_t<decltype(holo::first(elem))>::type;
-            using to_type   = typename std::decay_t<decltype(holo::second(elem))>::type;
+        holo::product( holo::unique(holo::type_list_t<typename TRANS::from_state ...>),
+                       holo::unique(holo::type_list_t<typename TRANS::to_state ...>))
+      | holo::remove_if( [](auto elem) {
+            using from_type = typename decltype(holo::first(elem))::type;
+            using to_type   = typename decltype(holo::second(elem))::type;
             return from_type::template equals<to_type>(); })
 //      | holo::sort([](auto l, auto r) {
 //            using l_from = typename std::decay_t<decltype(holo::first(l))>::type;
@@ -75,16 +75,16 @@ public:
 //           } else {
 //              return holo::bool_c<false>;
 //           }})
-      | holo::transform([](auto const& elem) {
-            using from_state = typename std::decay_t<decltype(holo::first(elem))>::type;
-            using to_state   = typename std::decay_t<decltype(holo::second(elem))>::type;
+      | holo::transform([](auto elem) {
+            using from_state = typename decltype(holo::first(elem))::type;
+            using to_state   = typename decltype(holo::second(elem))::type;
             auto shortcut = state_transition_algo::find_shortcut(elem, All_Direct_Transitions);
-            return __HOLO_make_pair(__HOLO_make_pair(from_state{}, to_state{}), shortcut); })
+            return holo::make_type_pair(holo::make_type_pair(from_state{}, to_state{}), shortcut); })
       | holo::remove_if([](auto const& elem) {
             return holo::length(holo::second(elem)) == holo::size_c<0>; })
       | holo::transform([](auto const& elem) {
             using path = holo::tuple_trait_t<decltype(holo::second(elem)), to_path>;
-            return __HOLO_make_pair(holo::first(elem), path{}); });
+            return holo::make_type_pair(holo::first(elem), path{}); });
 
 public:
    template<typename FROM, typename TO, typename PATH>
