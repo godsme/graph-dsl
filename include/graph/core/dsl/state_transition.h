@@ -56,18 +56,18 @@ private:
 
 public:
    constexpr static auto All_Transitions_Paths =
-        holo::product( holo::unique(holo::type_list_t<typename TRANS::from_state ...>),
-                       holo::unique(holo::type_list_t<typename TRANS::to_state ...>))
+        holo::product( holo::unique(__HOLO_tuple_t<typename TRANS::from_state ...>),
+                       holo::unique(__HOLO_tuple_t<typename TRANS::to_state ...>))
       | holo::remove_if( [](auto elem) {
            return holo::typeof_c(holo::first(elem)) == holo::typeof_c(holo::second(elem)); })
       | holo::transform([](auto elem) {
             auto shortcut = state_transition_algo::find_shortcut(elem, All_Direct_Transitions);
-            return holo::make_type_pair(holo::make_type_pair(holo::typeof_c(holo::first(elem)), holo::typeof_c(holo::second(elem))), shortcut); })
+            return __HOLO_make_pair(__HOLO_make_pair(holo::typeof_c(holo::first(elem)), holo::typeof_c(holo::second(elem))), shortcut); })
       | holo::remove_if([](auto const& elem) {
             return holo::length(holo::second(elem)) == holo::size_c<0>; })
       | holo::transform([](auto const& elem) {
             using path = holo::type_transform_t<decltype(holo::second(elem)), to_path>;
-            return holo::make_type_pair(holo::first(elem), path{}); });
+            return __HOLO_make_pair(holo::first(elem), path{}); });
 
 public:
    template<typename FROM, typename TO, typename PATH>

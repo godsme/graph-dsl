@@ -21,8 +21,8 @@ struct node_trait {
 template<typename ... NODES>
 struct sub_graph_analyzer final {
    constexpr static auto nodes_map = holo::zip(
-      holo::type_list_t<typename NODES::node_type...>,
-      holo::make_type_list(NODES::direct_decedents...));
+      __HOLO_tuple_t<typename NODES::node_type...>,
+      __HOLO_make_tuple(NODES::direct_decedents...));
 
    template<typename T>
    constexpr static auto get_all_decedents(T list) {
