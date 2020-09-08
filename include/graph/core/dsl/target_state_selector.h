@@ -79,7 +79,7 @@ template<typename ... ENTRIES>
 struct target_state_selector {
 private:
    constexpr static auto Sorted_Entries =
-        __HOLO_tuple_t<detail::target_state_entry<ENTRIES>...>
+        holo::list_t<detail::target_state_entry<ENTRIES>...>
       | holo::sort([](auto l, auto r) {
           return holo::size_c<decltype(l)::type::Num_Of_Conditions>
              >   holo::size_c<decltype(r)::type::Num_Of_Conditions>;

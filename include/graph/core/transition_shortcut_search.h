@@ -24,7 +24,7 @@ class state_transition_algo {
             return holo::length(elem) == holo::size_c<0>; });
 
       if constexpr (holo::length(all_non_empty_paths) == holo::size_c<0>) {
-         return __HOLO_tuple_t<>;
+         return holo::list_t<>;
       } else if constexpr (holo::length(all_non_empty_paths) == holo::size_c<1>) {
          return all_non_empty_paths | holo::head() | holo::prepend(from);
       } else {
@@ -47,7 +47,7 @@ class state_transition_algo {
 
       if constexpr (!holo::is_nothing(result)) {
          // we got the shortcut
-         return __HOLO_make_tuple(from, holo::second(result));
+         return holo::make_list(from, holo::second(result));
       } else {
          return search_next_layer(from, target, direct_transition, rest);
       }
@@ -63,7 +63,7 @@ public:
          });
 
       if constexpr (holo::Is_True_V<decltype(holo::length(holo::first(parts)) == holo::size_c<0>)>) {
-         return __HOLO_tuple_t<>;
+         return holo::list_t<>;
       } else {
          return find_shortcut_(from, target, holo::first(parts), holo::second(parts));
       }

@@ -18,7 +18,7 @@ GRAPH_DSL_NS_BEGIN
 template<typename ... NODEs_LIKE>
 struct down_stream_fork {
    constexpr static auto node_list =
-        __HOLO_make_tuple(down_stream_trait<NODEs_LIKE>::type::node_list...)
+        holo::make_list(down_stream_trait<NODEs_LIKE>::type::node_list...)
       | holo::flatten();
 
    template<typename TUPLE>

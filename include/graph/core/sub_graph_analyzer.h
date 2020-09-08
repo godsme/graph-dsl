@@ -21,12 +21,12 @@ struct node_trait {
 template<typename ... NODES>
 struct sub_graph_analyzer final {
    constexpr static auto nodes_map = holo::zip(
-      __HOLO_tuple_t<typename NODES::node_type...>,
-      __HOLO_make_tuple(NODES::direct_decedents...));
+      holo::list_t<typename NODES::node_type...>,
+      holo::make_list(NODES::direct_decedents...));
 
    template<typename T>
    constexpr static auto get_all_decedents(T list) {
-      return list | holo::fold_left(__HOLO_make_tuple(), [](auto acc, auto elem) {
+      return list | holo::fold_left(holo::make_list(), [](auto acc, auto elem) {
          auto entry = nodes_map | holo::find_if([&](auto v){ return holo::first(v) == elem; });
          if constexpr(holo::is_nothing(entry)) {
             return holo::append(elem, acc);
@@ -40,7 +40,7 @@ struct sub_graph_analyzer final {
    }
 
    constexpr static auto all_decedents_map = nodes_map | holo::transform([](auto elem) {
-      return __HOLO_make_pair(holo::first(elem), get_all_decedents(holo::second(elem)) | holo::unique());
+      return holo::make_pair(holo::first(elem), get_all_decedents(holo::second(elem)) | holo::unique());
    });
 
    constexpr static auto sorted_non_leaf_nodes =
@@ -53,7 +53,7 @@ struct sub_graph_analyzer final {
 
 
    constexpr static auto root_nodes =
-      __HOLO_tuple_t<NODES...>
+      holo::list_t<NODES...>
       | holo::filter([](auto elem){
          return decltype(elem)::type::is_root == holo::true_c; })
       | holo::transform([](auto elem){
@@ -72,7 +72,7 @@ struct sub_graph_analyzer final {
 
    constexpr static auto leaf_tagged_nodes =
       all_decedents_map
-      | holo::fold_left(__HOLO_make_tuple(), [](auto acc, auto elem){
+      | holo::fold_left(holo::make_list(), [](auto acc, auto elem){
          return holo::concat(acc, holo::second(elem)); })
       | holo::unique()
       | holo::remove_if([](auto elem) {
@@ -87,7 +87,7 @@ public:
       sorted_non_leaf_nodes
       | holo::transform([](auto elem){
          constexpr auto entry =
-            __HOLO_tuple_t<NODES...>
+            holo::list_t<NODES...>
             | holo::find_if([=](auto v){
                return holo::type_c<typename decltype(v)::type::node_type> == elem;
             });

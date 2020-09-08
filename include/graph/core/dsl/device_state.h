@@ -35,7 +35,7 @@ template<typename ... DEVICEs>
 struct device_state {
    constexpr static size_t Num_Of_Devices = sizeof...(DEVICEs);
    constexpr static auto Sorted_Devices =
-      __HOLO_tuple_t<detail::device_trait<DEVICEs>...>
+      holo::list_t<detail::device_trait<DEVICEs>...>
       | holo::sort([](auto l, auto r) {
          return holo::char_c<decltype(l)::type::Device_Id>
             <
