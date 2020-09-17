@@ -78,6 +78,7 @@ using trans_2 =
       ((__g_PREVIEW(device_2), device_3) -> device_2, __g_PREVIEW(device_3))
       );
 
+   template<typename T> struct S;
    TEST_CASE("find a long indirect transition") {
       auto from = holo::type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_1)>>;
       auto to   = holo::type_c<graph_dsl::device_state<device_2, __g_PREVIEW(device_3)>>;
