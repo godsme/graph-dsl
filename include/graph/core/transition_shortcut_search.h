@@ -54,13 +54,12 @@ class state_transition_algo {
       return find_shortcut(holo::first(trans), holo::second(trans), rest, holo::size_c<DEPTH>);
    }
 
-
    template<typename FROM, typename TARGET, typename REST, std::size_t DEPTH>
    constexpr static auto find_shortcut(FROM const& from, TARGET const& target, REST const& rest, holo::size_c_t<DEPTH>) {
       if constexpr (DEPTH == 0) {
          return holo::list_t<>;
       } else {
-         // find the direct neighbors
+         // find the direct neighbors of `from`
          auto parts = rest | holo::partition([&](auto elem) {
             return holo::typeof_c(holo::first(elem)) == holo::typeof_c(from);
          });
