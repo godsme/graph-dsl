@@ -17,7 +17,7 @@ class state_transition_algo {
    constexpr static auto
    search_next_layer(FROM const &from, TARGET const &target, TRANSITIONS const &transitions, REST const &rest, holo::size_c_t<DEPTH>) {
       auto result = transitions | holo::fold_left(holo::list_t<>, [&](auto shortcut, auto elem) {
-         auto size = holo::length(shortcut);
+         constexpr auto size = holo::length(shortcut);
          constexpr auto search_depth = size == 0 ? DEPTH : size - 1;
          auto result = find_shortcut(holo::second(elem), target, rest, holo::size_c<search_depth>);
          if constexpr (holo::length(result) == 0) {
