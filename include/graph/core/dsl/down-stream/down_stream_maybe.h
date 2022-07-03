@@ -51,7 +51,10 @@ struct DownStreamMaybe {
       auto DoBuild(GraphContext& context) -> Status {
          if(!m_node) {
             m_node.template emplace();
-            GRAPH_EXPECT_SUCC(m_node->Build(context));
+            if(auto status = m_node->Build(context); status != Status::OK) {
+                m_node.reset();
+                return status;
+            }
          }
          return Status::OK;
       }
