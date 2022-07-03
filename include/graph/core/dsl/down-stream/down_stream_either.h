@@ -28,16 +28,13 @@ struct DownStreamEither {
    template<typename TUPLE>
    struct InstanceType {
    private:
-      using Node1 = typename DecoratedNode1::template InstanceType<TUPLE>;
-      using Node2 = typename DecoratedNode2::template InstanceType<TUPLE>;
-
-      template<size_t FROM, size_t TO, typename NODE>
+      template<size_t FROM, size_t TO>
       auto Transfer(GraphContext& context) -> Status {
          if(m_node.index() == FROM) {
             std::get<FROM>(m_node).Release(context);
          }
          if(m_node.index() != TO) {
-            m_node = NODE{};
+            m_node.template emplace<TO>();
             GRAPH_EXPECT_SUCC(std::get<TO>(m_node).Build(context));
          }
          return Status::OK;
@@ -46,13 +43,14 @@ struct DownStreamEither {
       template<size_t N>
       inline auto CleanUp(GraphContext& context) {
          std::get<N>(m_node).Release(context);
-          m_node = std::monostate{};
+         m_node = std::monostate{};
       }
+
    public:
       auto Build(GraphContext& context) -> Status {
          return COND::Satisfied(context).with_value([&](auto satisfied) {
-            if(satisfied) { return Transfer<2, 1, Node1>(context); }
-            else          { return Transfer<1, 2, Node2>(context); }
+            if(satisfied) { return Transfer<2, 1>(context); }
+            else          { return Transfer<1, 2>(context); }
          });
       }
 
@@ -75,6 +73,8 @@ struct DownStreamEither {
       auto Enabled() const -> bool { return m_node.index() != 0; }
 
    private:
+       using Node1 = typename DecoratedNode1::template InstanceType<TUPLE>;
+       using Node2 = typename DecoratedNode2::template InstanceType<TUPLE>;
       std::variant<std::monostate, Node1, Node2> m_node;
    };
 };

@@ -35,23 +35,23 @@ struct DownStreamMaybe {
 
       auto Release(GraphContext& context) {
          if(m_node) {
-            m_node.Release(context);
+            m_node->Release(context);
             m_node.reset();
          }
       }
 
       auto CollectActorHandle(GraphContext& context, ActorHandleSet& actor_handles) -> Status {
          GRAPH_EXPECT_TRUE(Enabled());
-         return m_node.CollectActorHandle(context, actor_handles);
+         return m_node->CollectActorHandle(context, actor_handles);
       }
 
-      auto Enabled() const -> bool { return m_node; }
+      auto Enabled() const -> bool { return m_node.has_value(); }
 
    private:
       auto DoBuild(GraphContext& context) -> Status {
          if(!m_node) {
-            m_node = NodeType{};
-            GRAPH_EXPECT_SUCC(m_node.Build(context));
+            m_node.template emplace();
+            GRAPH_EXPECT_SUCC(m_node->Build(context));
          }
          return Status::OK;
       }
