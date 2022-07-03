@@ -18,40 +18,40 @@ struct graph_port;
 
 template<typename PORT, typename NODE_LIKE>
 struct graph_port<auto (PORT) -> NODE_LIKE> final {
-   using node_like_type = typename down_stream_trait<NODE_LIKE>::type;
-   constexpr static auto node_list = node_like_type::node_list;
+   using NodeLikeType = typename DownStreamTrait<NODE_LIKE>::Type;
+   constexpr static auto NODE_LIST = NodeLikeType::NODE_LIST;
 
    template<typename TUPLE>
-   struct instance_type {
+   struct InstanceType {
       inline auto Build(GraphContext& context) -> Status {
-         return down_stream_node_.Build(context);
+         return m_downStreamNode.Build(context);
       }
 
       inline auto Release(GraphContext& context) {
-         down_stream_node_.Release(context);
+         m_downStreamNode.Release(context);
       }
 
       template<bool Is_Root>
       auto CollectActorPort(GraphContext& context, ActorPorts& ports) -> Status {
-         if(down_stream_node_.Enabled()) {
+         if(m_downStreamNode.Enabled()) {
             if constexpr (Is_Root) {
                if(ports.find(PORT::port_id) == ports.end()) UpdatePortFormat(context, ports);
             } else {
                 UpdatePortFormat(context, ports);
             }
-            GRAPH_EXPECT_SUCC(down_stream_node_.CollectActorHandle(context, ports[PORT::port_id].m_actorHandles));
+            GRAPH_EXPECT_SUCC(m_downStreamNode.CollectActorHandle(context, ports[PORT::port_id].m_actorHandles));
          }
-         return Status::Ok;
+         return Status::OK;
       }
 
-      inline auto Enabled() -> bool { return down_stream_node_.Enabled(); }
+      inline auto Enabled() -> bool { return m_downStreamNode.Enabled(); }
 
    private:
       auto UpdatePortFormat(GraphContext& context, ActorPorts& ports) {
          ports[PORT::port_id].m_format = PORT::GetPortFormat(context);
       }
    private:
-      typename node_like_type::template instance_type<TUPLE>  down_stream_node_;
+      typename NodeLikeType::template InstanceType<TUPLE>  m_downStreamNode;
    };
 };
 

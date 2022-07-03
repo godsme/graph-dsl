@@ -17,7 +17,7 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
    template<typename ROOTS>
    struct instance_type {
       auto Build(GraphContext& context) -> Status {
-         return COND{}(context).with_value([&](auto satisfied) {
+         return COND::Satisfied(context).with_value([&](auto satisfied) {
             if(satisfied) {
                GRAPH_EXPECT_SUCC(subgraph_.Build(context));
                selected_ = true;
@@ -25,7 +25,7 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
                selected_ = false;
             }
 
-            return Status::Ok;
+            return Status::OK;
          });
       }
 
@@ -34,7 +34,7 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
             GRAPH_EXPECT_SUCC(subgraph_.Start(context));
             alive_ = true;
          }
-         return Status::Ok;
+         return Status::OK;
       }
 
       auto CleanUp() {
@@ -58,10 +58,10 @@ struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
             return subgraph_.ConnectRoot(context, root, ports);
          }
 
-         return Status::Ok;
+         return Status::OK;
       }
    private:
-      typename SUB_GRAPH::template instance_type<ROOTS> subgraph_{};
+      typename SUB_GRAPH::template InstanceType<ROOTS> subgraph_{};
       bool selected_{false};
       bool alive_{false};
    };

@@ -18,7 +18,7 @@ struct Graph {
    auto Refresh(GraphContext& context) -> Status {
       GRAPH_EXPECT_SUCC(Build(context));
       GRAPH_EXPECT_SUCC(Start(context));
-      return Status::Ok;
+      return Status::OK;
    }
 
    auto Stop() {
@@ -48,16 +48,16 @@ private:
          return sub.Start(context);
       }));
       GRAPH_EXPECT_SUCC(tuple_foreach(roots_.roots_, [&](auto& root) {
-         if(!root.Present()) return Status::Ok;
+         if(!root.Present()) return Status::OK;
          auto ports = std::make_unique<ActorPorts>();
          auto status = tuple_foreach(sub_graphs_, [&](auto& sub) {
             return sub.ConnectRoot(context, root, *ports);
          });
-         if(status != Status::Ok) return status;
+         if(status != Status::OK) return status;
          return root.UpdatePorts(context, std::move(ports));
       }));
 
-      return Status::Ok;
+      return Status::OK;
    }
 
 private:

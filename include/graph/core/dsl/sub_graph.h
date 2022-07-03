@@ -16,25 +16,25 @@ GRAPH_DSL_NS_BEGIN
 
 template<typename ... NODES>
 struct sub_graph final {
-   constexpr static auto all_sorted_nodes = SubGraphAnalyzer<NODES...>::allSortedSubGraphNodes;
+   constexpr static auto ALL_SORTED_NODES = SubGraphAnalyzer<NODES...>::ALL_SORTED_SUBGRAPH_NODES;
 
    template<typename ROOTS_CB>
-   struct instance_type {
+   struct InstanceType {
    private:
       template<typename ... Ts>
       using cb_container = std::tuple<subgraph_node_cb<typename Ts::NodeType, Ts::category>...>;
-      static_assert(holo::length(all_sorted_nodes) > 0, "");
-      using nodes_cb = decltype(holo::map_to<cb_container>(all_sorted_nodes));
+      static_assert(holo::length(ALL_SORTED_NODES) > 0, "");
+      using nodes_cb = decltype(holo::map_to<cb_container>(ALL_SORTED_NODES));
 
    private:
-      constexpr static auto sorted_nodes_desc = SubGraphAnalyzer<NODES...>::sortedNodesDesc;
+      constexpr static auto sorted_nodes_desc = SubGraphAnalyzer<NODES...>::SORTED_NODES_DESC;
       static_assert(holo::length(sorted_nodes_desc) == sizeof...(NODES));
 
       template<typename ... Ts>
-      using desc_container  = std::tuple<typename Ts::template instance_type<ROOTS_CB, nodes_cb>...>;
+      using desc_container  = std::tuple<typename Ts::template InstanceType<ROOTS_CB, nodes_cb>...>;
       using nodes_links = decltype(holo::map_to<desc_container>(sorted_nodes_desc));
 
-      template<typename T> struct desc_node_type { using type = typename T::node_type; };
+      template<typename T> struct desc_node_type { using type = typename T::NodeType; };
    public:
       auto Build(GraphContext& context) -> Status {
          context.SwitchSubgraphContext(nodes_cb_);
@@ -50,7 +50,7 @@ struct sub_graph final {
          if constexpr (Index >= 0) {
             return std::get<Index>(nodes_links_).CollectActorPorts(context, ports);
          } else {
-            return Status::Ok;
+            return Status::OK;
          }
       }
 

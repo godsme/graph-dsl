@@ -7,86 +7,85 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
-#include <graph/core/GraphContext.h>
 #include <graph/util/result_t.h>
-#include <graph/core/NodeIndex.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <holo/holo.h>
 #include <maco/basic.h>
-#include <vector>
 
 GRAPH_DSL_NS_BEGIN
 
-template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
-struct down_stream_either {
-   using decorated_node_1 = typename down_stream_trait<NODE_LIKE_1>::type;
-   using decorated_node_2 = typename down_stream_trait<NODE_LIKE_2>::type;
+struct GraphContext;
 
-   constexpr static auto node_list = \
-      holo::concat( down_stream_trait<NODE_LIKE_1>::type::node_list
-                  , down_stream_trait<NODE_LIKE_2>::type::node_list);
+template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
+struct DownStreamEither {
+   using DecoratedNode1 = typename DownStreamTrait<NODE_LIKE_1>::Type;
+   using DecoratedNode2 = typename DownStreamTrait<NODE_LIKE_2>::Type;
+
+   constexpr static auto NODE_LIST = \
+      holo::concat( DownStreamTrait<NODE_LIKE_1>::Type::NODE_LIST
+                  , DownStreamTrait<NODE_LIKE_2>::Type::NODE_LIST);
 
    template<typename TUPLE>
-   struct instance_type {
+   struct InstanceType {
    private:
-      using node_1 = typename decorated_node_1::template instance_type<TUPLE>;
-      using node_2 = typename decorated_node_2::template instance_type<TUPLE>;
+      using Node1 = typename DecoratedNode1::template InstanceType<TUPLE>;
+      using Node2 = typename DecoratedNode2::template InstanceType<TUPLE>;
 
       template<size_t FROM, size_t TO, typename NODE>
-      auto move_to(GraphContext& context) -> Status {
-         if(node_.index() == FROM) {
-            std::get<FROM>(node_).Release(context);
+      auto Transfer(GraphContext& context) -> Status {
+         if(m_node.index() == FROM) {
+            std::get<FROM>(m_node).Release(context);
          }
-         if(node_.index() != TO) {
-            node_ = NODE{};
-            GRAPH_EXPECT_SUCC(std::get<TO>(node_).Build(context));
+         if(m_node.index() != TO) {
+            m_node = NODE{};
+            GRAPH_EXPECT_SUCC(std::get<TO>(m_node).Build(context));
          }
-         return Status::Ok;
+         return Status::OK;
       }
 
       template<size_t N>
-      inline auto Cleanup(GraphContext& context) {
-         std::get<N>(node_).Release(context);
-         node_ = std::monostate{};
+      inline auto CleanUp(GraphContext& context) {
+         std::get<N>(m_node).Release(context);
+          m_node = std::monostate{};
       }
    public:
       auto Build(GraphContext& context) -> Status {
-         return COND{}(context).with_value([&](auto satisfied) {
-            if(satisfied) { return move_to<2, 1, node_1>(context); }
-            else          { return move_to<1, 2, node_2>(context); }
+         return COND::Satisfied(context).with_value([&](auto satisfied) {
+            if(satisfied) { return Transfer<2, 1, Node1>(context); }
+            else          { return Transfer<1, 2, Node2>(context); }
          });
       }
 
       auto Release(GraphContext& context) {
-         switch(node_.index()) {
-            case 1: { Cleanup<1>(context); break; }
-            case 2: { Cleanup<2>(context); break; }
+         switch(m_node.index()) {
+            case 1: { CleanUp<1>(context); break; }
+            case 2: { CleanUp<2>(context); break; }
             default: break;
          }
       }
 
-      auto CollectActorHandle(GraphContext& context, ActorHandleSet & actor_handles) -> Status {
-         switch(node_.index()) {
-            case 1: return std::get<1>(node_).CollectActorHandle(context, actor_handles);
-            case 2: return std::get<2>(node_).CollectActorHandle(context, actor_handles);
-            default: return Status::Failed;
+      auto CollectActorHandle(GraphContext& context, ActorHandleSet & actors) -> Status {
+         switch(m_node.index()) {
+            case 1: return std::get<1>(m_node).CollectActorHandle(context, actors);
+            case 2: return std::get<2>(m_node).CollectActorHandle(context, actors);
+            default: return Status::FAILED;
          }
       }
 
-      auto Enabled() const -> bool { return node_.index() != 0; }
+      auto Enabled() const -> bool { return m_node.index() != 0; }
 
    private:
-      std::variant<std::monostate, node_1, node_2> node_;
+      std::variant<std::monostate, Node1, Node2> m_node;
    };
 };
 
 template<typename COND, typename NODE_LIKE_1, typename NODE_LIKE_2>
-struct down_stream_trait<down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
-   using type = down_stream_either<COND, NODE_LIKE_1, NODE_LIKE_2>;
+struct DownStreamTrait<DownStreamEither<COND, NODE_LIKE_1, NODE_LIKE_2>, void> {
+   using Type = DownStreamEither<COND, NODE_LIKE_1, NODE_LIKE_2>;
 };
 
 GRAPH_DSL_NS_END
 
-#define __g_EITHER(...) __MACO_template_type(GRAPH_DSL_NS::down_stream_either<__VA_ARGS__>)
+#define __g_EITHER(...) __MACO_template_type(GRAPH_DSL_NS::DownStreamEither<__VA_ARGS__>)
 
 #endif //GRAPH_DOWN_STREAM_EITHER_H

@@ -7,69 +7,68 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
-#include <graph/core/GraphContext.h>
 #include <graph/util/result_t.h>
-#include <graph/core/NodeIndex.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
-#include <vector>
 
 GRAPH_DSL_NS_BEGIN
 
+struct GraphContext;
+
 //////////////////////////////////////////////////////////////////////////////
 template<typename COND, typename NODE_LIKE>
-struct down_stream_maybe {
-   using decorated_node = typename down_stream_trait<NODE_LIKE>::type;
-   constexpr static auto node_list = decorated_node::node_list;
+struct DownStreamMaybe {
+   using DecoratedNode = typename DownStreamTrait<NODE_LIKE>::Type;
+   constexpr static auto NODE_LIST = DecoratedNode::NODE_LIST;
 
    template<typename TUPLE>
-   struct instance_type {
+   struct InstanceType {
       auto Build(GraphContext& context) -> Status {
-         return COND{}(context).with_value([&](auto satisfied) {
+         return COND::Satisfied(context).with_value([&](auto satisfied) {
             if(satisfied) {
-               return Build_(context);
+               return DoBuild(context);
             } else {
                Release(context);
-               return Status::Ok;
+               return Status::OK;
             }
          });
       }
 
       auto Release(GraphContext& context) {
-         if(satisfied_) {
-            node_.Release(context);
-            satisfied_ = false;
+         if(m_node) {
+            m_node.Release(context);
+            m_node.reset();
          }
       }
 
       auto CollectActorHandle(GraphContext& context, ActorHandleSet& actor_handles) -> Status {
          GRAPH_EXPECT_TRUE(Enabled());
-         return node_.CollectActorHandle(context, actor_handles);
+         return m_node.CollectActorHandle(context, actor_handles);
       }
 
-      auto Enabled() const -> bool { return satisfied_; }
+      auto Enabled() const -> bool { return m_node; }
 
    private:
-      auto Build_(GraphContext& context) -> Status {
-         if(!satisfied_) {
-            GRAPH_EXPECT_SUCC(node_.Build(context));
-            satisfied_ = true;
+      auto DoBuild(GraphContext& context) -> Status {
+         if(!m_node) {
+            m_node = NodeType{};
+            GRAPH_EXPECT_SUCC(m_node.Build(context));
          }
-         return Status::Ok;
+         return Status::OK;
       }
 
    private:
-      typename decorated_node::template instance_type<TUPLE> node_;
-      bool satisfied_{false};
+       using NodeType = typename DecoratedNode::template InstanceType<TUPLE>;
+       std::optional<NodeType> m_node;
    };
 };
 
 template<typename COND, typename NODE_LIKE>
-struct down_stream_trait<down_stream_maybe<COND, NODE_LIKE>, void> {
-   using type = down_stream_maybe<COND, NODE_LIKE>;
+struct DownStreamTrait<DownStreamMaybe<COND, NODE_LIKE>, void> {
+   using Type = DownStreamMaybe<COND, NODE_LIKE>;
 };
 
 GRAPH_DSL_NS_END
 
-#define __g_MAYBE(...) __MACO_template_type(GRAPH_DSL_NS::down_stream_maybe<__VA_ARGS__>)
+#define __g_MAYBE(...) __MACO_template_type(GRAPH_DSL_NS::DownStreamMaybe<__VA_ARGS__>)
 
 #endif //GRAPH_DOWN_STREAM_MAYBE_H

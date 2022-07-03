@@ -4849,7 +4849,7 @@ namespace Catch {
 // header for non obj-usage
 
 ///////////////////////////////////////////////////////////////////////////////
-// This protocol is really only here for (self) documenting purposes, since
+// This protocol is really only here for (Self) documenting purposes, since
 // all its methods are optional.
 @protocol OcFixture
 
@@ -10424,7 +10424,7 @@ namespace Catch {
             // Libstdc++ has a bug, where std::ifstream sets errno to 0
             // This way our users can properly assert over errno values
             ErrnoGuard guard;
-            std::ifstream in("/proc/self/status");
+            std::ifstream in("/proc/Self/status");
             for( std::string line; std::getline(in, line); ) {
                 static const int PREFIX_LEN = 11;
                 if( line.compare(0, PREFIX_LEN, "TracerPid:\t") == 0 ) {
@@ -15620,9 +15620,9 @@ namespace Catch {
 namespace {
 // Colour, message variants:
 // - white: No tests ran.
-// -   red: Failed [both/all] N test cases, failed [both/all] M assertions.
+// -   red: FAILED [both/all] N test cases, failed [both/all] M assertions.
 // - white: Passed [both/all] N test cases (no assertions).
-// -   red: Failed N tests cases, failed M assertions.
+// -   red: FAILED N tests cases, failed M assertions.
 // - green: Passed [both/all] N tests cases with M assertions.
 void printTotals(std::ostream& out, const Totals& totals) {
     if (totals.testCases.total() == 0) {
@@ -15633,7 +15633,7 @@ void printTotals(std::ostream& out, const Totals& totals) {
             totals.assertions.failed == totals.assertions.total() ?
             bothOrAll(totals.assertions.failed) : std::string();
         out <<
-            "Failed " << bothOrAll(totals.testCases.failed)
+            "FAILED " << bothOrAll(totals.testCases.failed)
             << pluralise(totals.testCases.failed, "test case") << ", "
             "failed " << qualify_assertions_failed <<
             pluralise(totals.assertions.failed, "assertion") << '.';
@@ -15645,7 +15645,7 @@ void printTotals(std::ostream& out, const Totals& totals) {
     } else if (totals.assertions.failed) {
         Colour colour(Colour::ResultError);
         out <<
-            "Failed " << pluralise(totals.testCases.failed, "test case") << ", "
+            "FAILED " << pluralise(totals.testCases.failed, "test case") << ", "
             "failed " << pluralise(totals.assertions.failed, "assertion") << '.';
     } else {
         Colour colour(Colour::ResultSuccess);
@@ -17351,7 +17351,7 @@ int main (int argc, char * const argv[]) {
 #define CATCH_DYNAMIC_SECTION( ... ) INTERNAL_CATCH_DYNAMIC_SECTION( __VA_ARGS__ )
 #define CATCH_FAIL( ... ) INTERNAL_CATCH_MSG( "CATCH_FAIL", Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, __VA_ARGS__ )
 #define CATCH_FAIL_CHECK( ... ) INTERNAL_CATCH_MSG( "CATCH_FAIL_CHECK", Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::ContinueOnFailure, __VA_ARGS__ )
-#define CATCH_SUCCEED( ... ) INTERNAL_CATCH_MSG( "CATCH_SUCCEED", Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, __VA_ARGS__ )
+#define CATCH_SUCCEED( ... ) INTERNAL_CATCH_MSG( "CATCH_SUCCEED", Catch::ResultWas::OK, Catch::ResultDisposition::ContinueOnFailure, __VA_ARGS__ )
 
 #define CATCH_ANON_TEST_CASE() INTERNAL_CATCH_TESTCASE()
 

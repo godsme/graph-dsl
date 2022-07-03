@@ -11,8 +11,8 @@
 GRAPH_DSL_NS_BEGIN
 
 enum class Status : uint32_t {
-   Ok,
-   Failed
+   OK,
+   FAILED
 };
 
 GRAPH_DSL_NS_END

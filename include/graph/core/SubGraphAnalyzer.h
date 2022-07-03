@@ -21,7 +21,7 @@ struct NodeTrait {
 template<typename ... NODES>
 struct SubGraphAnalyzer final {
    constexpr static auto nodesMap = holo::zip(
-      holo::list_t<typename NODES::node_type...>,
+      holo::list_t<typename NODES::NodeType...>,
       holo::make_list(NODES::direct_decedents...));
 
    template<typename T>
@@ -55,9 +55,9 @@ struct SubGraphAnalyzer final {
    constexpr static auto rootNodes =
       holo::list_t<NODES...>
       | holo::filter([](auto elem){
-         return decltype(elem)::type::is_root == holo::true_c; })
+         return decltype(elem)::type::IS_ROOT_NODE == holo::true_c; })
       | holo::transform([](auto elem){
-         return holo::type_c<typename decltype(elem)::type::node_type>;
+         return holo::type_c<typename decltype(elem)::type::NodeType>;
       });
 
 
@@ -82,14 +82,14 @@ struct SubGraphAnalyzer final {
       });
 
 public:
-   constexpr static auto allSortedSubGraphNodes = holo::concat(sortedTaggedIntermediateNodes, leafTaggedNodes);
-   constexpr static auto sortedNodesDesc =
+   constexpr static auto ALL_SORTED_SUBGRAPH_NODES = holo::concat(sortedTaggedIntermediateNodes, leafTaggedNodes);
+   constexpr static auto SORTED_NODES_DESC =
            sortedNonLeafNodes
            | holo::transform([](auto elem){
          constexpr auto entry =
             holo::list_t<NODES...>
             | holo::find_if([=](auto v){
-               return holo::type_c<typename decltype(v)::type::node_type> == elem;
+               return holo::type_c<typename decltype(v)::type::NodeType> == elem;
             });
 
          static_assert(!holo::is_nothing(entry));

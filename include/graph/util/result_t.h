@@ -62,7 +62,7 @@ public:
    }
 
    inline constexpr auto failure() const -> Status {
-      return parent::is_right() ? parent::right() : Status::Ok;
+      return parent::is_right() ? parent::right() : Status::OK;
    }
 
    template<typename F_VALUE, typename F_ERROR>

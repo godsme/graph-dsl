@@ -15,47 +15,47 @@
 
 GRAPH_DSL_NS_BEGIN
 
-struct node_signature {};
+struct NodeSignature {};
 
 template <typename NODE>
-struct down_stream_node_ref {
-   constexpr static auto node_list = holo::list_t<NODE>;
+struct DownStreamNodeRef {
+   constexpr static auto NODE_LIST = holo::list_t<NODE>;
 
    template<typename TUPLE>
-   struct instance_type : NodeIndex<NODE, TUPLE> {
+   struct InstanceType : NodeIndex<NODE, TUPLE> {
       auto Build(GraphContext& context) -> Status {
-         if(!enabled_) {
+         if(!m_enabled) {
             NodeIndex<NODE, TUPLE>::GetNode(context).AddRef();
-            enabled_ = true;
+             m_enabled = true;
          }
-         return Status::Ok;
+         return Status::OK;
       }
 
       auto Release(GraphContext& context) {
-         if(enabled_) {
+         if(m_enabled) {
             NodeIndex<NODE, TUPLE>::GetNode(context).Release();
-            enabled_ = false;
+             m_enabled = false;
          }
       }
 
-      auto CollectActorHandle(GraphContext& context, ActorHandleSet& actor_handles) -> Status {
+      auto CollectActorHandle(GraphContext& context, ActorHandleSet& actors) -> Status {
          GRAPH_EXPECT_TRUE(Enabled());
-         auto&& handle = NodeIndex<NODE, TUPLE>::GetNode(context).GetActorHandle();
-         GRAPH_EXPECT_TRUE(handle);
-         actor_handles.emplace_back(std::move(handle));
-         return Status::Ok;
+         auto&& actor = NodeIndex<NODE, TUPLE>::GetNode(context).GetActorHandle();
+         GRAPH_EXPECT_TRUE(actor);
+         actors.emplace_back(std::move(actor));
+         return Status::OK;
       }
 
-      inline auto Enabled() const -> bool { return enabled_; }
+      inline auto Enabled() const -> bool { return m_enabled; }
 
    private:
-      bool enabled_{false};
+      bool m_enabled{false};
    };
 };
 
 template<typename NODE>
-struct down_stream_trait<NODE, std::enable_if_t<std::is_base_of_v<node_signature, NODE>>> {
-   using type = down_stream_node_ref<NODE>;
+struct DownStreamTrait<NODE, std::enable_if_t<std::is_base_of_v<NodeSignature, NODE>>> {
+   using Type = DownStreamNodeRef<NODE>;
 };
 
 GRAPH_DSL_NS_END

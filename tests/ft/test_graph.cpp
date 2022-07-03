@@ -129,7 +129,7 @@ private:
    int id_;
 };
 
-struct root_0 : graph_dsl::root_signature {
+struct root_0 : graph_dsl::RootSignature {
    constexpr static auto id = 0;
    template<typename ... Args>
    static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
@@ -137,7 +137,7 @@ struct root_0 : graph_dsl::root_signature {
    }
 };
 
-struct root_1 : graph_dsl::root_signature {
+struct root_1 : graph_dsl::RootSignature {
    constexpr static auto id = 1;
    template<typename ... Args>
    static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
@@ -145,7 +145,7 @@ struct root_1 : graph_dsl::root_signature {
    }
 };
 
-struct node_3 : graph_dsl::node_signature{
+struct node_3 : graph_dsl::NodeSignature{
    constexpr static auto id = 3;
    template<typename ... Args>
    static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
@@ -153,7 +153,7 @@ struct node_3 : graph_dsl::node_signature{
    }
 };
 
-struct node_4 : graph_dsl::node_signature{
+struct node_4 : graph_dsl::NodeSignature{
    constexpr static auto id = 4;
 
    template<typename ... Args>
@@ -162,7 +162,7 @@ struct node_4 : graph_dsl::node_signature{
    }
 };
 
-struct node_5 : graph_dsl::node_signature{
+struct node_5 : graph_dsl::NodeSignature{
    constexpr static auto id = 5;
 
    template<typename ... Args>
@@ -170,21 +170,21 @@ struct node_5 : graph_dsl::node_signature{
       return nano_caf::Spawn<intermediate_actor>(id, std::forward<Args>(args)...);
    }
 };
-struct node_6 : graph_dsl::node_signature{
+struct node_6 : graph_dsl::NodeSignature{
    constexpr static auto id = 6;
    template<typename ... Args>
    static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
       return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
-struct node_7 : graph_dsl::node_signature{
+struct node_7 : graph_dsl::NodeSignature{
    constexpr static auto id = 7;
    template<typename ... Args>
    static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
       return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
-struct node_8 : graph_dsl::node_signature{
+struct node_8 : graph_dsl::NodeSignature{
    constexpr static auto id = 8;
 
    template<typename ... Args>
@@ -193,7 +193,7 @@ struct node_8 : graph_dsl::node_signature{
    }
 };
 
-struct node_9 : graph_dsl::node_signature{
+struct node_9 : graph_dsl::NodeSignature{
    constexpr static auto id = 9;
 
    template<typename ... Args>
@@ -202,7 +202,7 @@ struct node_9 : graph_dsl::node_signature{
    }
 };
 
-struct node_10 : graph_dsl::node_signature{
+struct node_10 : graph_dsl::NodeSignature{
    constexpr static auto id = 10;
 
    template<typename ... Args>
@@ -211,7 +211,7 @@ struct node_10 : graph_dsl::node_signature{
    }
 };
 
-struct node_11: graph_dsl::node_signature{
+struct node_11: graph_dsl::NodeSignature{
    constexpr static auto id = 11;
 
    template<typename ... Args>
@@ -220,7 +220,7 @@ struct node_11: graph_dsl::node_signature{
    }
 };
 
-struct node_12 : graph_dsl::node_signature{
+struct node_12 : graph_dsl::NodeSignature{
    constexpr static auto id = 12;
 
    template<typename ... Args>
@@ -229,7 +229,7 @@ struct node_12 : graph_dsl::node_signature{
    }
 };
 
-struct node_13 : graph_dsl::node_signature{
+struct node_13 : graph_dsl::NodeSignature{
    constexpr static auto id = 13;
 
    template<typename ... Args>
@@ -238,7 +238,7 @@ struct node_13 : graph_dsl::node_signature{
    }
 };
 
-struct node_14 : graph_dsl::node_signature{
+struct node_14 : graph_dsl::NodeSignature{
    constexpr static auto id = 14;
 
    template<typename ... Args>
@@ -247,7 +247,7 @@ struct node_14 : graph_dsl::node_signature{
    }
 };
 
-struct node_15 : graph_dsl::node_signature{
+struct node_15 : graph_dsl::NodeSignature{
    constexpr static auto id = 15;
 
    template<typename ... Args>
@@ -348,13 +348,13 @@ struct port_12 {
 bool node_condition = false;
 
 struct cond_1 {
-   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
+    static auto Satisfied(GRAPH_DSL_NS::GraphContext&) -> GRAPH_DSL_NS::result_t<bool> {
       return node_condition;
    }
 };
 
 struct cond_2 {
-   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
+    static auto Satisfied(GRAPH_DSL_NS::GraphContext&) -> GRAPH_DSL_NS::result_t<bool> {
       return !node_condition;
    }
 };
@@ -362,13 +362,13 @@ struct cond_2 {
 bool sub_graph_switch = true;
 
 struct cond_3 {
-   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
+   static auto Satisfied(GRAPH_DSL_NS::GraphContext&) -> GRAPH_DSL_NS::result_t<bool> {
       return sub_graph_switch;
    }
 };
 
 struct cond_4 {
-   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
+   static auto Satisfied(GRAPH_DSL_NS::GraphContext&) -> GRAPH_DSL_NS::result_t<bool> {
       return !sub_graph_switch;
    }
 };
@@ -438,7 +438,7 @@ int main() {
    context.UpdateRootState(root_states);
    graph g;
 
-   if(auto status = g.Refresh(context); status != GRAPH_DSL_NS::Status::Ok) {
+   if(auto status = g.Refresh(context); status != GRAPH_DSL_NS::Status::OK) {
       std::cout << "refresh failed" << std::endl;
       return -1;
    }
@@ -467,7 +467,7 @@ int main() {
          sub_graph_switch = !sub_graph_switch;
       }
 
-      if(auto status = g.Refresh(context); status != GRAPH_DSL_NS::Status::Ok) { return -1; }
+      if(auto status = g.Refresh(context); status != GRAPH_DSL_NS::Status::OK) { return -1; }
    }
 
    tid.join();

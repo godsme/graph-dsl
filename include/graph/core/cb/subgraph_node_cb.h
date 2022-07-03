@@ -31,14 +31,14 @@ struct subgraph_node_base {
          //actor_handle_.exit_and_release();
       }
 
-      return Status::Ok;
+      return Status::OK;
    }
 
    auto CleanUp() -> Status {
       if(refs_ == 0) {
          return Stop();
       }
-      return Status::Ok;
+      return Status::OK;
    }
 
    inline auto GetActorHandle() -> decltype(auto) {
@@ -69,7 +69,7 @@ public:
          GRAPH_EXPECT_TRUE(self::actor_handle_);
          self::running_ = true;
       }
-      return Status::Ok;
+      return Status::OK;
    }
 
 };
@@ -82,7 +82,7 @@ private:
 
    template<typename T>
    struct desc_node_type {
-      using type = typename T::node_type;
+      using type = typename T::NodeType;
    };
 
 public:
@@ -91,7 +91,7 @@ public:
       constexpr static auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
-      if(!self::Present()) return Status::Ok;
+      if(!self::Present()) return Status::OK;
 
       auto ports = std::make_unique<ActorPorts>();
       GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).CollectActorPorts(context, *ports));
@@ -103,11 +103,11 @@ public:
          auto status = self::actor_handle_
             .template Send<PortsUpdateMsg, nano_caf::Message::URGENT>(std::move(ports));
          if(status != nano_caf::Status::OK) {
-            return Status::Failed;
+            return Status::FAILED;
          }
       }
 
-      return Status::Ok;
+      return Status::OK;
    }
 
 private:

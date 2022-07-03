@@ -27,7 +27,7 @@ struct RootNodeCb  {
    auto Build(GraphContext& context) -> Status {
       auto device_info = context.GetRootState().GetDeviceInfo(NodeType::id);
       m_present = (device_info != nullptr);
-      return Status::Ok;
+      return Status::OK;
    }
 
    auto Start(GraphContext& context, std::unique_ptr<ActorPorts> ports) -> Status {
@@ -37,7 +37,7 @@ struct RootNodeCb  {
           m_running = true;
       }
 
-      return Status::Ok;
+      return Status::OK;
    }
 
    auto CleanUp() {
@@ -64,14 +64,14 @@ struct RootNodeCb  {
          GRAPH_EXPECT_SUCC(DoUpdatePorts(std::move(ports)));
       }
 
-      return Status::Ok;
+      return Status::OK;
    }
 
 private:
    auto DoUpdatePorts(std::unique_ptr<ActorPorts> ports) -> Status {
       GRAPH_EXPECT_TRUE(m_present && m_running);
       auto result = actorHandle.Send<PortsUpdateMsg, nano_caf::Message::URGENT>(std::move(ports));
-      return result != nano_caf::Status::OK ? Status::Failed : Status::Ok;
+      return result != nano_caf::Status::OK ? Status::FAILED : Status::OK;
    }
 
 protected:

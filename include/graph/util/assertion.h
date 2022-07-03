@@ -9,14 +9,14 @@
 
 #define GRAPH_EXPECT_SUCC(call) do { \
    auto status = call;               \
-   if(status != Status::Ok) {      \
+   if(status != Status::OK) {      \
       return status;                 \
    }                                 \
 } while(0)
 
 #define GRAPH_EXPECT_TRUE(cond) do { \
    if(!(cond)) {                     \
-      return Status::Failed;       \
+      return Status::FAILED;       \
    }                                 \
 } while(0)
 

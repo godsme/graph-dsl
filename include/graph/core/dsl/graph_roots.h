@@ -18,7 +18,7 @@ struct graph_roots final {
    auto Build(GraphContext& context) -> Status {
       GRAPH_EXPECT_SUCC(tuple_foreach(roots_, [&](auto& root) { return root.Build(context); }));
       context.UpdateRootNodes(roots_);
-      return Status::Ok;
+      return Status::OK;
    }
 
    auto CleanUp() {
