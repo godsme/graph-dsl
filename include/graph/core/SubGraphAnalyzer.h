@@ -6,28 +6,28 @@
 #define GRAPH_SUB_GRAPH_ANALYZER_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/node_category.h>
+#include <graph/core/NodeCategory.h>
 #include <holo/holo.h>
 #include <maco/detail/int_succ.h>
 
 GRAPH_DSL_NS_BEGIN
 
-template <typename T, node_category CATEGORY>
-struct node_trait {
-   using node_type = T;
-   constexpr static node_category category = CATEGORY;
+template <typename T, NodeCategory CATEGORY>
+struct NodeTrait {
+   using NodeType = T;
+   constexpr static NodeCategory category = CATEGORY;
 };
 
 template<typename ... NODES>
-struct sub_graph_analyzer final {
-   constexpr static auto nodes_map = holo::zip(
+struct SubGraphAnalyzer final {
+   constexpr static auto nodesMap = holo::zip(
       holo::list_t<typename NODES::node_type...>,
       holo::make_list(NODES::direct_decedents...));
 
    template<typename T>
    constexpr static auto get_all_decedents(T list) {
       return list | holo::fold_left(holo::make_list(), [](auto acc, auto elem) {
-         auto entry = nodes_map | holo::find_if([&](auto v){ return holo::first(v) == elem; });
+         auto entry = nodesMap | holo::find_if([&](auto v){ return holo::first(v) == elem; });
          if constexpr(holo::is_nothing(entry)) {
             return holo::append(elem, acc);
          } else {
@@ -39,20 +39,20 @@ struct sub_graph_analyzer final {
       });
    }
 
-   constexpr static auto all_decedents_map = nodes_map | holo::transform([](auto elem) {
+   constexpr static auto allDecedentsMap = nodesMap | holo::transform([](auto elem) {
       return holo::make_pair(holo::first(elem), get_all_decedents(holo::second(elem)) | holo::unique());
    });
 
-   constexpr static auto sorted_non_leaf_nodes =
-      all_decedents_map
-      | holo::sort([](auto l, auto r) {
+   constexpr static auto sortedNonLeafNodes =
+           allDecedentsMap
+           | holo::sort([](auto l, auto r) {
          return holo::contains(holo::first(l), holo::second(r)); })
       | holo::transform([](auto elem) {
          return holo::first(elem); })
       | holo::reverse();
 
 
-   constexpr static auto root_nodes =
+   constexpr static auto rootNodes =
       holo::list_t<NODES...>
       | holo::filter([](auto elem){
          return decltype(elem)::type::is_root == holo::true_c; })
@@ -61,31 +61,31 @@ struct sub_graph_analyzer final {
       });
 
 
-   constexpr static auto sorted_tagged_intermediate_nodes =
-      sorted_non_leaf_nodes
-      | holo::remove_if([](auto elem) {
-         return holo::contains(elem, root_nodes); })
+   constexpr static auto sortedTaggedIntermediateNodes =
+           sortedNonLeafNodes
+           | holo::remove_if([](auto elem) {
+         return holo::contains(elem, rootNodes); })
       | holo::transform([](auto elem) {
-         return holo::type_c<node_trait<typename decltype(elem)::type, node_category::Intermediate>>;
+         return holo::type_c<NodeTrait<typename decltype(elem)::type, NodeCategory::INTERMEDIATE>>;
       });
 
 
-   constexpr static auto leaf_tagged_nodes =
-      all_decedents_map
-      | holo::fold_left(holo::make_list(), [](auto acc, auto elem){
+   constexpr static auto leafTaggedNodes =
+           allDecedentsMap
+           | holo::fold_left(holo::make_list(), [](auto acc, auto elem){
          return holo::concat(acc, holo::second(elem)); })
       | holo::unique()
       | holo::remove_if([](auto elem) {
-         return holo::contains(elem, sorted_non_leaf_nodes); })
+         return holo::contains(elem, sortedNonLeafNodes); })
       | holo::transform([](auto elem) {
-         return holo::type_c<node_trait<typename decltype(elem)::type, node_category::Leaf>>;
+         return holo::type_c<NodeTrait<typename decltype(elem)::type, NodeCategory::LEAF>>;
       });
 
 public:
-   constexpr static auto all_sorted_sub_graph_nodes = holo::concat(sorted_tagged_intermediate_nodes, leaf_tagged_nodes);
-   constexpr static auto sorted_nodes_desc =
-      sorted_non_leaf_nodes
-      | holo::transform([](auto elem){
+   constexpr static auto allSortedSubGraphNodes = holo::concat(sortedTaggedIntermediateNodes, leafTaggedNodes);
+   constexpr static auto sortedNodesDesc =
+           sortedNonLeafNodes
+           | holo::transform([](auto elem){
          constexpr auto entry =
             holo::list_t<NODES...>
             | holo::find_if([=](auto v){

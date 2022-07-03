@@ -4,10 +4,11 @@
 
 #include <graph/core/dsl/graph_node.h>
 #include <graph/core/dsl/sub_graph.h>
-#include <graph/core/dsl/graph.h>
+#include <graph/core/dsl/Graph.h>
 #include <graph/core/dsl/graph_roots.h>
 #include <graph/core/dsl/sub_graph_selector.h>
-#include <nano-caf/core/actor/behavior_based_actor.h>
+#include <nano-caf/actor/Spawn.h>
+#include <nano-caf/actor/Actor.h>
 #include <iostream>
 #include <map>
 
@@ -18,8 +19,8 @@ struct image_buf {
 CAF_def_message(image_buf_msg_1, (buf, std::shared_ptr<const image_buf>));
 CAF_def_message(image_buf_msg_2, (buf, std::shared_ptr<const image_buf>));
 
-struct intermediate_actor : nano_caf::behavior_based_actor {
-   intermediate_actor(int node_id, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports)
+struct intermediate_actor : nano_caf::Actor {
+   intermediate_actor(int node_id, std::unique_ptr<GRAPH_DSL_NS::ActorPorts> ports)
       : node_id_(node_id)
       , ports_(std::move(ports)) {
       std::cout << node_id_ << ": intermediate created ----------------------> " << std::endl;
@@ -29,9 +30,9 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
       std::cout << node_id_ << ": intermediate destroyed <----------------------" << std::endl;
    }
 
-   nano_caf::behavior get_behavior() {
+   nano_caf::Behavior GetBehavior() {
       return {
-         [this](GRAPH_DSL_NS::ports_update_msg_atom, std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports) {
+         [this](GRAPH_DSL_NS::PortsUpdateMsg::Atom, std::unique_ptr<GRAPH_DSL_NS::ActorPorts> ports) {
             ports_ = std::move(ports);
          },
          [this](const image_buf_msg_1& msg) {
@@ -42,7 +43,7 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
             std::cout << node_id_ << ": intermediate image buf 2 received" << std::endl;
             forward(msg);
          },
-         [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
+         [this](nano_caf::ExitMsg::Atom, nano_caf::ExitReason) {
             std::cout << node_id_ << ": intermediate exit" << std::endl;
          }
       };
@@ -51,16 +52,16 @@ struct intermediate_actor : nano_caf::behavior_based_actor {
    template <typename MSG>
    void forward(const MSG& msg) {
       for(auto& [port, targets] : *ports_) {
-         targets.template send<MSG>(msg);
+         targets.Send<MSG>(msg);
       }
    }
 
 private:
-   std::unique_ptr<GRAPH_DSL_NS::actor_ports> ports_;
+   std::unique_ptr<GRAPH_DSL_NS::ActorPorts> ports_;
    int node_id_;
 };
 
-struct leaf_actor : nano_caf::behavior_based_actor {
+struct leaf_actor : nano_caf::Actor {
    leaf_actor(int node_id) : node_id_(node_id) {
       std::cout << node_id_ << ": leaf created ----------------------> " << std::endl;
    }
@@ -69,7 +70,7 @@ struct leaf_actor : nano_caf::behavior_based_actor {
       std::cout << node_id_ << ": leaf destroyed <-------------------- " << std::endl;
    }
 
-   nano_caf::behavior get_behavior() {
+   nano_caf::Behavior GetBehavior() {
       return {
          [this](const image_buf_msg_1&) {
             std::cout << node_id_ << ": leaf image buf 1 received : " << ++counter << std::endl;
@@ -77,7 +78,7 @@ struct leaf_actor : nano_caf::behavior_based_actor {
          [this](const image_buf_msg_2&) {
             std::cout << node_id_ << ": leaf image buf 2 received : " << ++counter << std::endl;
          },
-         [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
+         [this](nano_caf::ExitMsg::Atom, nano_caf::ExitReason) {
             std::cout << node_id_ << ": leaf exit" << std::endl;
          }
       };
@@ -87,8 +88,8 @@ struct leaf_actor : nano_caf::behavior_based_actor {
    int node_id_;
 };
 
-struct root_actor : nano_caf::behavior_based_actor {
-   root_actor(int id, std::unique_ptr<graph_dsl::actor_ports> ports)
+struct root_actor : nano_caf::Actor {
+   root_actor(int id, std::unique_ptr<graph_dsl::ActorPorts> ports)
       : id_(id)
       , ports_{std::move(ports)} {
       std::cout << id_ << ": root created" << std::endl;
@@ -98,9 +99,9 @@ struct root_actor : nano_caf::behavior_based_actor {
       std::cout << id_ << ": root destroyed" << std::endl;
    }
 
-   nano_caf::behavior get_behavior() {
+   nano_caf::Behavior GetBehavior() {
       return {
-         [this](graph_dsl::ports_update_msg_atom, std::unique_ptr<graph_dsl::actor_ports> ports) {
+         [this](graph_dsl::PortsUpdateMsg::Atom, std::unique_ptr<graph_dsl::ActorPorts> ports) {
             ports_ = std::move(ports);
             std::cout << id_ << ": root ports updated" << std::endl;
          },
@@ -110,7 +111,7 @@ struct root_actor : nano_caf::behavior_based_actor {
          [this](const image_buf_msg_2& msg) {
             forward(msg);
          },
-         [this](nano_caf::exit_msg_atom, nano_caf::exit_reason) {
+         [this](nano_caf::ExitMsg::Atom, nano_caf::ExitReason) {
             std::cout << id_ << ": root exit" << std::endl;
          }
       };
@@ -119,36 +120,36 @@ struct root_actor : nano_caf::behavior_based_actor {
    template<typename MSG>
    void forward(const MSG& msg) {
       for(auto& [port, handles] : *ports_) {
-         handles.template send<MSG>(msg);
+         handles.Send<MSG>(msg);
       }
    }
 
 private:
-   std::unique_ptr<graph_dsl::actor_ports> ports_{};
+   std::unique_ptr<graph_dsl::ActorPorts> ports_{};
    int id_;
 };
 
 struct root_0 : graph_dsl::root_signature {
    constexpr static auto id = 0;
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<root_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<root_actor>(id, std::forward<Args>(args)...);
    }
 };
 
 struct root_1 : graph_dsl::root_signature {
    constexpr static auto id = 1;
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<root_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<root_actor>(id, std::forward<Args>(args)...);
    }
 };
 
 struct node_3 : graph_dsl::node_signature{
    constexpr static auto id = 3;
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<intermediate_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<intermediate_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -156,8 +157,8 @@ struct node_4 : graph_dsl::node_signature{
    constexpr static auto id = 4;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -165,30 +166,30 @@ struct node_5 : graph_dsl::node_signature{
    constexpr static auto id = 5;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<intermediate_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<intermediate_actor>(id, std::forward<Args>(args)...);
    }
 };
 struct node_6 : graph_dsl::node_signature{
    constexpr static auto id = 6;
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 struct node_7 : graph_dsl::node_signature{
    constexpr static auto id = 7;
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 struct node_8 : graph_dsl::node_signature{
    constexpr static auto id = 8;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -196,8 +197,8 @@ struct node_9 : graph_dsl::node_signature{
    constexpr static auto id = 9;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -205,8 +206,8 @@ struct node_10 : graph_dsl::node_signature{
    constexpr static auto id = 10;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -214,8 +215,8 @@ struct node_11: graph_dsl::node_signature{
    constexpr static auto id = 11;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<intermediate_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<intermediate_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -223,8 +224,8 @@ struct node_12 : graph_dsl::node_signature{
    constexpr static auto id = 12;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -232,8 +233,8 @@ struct node_13 : graph_dsl::node_signature{
    constexpr static auto id = 13;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -241,8 +242,8 @@ struct node_14 : graph_dsl::node_signature{
    constexpr static auto id = 14;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
@@ -250,96 +251,96 @@ struct node_15 : graph_dsl::node_signature{
    constexpr static auto id = 15;
 
    template<typename ... Args>
-   static auto spawn(GRAPH_DSL_NS::graph_context& context, Args&& ... args) -> nano_caf::actor_handle {
-      return context.get_actor_context().spawn<leaf_actor>(id, std::forward<Args>(args)...);
+   static auto spawn(Args&& ... args) -> nano_caf::ActorHandle {
+      return nano_caf::Spawn<leaf_actor>(id, std::forward<Args>(args)...);
    }
 };
 
 struct port_1 {
-   constexpr static graph_dsl::port_id_t port_id = 1;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 1;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 
 struct port_2 {
-   constexpr static graph_dsl::port_id_t port_id = 2;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 2;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_3 {
-   constexpr static graph_dsl::port_id_t port_id = 3;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 3;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_4 {
-   constexpr static graph_dsl::port_id_t port_id = 4;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 4;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_5 {
-   constexpr static graph_dsl::port_id_t port_id = 5;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 5;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_6 {
-   constexpr static graph_dsl::port_id_t port_id = 6;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 6;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_7 {
-   constexpr static graph_dsl::port_id_t port_id = 7;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 7;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_8 {
-   constexpr static graph_dsl::port_id_t port_id = 8;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 8;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_9 {
-   constexpr static graph_dsl::port_id_t port_id = 9;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 9;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 
 struct port_10 {
-   constexpr static graph_dsl::port_id_t port_id = 10;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 10;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 
 struct port_11 {
-   constexpr static graph_dsl::port_id_t port_id = 11;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 11;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 
 struct port_12 {
-   constexpr static graph_dsl::port_id_t port_id = 12;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId port_id = 12;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto GetPortFormat(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
@@ -347,13 +348,13 @@ struct port_12 {
 bool node_condition = false;
 
 struct cond_1 {
-   auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
+   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
       return node_condition;
    }
 };
 
 struct cond_2 {
-   auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
+   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
       return !node_condition;
    }
 };
@@ -361,13 +362,13 @@ struct cond_2 {
 bool sub_graph_switch = true;
 
 struct cond_3 {
-   auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
+   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
       return sub_graph_switch;
    }
 };
 
 struct cond_4 {
-   auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
+   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
       return !sub_graph_switch;
    }
 };
@@ -413,32 +414,31 @@ namespace {
 
 using namespace std::chrono_literals;
 
-GRAPH_DSL_NS::device_info devices[] = {
+GRAPH_DSL_NS::DeviceInfo devices[] = {
    {
-      .device_id = 0,
-      .is_preview = true
+      .deviceId = 0,
+      .isPreview = true
    },
    {
-      .device_id = 1,
-      .is_preview = false
+      .deviceId = 1,
+      .isPreview = false
    }
 };
 
-GRAPH_DSL_NS::root_state root_states {
-   .device_info_ = devices,
-   .size_ = 2
+GRAPH_DSL_NS::RootState root_states {
+   .deviceInfo = devices,
+   .size = 2
 };
 
 int main() {
-   nano_caf::actor_system actor_system;
-   actor_system.start(2);
+   nano_caf::ActorSystem::Instance().StartUp(2);
 
-   GRAPH_DSL_NS::graph_context context{actor_system};
+   GRAPH_DSL_NS::GraphContext context;
 
-   context.update_root_state(root_states);
+   context.UpdateRootState(root_states);
    graph g;
 
-   if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) {
+   if(auto status = g.Refresh(context); status != GRAPH_DSL_NS::Status::Ok) {
       std::cout << "refresh failed" << std::endl;
       return -1;
    }
@@ -446,11 +446,11 @@ int main() {
    auto tid = std::thread([&]{
       for(int i = 0; i<100; i++) {
          auto msg = std::make_unique<const image_buf>();
-         if(auto status = g.get_root<0>().send<image_buf_msg_1>(std::move(msg)); status != nano_caf::status_t::ok) {
+         if(auto status = g.GetRoot<0>().Send<image_buf_msg_1>(std::move(msg)); status != nano_caf::Status::OK) {
             std::cout << "0 send failed" << std::endl;
          }
          std::this_thread::sleep_for(1s);
-         if(auto status = g.get_root<1>().send<image_buf_msg_2>(std::move(msg)); status != nano_caf::status_t::ok) {
+         if(auto status = g.GetRoot<1>().Send<image_buf_msg_2>(std::move(msg)); status != nano_caf::Status::OK) {
             std::cout << "1 send failed" << std::endl;
          }
 
@@ -467,12 +467,12 @@ int main() {
          sub_graph_switch = !sub_graph_switch;
       }
 
-      if(auto status = g.refresh(context); status != GRAPH_DSL_NS::status_t::Ok) { return -1; }
+      if(auto status = g.Refresh(context); status != GRAPH_DSL_NS::Status::Ok) { return -1; }
    }
 
    tid.join();
-   g.stop();
-   actor_system.shutdown();
+   g.Stop();
+   nano_caf::ActorSystem::Instance().Shutdown();
 
    return 0;
 }

@@ -8,7 +8,7 @@
 #include <graph/graph_ns.h>
 #include <graph/status.h>
 #include <graph/util/assertion.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 #include <graph/core/dsl/graph_port.h>
 #include <graph/function/tuple_foreach.h>
 #include <graph/core/cb/subgraph_node_cb.h>
@@ -35,13 +35,13 @@ struct graph_node final {
       constexpr static auto is_root = IS_ROOT;
       using node_type = NODE;
    protected:
-      auto build_(graph_context &context, bool present) -> status_t {
+      auto Build_(GraphContext &context, bool present) -> Status {
          if (present) {
-            GRAPH_EXPECT_SUCC(tuple_foreach(ports_, [&](auto &port) { return port.build(context); }));
+            GRAPH_EXPECT_SUCC(tuple_foreach(ports_, [&](auto &port) { return port.Build(context); }));
          } else {
-            tuple_foreach_void(ports_, [&](auto &port) { port.release(context); });
+            tuple_foreach_void(ports_, [&](auto &port) { port.Release(context); });
          }
-         return status_t::Ok;
+         return Status::Ok;
       }
 
       std::tuple<typename graph_port<PORTS>::template instance_type<NODES_CB> ...> ports_;
@@ -54,16 +54,16 @@ struct graph_node final {
    struct instance_trait<ROOTS_CB, NODES_CB, true> : instance_type_base<NODES_CB, true> {
       using self = instance_type_base<NODES_CB, true>;
 
-      auto build(graph_context& context) -> status_t {
-         return self::build_(context, node_index<NODE, ROOTS_CB>::get_root_node(context).present());
+      auto Build(GraphContext& context) -> Status {
+         return self::Build_(context, NodeIndex<NODE, ROOTS_CB>::GetRootNode(context).Present());
       }
 
-      auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
-         if(!tuple_exists(self::ports_, [](auto& port) { return port.enabled(); })) {
-            return status_t::Ok;
+      auto CollectActorPorts(GraphContext& context, ActorPorts& ports) -> Status {
+         if(!tuple_exists(self::ports_, [](auto& port) { return port.Enabled(); })) {
+            return Status::Ok;
          }
          return tuple_foreach(self::ports_, [&](auto& port) {
-            return port.template collect_actor_port<true>(context, ports);
+            return port.template CollectActorPort<true>(context, ports);
          });
       }
    };
@@ -71,13 +71,13 @@ struct graph_node final {
    template<typename ROOTS_CB, typename NODES_CB>
    struct instance_trait<ROOTS_CB, NODES_CB, false> : instance_type_base<NODES_CB, false> {
       using self = instance_type_base<NODES_CB, false>;
-      auto build(graph_context& context) -> status_t {
-         return self::build_(context, node_index<NODE, NODES_CB>::get_node(context).present());
+      auto Build(GraphContext& context) -> Status {
+         return self::Build_(context, NodeIndex<NODE, NODES_CB>::GetNode(context).Present());
       }
 
-      auto collect_actor_ports(graph_context& context, actor_ports& ports) -> status_t {
+      auto CollectActorPorts(GraphContext& context, ActorPorts& ports) -> Status {
          return tuple_foreach(self::ports_, [&](auto& port) {
-            return port.template collect_actor_port<false>(context, ports);
+            return port.template CollectActorPort<false>(context, ports);
          });
       }
    };

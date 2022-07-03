@@ -6,7 +6,7 @@
 #define GRAPH_DEVICE_STATE_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/root_state.h>
+#include <graph/core/RootState.h>
 #include <type_traits>
 #include <holo/holo.h>
 
@@ -32,7 +32,7 @@ namespace detail {
 
 ///////////////////////////////////////////////////////////////////////////////
 template<typename ... DEVICEs>
-struct device_state {
+struct DeviceState {
    constexpr static size_t Num_Of_Devices = sizeof...(DEVICEs);
    constexpr static auto Sorted_Devices =
       holo::list_t<detail::device_trait<DEVICEs>...>
@@ -44,10 +44,10 @@ struct device_state {
 
    template<typename ... Ts>
    struct devices_type {
-      constexpr static device_info Devices[] = {
+      constexpr static DeviceInfo Devices[] = {
          {Ts::Device_Id, Ts::Is_Preview}...
       };
-      constexpr static root_state Root_State { .device_info_ = Devices, .size_ = Num_Of_Devices };
+      constexpr static RootState Root_State { .deviceInfo = Devices, .size = Num_Of_Devices };
    };
 
    using devices = holo::type_transform_t<decltype(Sorted_Devices), devices_type>;
@@ -66,11 +66,11 @@ struct device_state {
    }
 
    template<typename ... R_Devices>
-   inline constexpr auto operator==(device_state<R_Devices...> const& rhs) const noexcept {
-      if constexpr (Num_Of_Devices != device_state<R_Devices...>::Num_Of_Devices) {
+   inline constexpr auto operator==(DeviceState<R_Devices...> const& rhs) const noexcept {
+      if constexpr (Num_Of_Devices != DeviceState<R_Devices...>::Num_Of_Devices) {
          return holo::bool_c<false>;
       } else {
-         if constexpr (content_equal<device_state<R_Devices...>>()) {
+         if constexpr (content_equal<DeviceState<R_Devices...>>()) {
             return holo::bool_c<true>;
          } else {
             return holo::bool_c<false>;
@@ -79,7 +79,7 @@ struct device_state {
    }
 
    template<typename ... R_Devices>
-   inline constexpr auto operator!=(device_state<R_Devices...> const& rhs) const noexcept {
+   inline constexpr auto operator!=(DeviceState<R_Devices...> const& rhs) const noexcept {
       return !operator==(rhs);
    }
 
@@ -112,6 +112,6 @@ struct device_state {
 GRAPH_DSL_NS_END
 
 #define __g_PREVIEW(device)     GRAPH_DSL_NS::preview_tag<device>
-#define __g_STATE(...)          __MACO_template_type(GRAPH_DSL_NS::device_state<__VA_ARGS__>)
+#define __g_STATE(...)          __MACO_template_type(GRAPH_DSL_NS::DeviceState<__VA_ARGS__>)
 
 #endif //GRAPH_DEVICE_STATE_H

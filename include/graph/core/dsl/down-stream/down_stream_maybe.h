@@ -7,9 +7,9 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 #include <graph/util/result_t.h>
-#include <graph/core/node_index.h>
+#include <graph/core/NodeIndex.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <vector>
 
@@ -23,38 +23,38 @@ struct down_stream_maybe {
 
    template<typename TUPLE>
    struct instance_type {
-      auto build(graph_context& context) -> status_t {
+      auto Build(GraphContext& context) -> Status {
          return COND{}(context).with_value([&](auto satisfied) {
             if(satisfied) {
-               return build_(context);
+               return Build_(context);
             } else {
-               release(context);
-               return status_t::Ok;
+               Release(context);
+               return Status::Ok;
             }
          });
       }
 
-      auto release(graph_context& context) {
+      auto Release(GraphContext& context) {
          if(satisfied_) {
-            node_.release(context);
+            node_.Release(context);
             satisfied_ = false;
          }
       }
 
-      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
-         GRAPH_EXPECT_TRUE(enabled());
-         return node_.collect_actor_handle(context, actor_handles);
+      auto CollectActorHandle(GraphContext& context, ActorHandleSet& actor_handles) -> Status {
+         GRAPH_EXPECT_TRUE(Enabled());
+         return node_.CollectActorHandle(context, actor_handles);
       }
 
-      auto enabled() const -> bool { return satisfied_; }
+      auto Enabled() const -> bool { return satisfied_; }
 
    private:
-      auto build_(graph_context& context) -> status_t {
+      auto Build_(GraphContext& context) -> Status {
          if(!satisfied_) {
-            GRAPH_EXPECT_SUCC(node_.build(context));
+            GRAPH_EXPECT_SUCC(node_.Build(context));
             satisfied_ = true;
          }
-         return status_t::Ok;
+         return Status::Ok;
       }
 
    private:

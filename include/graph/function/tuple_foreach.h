@@ -14,16 +14,16 @@ GRAPH_DSL_NS_BEGIN
 namespace detail {
    template<typename TUPLE, typename F, size_t ... I>
    auto tuple_foreach(TUPLE&& tuple, F&& f, std::index_sequence<I...>) {
-      status_t status = status_t::Ok;
-      return (((status = f(std::get<I>(std::forward<TUPLE>(tuple)))) == status_t::Ok) && ...) ?
-             status_t::Ok : status;
+      Status status = Status::Ok;
+      return (((status = f(std::get<I>(std::forward<TUPLE>(tuple)))) == Status::Ok) && ...) ?
+             Status::Ok : status;
    }
 
    template<typename TUPLE, typename F, size_t ... I>
    auto tuple_foreach_r(TUPLE&& tuple, F&& f, std::index_sequence<I...>) {
-      status_t status = status_t::Ok;
-      return (((status = f(std::get<sizeof...(I) - I - 1>(std::forward<TUPLE>(tuple)))) == status_t::Ok) && ...) ?
-             status_t::Ok : status;
+      Status status = Status::Ok;
+      return (((status = f(std::get<sizeof...(I) - I - 1>(std::forward<TUPLE>(tuple)))) == Status::Ok) && ...) ?
+             Status::Ok : status;
    }
 
    template<typename TUPLE, typename F, size_t ... I>

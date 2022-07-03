@@ -12,14 +12,14 @@
 
 GRAPH_DSL_NS_BEGIN
 
-class state_transition_algo {
+class StateTransitionAlgo {
    template<typename FROM, typename TARGET, typename REST, typename TRANSITIONS, std::size_t DEPTH>
    constexpr static auto
-   search_next_layer(FROM const &from, TARGET const &target, TRANSITIONS const &transitions, REST const &rest, holo::size_c_t<DEPTH>) {
+   SearchNextLayer(FROM const &from, TARGET const &target, TRANSITIONS const &transitions, REST const &rest, holo::size_c_t<DEPTH>) {
       auto result = transitions | holo::fold_left(holo::list_t<>, [&](auto shortcut, auto elem) {
          constexpr auto size = holo::length(shortcut);
          constexpr auto search_depth = size == 0 ? DEPTH : size - 1;
-         auto result = find_shortcut(holo::second(elem), target, rest, holo::size_c<search_depth>);
+         auto result = FindShortcut(holo::second(elem), target, rest, holo::size_c<search_depth>);
          if constexpr (holo::length(result) == 0) {
             return shortcut;
          } else {
@@ -36,7 +36,7 @@ class state_transition_algo {
 
    template<typename FROM, typename TARGET, typename REST, typename TRANSITIONS, std::size_t DEPTH>
    constexpr static auto
-   find_shortcut_(FROM const &from, TARGET const &target, TRANSITIONS const& direct_transition, REST const &rest, holo::size_c_t<DEPTH>) {
+   FindShortcut_(FROM const &from, TARGET const &target, TRANSITIONS const& direct_transition, REST const &rest, holo::size_c_t<DEPTH>) {
       auto result = direct_transition | holo::find_if([&](auto elem) {
             return holo::typeof_c(holo::second(elem)) == holo::typeof_c(target);
          });
@@ -45,17 +45,17 @@ class state_transition_algo {
          // we got the shortcut
          return holo::make_list(from, holo::second(result));
       } else {
-         return search_next_layer(from, target, direct_transition, rest, holo::size_c<DEPTH - 1>);
+         return SearchNextLayer(from, target, direct_transition, rest, holo::size_c<DEPTH - 1>);
       }
    }
 
    template<typename TRANS_PAIR, typename REST, std::size_t DEPTH>
-   constexpr static auto find_shortcut(TRANS_PAIR const& trans, REST const& rest, holo::size_c_t<DEPTH>) {
-      return find_shortcut(holo::first(trans), holo::second(trans), rest, holo::size_c<DEPTH>);
+   constexpr static auto FindShortcut(TRANS_PAIR const& trans, REST const& rest, holo::size_c_t<DEPTH>) {
+      return FindShortcut(holo::first(trans), holo::second(trans), rest, holo::size_c<DEPTH>);
    }
 
    template<typename FROM, typename TARGET, typename REST, std::size_t DEPTH>
-   constexpr static auto find_shortcut(FROM const& from, TARGET const& target, REST const& rest, holo::size_c_t<DEPTH>) {
+   constexpr static auto FindShortcut(FROM const& from, TARGET const& target, REST const& rest, holo::size_c_t<DEPTH>) {
       if constexpr (DEPTH == 0) {
          return holo::list_t<>;
       } else {
@@ -67,20 +67,20 @@ class state_transition_algo {
          if constexpr (holo::Is_True_V<decltype(holo::length(holo::first(parts)) == holo::size_c<0>)>) {
             return holo::list_t<>;
          } else {
-            return find_shortcut_(from, target, holo::first(parts), holo::second(parts), holo::size_c<DEPTH>);
+            return FindShortcut_(from, target, holo::first(parts), holo::second(parts), holo::size_c<DEPTH>);
          }
       }
    }
 
 public:
    template<typename FROM, typename TARGET, typename REST>
-   constexpr static auto find_shortcut(FROM const& from, TARGET const& target, REST const& rest) {
-      return find_shortcut(from, target, rest, holo::max_size_c);
+   constexpr static auto FindShortcut(FROM const& from, TARGET const& target, REST const& rest) {
+      return FindShortcut(from, target, rest, holo::max_size_c);
    }
 
    template<typename TRANS_PAIR, typename REST>
-   constexpr static auto find_shortcut(TRANS_PAIR const& trans, REST const& rest) {
-      return find_shortcut(holo::first(trans), holo::second(trans), rest, holo::max_size_c);
+   constexpr static auto FindShortcut(TRANS_PAIR const& trans, REST const& rest) {
+      return FindShortcut(holo::first(trans), holo::second(trans), rest, holo::max_size_c);
    }
 };
 

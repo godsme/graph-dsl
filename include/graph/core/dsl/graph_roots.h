@@ -6,29 +6,29 @@
 #define GRAPH_GRAPH_ROOTS_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/cb/root_node_cb.h>
+#include <graph/core/cb/RootNodeCb.h>
 
 GRAPH_DSL_NS_BEGIN
 
-// NODES: root_node_cb
+// NODES: RootNodeCb
 template<typename ... NODES>
 struct graph_roots final {
-   using type = root_nodes<NODES...>;
+   using type = RootNodes<NODES...>;
 
-   auto build(graph_context& context) -> status_t {
-      GRAPH_EXPECT_SUCC(tuple_foreach(roots_, [&](auto& root) { return root.build(context); }));
-      context.update_root_nodes(roots_);
-      return status_t::Ok;
+   auto Build(GraphContext& context) -> Status {
+      GRAPH_EXPECT_SUCC(tuple_foreach(roots_, [&](auto& root) { return root.Build(context); }));
+      context.UpdateRootNodes(roots_);
+      return Status::Ok;
    }
 
-   auto cleanup() {
-      tuple_foreach_void(roots_, [&](auto& root) { root.cleanup(); });
+   auto CleanUp() {
+      tuple_foreach_void(roots_, [&](auto& root) { root.CleanUp(); });
    }
 
-   auto stop() { tuple_foreach_void(roots_, [](auto& root){ root.stop(); }); }
+   auto Stop() { tuple_foreach_void(roots_, [](auto& root){ root.Stop(); }); }
 
    template<size_t I>
-   auto get() -> decltype(auto) { return (roots_.template get<I>()); }
+   auto Get() -> decltype(auto) { return (roots_.template get<I>()); }
 
 public:
    type roots_;

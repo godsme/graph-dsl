@@ -10,7 +10,7 @@
 
 GRAPH_DSL_NS_BEGIN
 
-enum class status_t : uint32_t {
+enum class Status : uint32_t {
    Ok,
    Failed
 };

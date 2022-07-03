@@ -16,49 +16,49 @@ template<typename COND, typename SUB_GRAPH>
 struct sub_graph_selector<auto (COND) -> SUB_GRAPH> final {
    template<typename ROOTS>
    struct instance_type {
-      auto build(graph_context& context) -> status_t {
+      auto Build(GraphContext& context) -> Status {
          return COND{}(context).with_value([&](auto satisfied) {
             if(satisfied) {
-               GRAPH_EXPECT_SUCC(subgraph_.build(context));
+               GRAPH_EXPECT_SUCC(subgraph_.Build(context));
                selected_ = true;
             } else {
                selected_ = false;
             }
 
-            return status_t::Ok;
+            return Status::Ok;
          });
       }
 
-      auto start(graph_context& context) -> status_t {
+      auto Start(GraphContext& context) -> Status {
          if(selected_) {
-            GRAPH_EXPECT_SUCC(subgraph_.start(context));
+            GRAPH_EXPECT_SUCC(subgraph_.Start(context));
             alive_ = true;
          }
-         return status_t::Ok;
+         return Status::Ok;
       }
 
-      auto cleanup() {
+      auto CleanUp() {
          if(alive_) {
-            if(selected_) { subgraph_.cleanup(); }
-            else { stop(); }
+            if(selected_) { subgraph_.CleanUp(); }
+            else { Stop(); }
          }
       }
 
-      auto stop() {
+      auto Stop() {
          if(alive_) {
-            subgraph_.stop();
+            subgraph_.Stop();
             alive_ = false;
          }
       }
 
       template <typename ROOT>
-      auto connect_root(graph_context& context, ROOT& root, actor_ports& ports) -> status_t {
+      auto ConnectRoot(GraphContext& context, ROOT& root, ActorPorts& ports) -> Status {
          if(selected_) {
             GRAPH_EXPECT_TRUE(alive_);
-            return subgraph_.connect_root(context, root, ports);
+            return subgraph_.ConnectRoot(context, root, ports);
          }
 
-         return status_t::Ok;
+         return Status::Ok;
       }
    private:
       typename SUB_GRAPH::template instance_type<ROOTS> subgraph_{};

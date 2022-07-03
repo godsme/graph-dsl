@@ -7,10 +7,10 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
-#include <graph/core/graph_context.h>
-#include <graph/core/node_index.h>
+#include <graph/core/GraphContext.h>
+#include <graph/core/NodeIndex.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
-#include <graph/core/actor_ports.h>
+#include <graph/core/ActorPorts.h>
 #include <holo/holo.h>
 
 GRAPH_DSL_NS_BEGIN
@@ -22,31 +22,31 @@ struct down_stream_node_ref {
    constexpr static auto node_list = holo::list_t<NODE>;
 
    template<typename TUPLE>
-   struct instance_type : node_index<NODE, TUPLE> {
-      auto build(graph_context& context) -> status_t {
+   struct instance_type : NodeIndex<NODE, TUPLE> {
+      auto Build(GraphContext& context) -> Status {
          if(!enabled_) {
-            node_index<NODE, TUPLE>::get_node(context).add_ref();
+            NodeIndex<NODE, TUPLE>::GetNode(context).AddRef();
             enabled_ = true;
          }
-         return status_t::Ok;
+         return Status::Ok;
       }
 
-      auto release(graph_context& context) {
+      auto Release(GraphContext& context) {
          if(enabled_) {
-            node_index<NODE, TUPLE>::get_node(context).release();
+            NodeIndex<NODE, TUPLE>::GetNode(context).Release();
             enabled_ = false;
          }
       }
 
-      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
-         GRAPH_EXPECT_TRUE(enabled());
-         auto handle = node_index<NODE, TUPLE>::get_node(context).actor_handle();
-         GRAPH_EXPECT_TRUE(handle.exists());
+      auto CollectActorHandle(GraphContext& context, ActorHandleSet& actor_handles) -> Status {
+         GRAPH_EXPECT_TRUE(Enabled());
+         auto&& handle = NodeIndex<NODE, TUPLE>::GetNode(context).GetActorHandle();
+         GRAPH_EXPECT_TRUE(handle);
          actor_handles.emplace_back(std::move(handle));
-         return status_t::Ok;
+         return Status::Ok;
       }
 
-      inline auto enabled() const -> bool { return enabled_; }
+      inline auto Enabled() const -> bool { return enabled_; }
 
    private:
       bool enabled_{false};

@@ -6,78 +6,77 @@
 #define GRAPH_SUBGRAPH_NODE_CB_H
 
 #include <graph/graph_ns.h>
-#include <nano-caf/core/actor/actor_handle.h>
+#include <nano-caf/actor/ActorHandle.h>
 #include <graph/util/tuple_element_by_type.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 #include <graph/status.h>
-#include <graph/core/node_category.h>
+#include <graph/core/NodeCategory.h>
 #include <cstdint>
 #include <graph/core/msgs/graph_msgs.h>
-#include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE>
 struct subgraph_node_base {
-   using node_type = NODE;
+   using NodeType = NODE;
 
-   inline auto add_ref() -> void { refs_++; }
-   inline auto release() -> void { refs_--; }
-   inline auto present() -> bool { return refs_ > 0; }
+   inline auto AddRef() -> void { refs_++; }
+   inline auto Release() -> void { refs_--; }
+   inline auto Present() -> bool { return refs_ > 0; }
 
-   auto stop() -> status_t {
+   auto Stop() -> Status {
       if(running_) {
          running_ = false;
-         actor_handle_.exit_and_release();
+         //actor_handle_.exit_and_release();
       }
 
-      return status_t::Ok;
+      return Status::Ok;
    }
 
-   auto cleanup() -> status_t {
+   auto CleanUp() -> Status {
       if(refs_ == 0) {
-         return stop();
+         return Stop();
       }
-      return status_t::Ok;
+      return Status::Ok;
    }
 
-   inline auto actor_handle() -> decltype(auto) {
+   inline auto GetActorHandle() -> decltype(auto) {
       return (actor_handle_);
    }
 
 protected:
-   nano_caf::actor_handle actor_handle_{};
+   nano_caf::ActorHandle actor_handle_{};
    uint8_t refs_{0};
    bool    running_{false};
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename NODE, node_category category>
+template<typename NODE, NodeCategory category>
 struct subgraph_node_cb;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE>
-struct subgraph_node_cb<NODE, node_category::Leaf> : subgraph_node_base<NODE> {
+struct subgraph_node_cb<NODE, NodeCategory::LEAF> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
 public:
    template<typename NODE_DESC_TUPLE>
-   auto start(graph_context& context, NODE_DESC_TUPLE&) -> status_t {
-      if(self::present() && !self::running_) {
-         self::actor_handle_ = NODE::spawn(context);
-         GRAPH_EXPECT_TRUE(self::actor_handle_.exists());
+   auto Start(GraphContext& context, NODE_DESC_TUPLE&) -> Status {
+      if(self::Present() && !self::running_) {
+         self::actor_handle_ = NODE::spawn();
+         GRAPH_EXPECT_TRUE(self::actor_handle_);
          self::running_ = true;
       }
-      return status_t::Ok;
+      return Status::Ok;
    }
 
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
 template<typename NODE>
-struct subgraph_node_cb<NODE, node_category::Intermediate> : subgraph_node_base<NODE> {
+struct subgraph_node_cb<NODE, NodeCategory::INTERMEDIATE> : subgraph_node_base<NODE> {
 private:
    using self = subgraph_node_base<NODE>;
 
@@ -88,31 +87,31 @@ private:
 
 public:
    template<typename NODE_DESC_TUPLE>
-   auto start(graph_context& context, NODE_DESC_TUPLE& nodes_desc) -> status_t {
+   auto Start(GraphContext& context, NODE_DESC_TUPLE& nodes_desc) -> Status {
       constexpr static auto Index = tuple_element_index_v<NODE, NODE_DESC_TUPLE, desc_node_type>;
       static_assert(Index >= 0, "");
 
-      if(!self::present()) return status_t::Ok;
+      if(!self::Present()) return Status::Ok;
 
-      auto ports = std::make_unique<actor_ports>();
-      GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).collect_actor_ports(context, *ports));
+      auto ports = std::make_unique<ActorPorts>();
+      GRAPH_EXPECT_SUCC(std::get<Index>(nodes_desc).CollectActorPorts(context, *ports));
       if(!self::running_) {
-         self::actor_handle_ = NODE::spawn(context, std::move(ports));
-         GRAPH_EXPECT_TRUE(self::actor_handle_.exists());
+         self::actor_handle_ = NODE::spawn(std::move(ports));
+         GRAPH_EXPECT_TRUE(self::actor_handle_);
          self::running_ = true;
       } else {
-         auto status = context.get_actor_context()
-            .send<ports_update_msg, nano_caf::message::urgent>(self::actor_handle_, std::move(ports));
-         if(status != nano_caf::status_t::ok) {
-            return status_t::Failed;
+         auto status = self::actor_handle_
+            .template Send<PortsUpdateMsg, nano_caf::Message::URGENT>(std::move(ports));
+         if(status != nano_caf::Status::OK) {
+            return Status::Failed;
          }
       }
 
-      return status_t::Ok;
+      return Status::Ok;
    }
 
 private:
-   actor_handle_set set;
+   ActorHandleSet set;
 };
 
 GRAPH_DSL_NS_END

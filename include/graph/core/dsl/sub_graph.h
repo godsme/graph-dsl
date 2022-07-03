@@ -6,29 +6,28 @@
 #define GRAPH_SUB_GRAPH_H
 
 #include <graph/graph_ns.h>
-#include <graph/core/sub_graph_analyzer.h>
+#include <graph/core/SubGraphAnalyzer.h>
 #include <graph/core/dsl/graph_node.h>
 #include <holo/types/type_transform.h>
 #include <holo/algo/head.h>
-#include <spdlog/spdlog.h>
 #include <maco/map.h>
 
 GRAPH_DSL_NS_BEGIN
 
 template<typename ... NODES>
 struct sub_graph final {
-   constexpr static auto all_sorted_nodes = sub_graph_analyzer<NODES...>::all_sorted_sub_graph_nodes;
+   constexpr static auto all_sorted_nodes = SubGraphAnalyzer<NODES...>::allSortedSubGraphNodes;
 
    template<typename ROOTS_CB>
    struct instance_type {
    private:
       template<typename ... Ts>
-      using cb_container = std::tuple<subgraph_node_cb<typename Ts::node_type, Ts::category>...>;
+      using cb_container = std::tuple<subgraph_node_cb<typename Ts::NodeType, Ts::category>...>;
       static_assert(holo::length(all_sorted_nodes) > 0, "");
       using nodes_cb = decltype(holo::map_to<cb_container>(all_sorted_nodes));
 
    private:
-      constexpr static auto sorted_nodes_desc = sub_graph_analyzer<NODES...>::sorted_nodes_desc;
+      constexpr static auto sorted_nodes_desc = SubGraphAnalyzer<NODES...>::sortedNodesDesc;
       static_assert(holo::length(sorted_nodes_desc) == sizeof...(NODES));
 
       template<typename ... Ts>
@@ -37,40 +36,40 @@ struct sub_graph final {
 
       template<typename T> struct desc_node_type { using type = typename T::node_type; };
    public:
-      auto build(graph_context& context) -> status_t {
-         context.switch_subgraph_context(nodes_cb_);
+      auto Build(GraphContext& context) -> Status {
+         context.SwitchSubgraphContext(nodes_cb_);
          return tuple_foreach(nodes_links_, [&](auto& link) {
-            return link.build(context);
+            return link.Build(context);
          });
       }
 
       template<typename ROOT>
-      auto connect_root(graph_context& context, ROOT& root, actor_ports& ports) -> status_t {
-         context.switch_subgraph_context(nodes_cb_);
-         constexpr auto Index = tuple_element_index_v<typename ROOT::node_type, nodes_links, desc_node_type>;
+      auto ConnectRoot(GraphContext& context, ROOT& root, ActorPorts& ports) -> Status {
+         context.template SwitchSubgraphContext(nodes_cb_);
+         constexpr auto Index = tuple_element_index_v<typename ROOT::NodeType, nodes_links, desc_node_type>;
          if constexpr (Index >= 0) {
-            return std::get<Index>(nodes_links_).collect_actor_ports(context, ports);
+            return std::get<Index>(nodes_links_).CollectActorPorts(context, ports);
          } else {
-            return status_t::Ok;
+            return Status::Ok;
          }
       }
 
-      auto start(graph_context& context) -> status_t {
-         context.switch_subgraph_context(nodes_cb_);
+      auto Start(GraphContext& context) -> Status {
+         context.SwitchSubgraphContext(nodes_cb_);
          return tuple_foreach_r(nodes_cb_, [&](auto& cb) {
-            return cb.start(context, nodes_links_);
+            return cb.Start(context, nodes_links_);
          });
       }
 
-      auto cleanup() {
+      auto CleanUp() {
          return tuple_foreach_void(nodes_cb_, [](auto& cb) {
-            cb.cleanup();
+             cb.CleanUp();
          });
       }
 
-      auto stop() {
+      auto Stop() {
          return tuple_foreach_void(nodes_cb_, [](auto& cb) {
-            cb.stop();
+            cb.Stop();
          });
       }
 

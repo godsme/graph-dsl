@@ -7,9 +7,9 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 #include <graph/util/result_t.h>
-#include <graph/core/node_index.h>
+#include <graph/core/NodeIndex.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <holo/holo.h>
 #include <maco/basic.h>
@@ -33,47 +33,47 @@ struct down_stream_either {
       using node_2 = typename decorated_node_2::template instance_type<TUPLE>;
 
       template<size_t FROM, size_t TO, typename NODE>
-      auto move_to(graph_context& context) -> status_t {
+      auto move_to(GraphContext& context) -> Status {
          if(node_.index() == FROM) {
-            std::get<FROM>(node_).release(context);
+            std::get<FROM>(node_).Release(context);
          }
          if(node_.index() != TO) {
             node_ = NODE{};
-            GRAPH_EXPECT_SUCC(std::get<TO>(node_).build(context));
+            GRAPH_EXPECT_SUCC(std::get<TO>(node_).Build(context));
          }
-         return status_t::Ok;
+         return Status::Ok;
       }
 
       template<size_t N>
-      inline auto cleanup(graph_context& context) {
-         std::get<N>(node_).release(context);
+      inline auto Cleanup(GraphContext& context) {
+         std::get<N>(node_).Release(context);
          node_ = std::monostate{};
       }
    public:
-      auto build(graph_context& context) -> status_t {
+      auto Build(GraphContext& context) -> Status {
          return COND{}(context).with_value([&](auto satisfied) {
             if(satisfied) { return move_to<2, 1, node_1>(context); }
             else          { return move_to<1, 2, node_2>(context); }
          });
       }
 
-      auto release(graph_context& context) {
+      auto Release(GraphContext& context) {
          switch(node_.index()) {
-            case 1: { cleanup<1>(context); break; }
-            case 2: { cleanup<2>(context); break; }
+            case 1: { Cleanup<1>(context); break; }
+            case 2: { Cleanup<2>(context); break; }
             default: break;
          }
       }
 
-      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
+      auto CollectActorHandle(GraphContext& context, ActorHandleSet & actor_handles) -> Status {
          switch(node_.index()) {
-            case 1: return std::get<1>(node_).collect_actor_handle(context, actor_handles);
-            case 2: return std::get<2>(node_).collect_actor_handle(context, actor_handles);
-            default: return status_t::Failed;
+            case 1: return std::get<1>(node_).CollectActorHandle(context, actor_handles);
+            case 2: return std::get<2>(node_).CollectActorHandle(context, actor_handles);
+            default: return Status::Failed;
          }
       }
 
-      auto enabled() const -> bool { return node_.index() != 0; }
+      auto Enabled() const -> bool { return node_.index() != 0; }
 
    private:
       std::variant<std::monostate, node_1, node_2> node_;

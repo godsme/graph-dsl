@@ -22,11 +22,11 @@ namespace {
    TEST_CASE("devices") {
       static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Num_Of_Devices == 2);
 
-      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[0].device_id == 0);
-      static_assert(!__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[0].is_preview);
+      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[0].deviceId == 0);
+      static_assert(!__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[0].isPreview);
 
-      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[1].device_id == 1);
-      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[1].is_preview);
+      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[1].deviceId == 1);
+      static_assert(__g_STATE(device_0, __g_PREVIEW(device_1))::Devices[1].isPreview);
    }
 
    struct dict {
@@ -64,10 +64,10 @@ namespace {
       auto [device_info, size] = selector::sorted_entries::find(dict{});
       REQUIRE(device_info != nullptr);
       REQUIRE(size == 2);
-      REQUIRE(device_info[0].device_id == 0);
-      REQUIRE(device_info[1].device_id == 1);
-      REQUIRE(device_info[0].is_preview);
-      REQUIRE_FALSE(device_info[1].is_preview);
+      REQUIRE(device_info[0].deviceId == 0);
+      REQUIRE(device_info[1].deviceId == 1);
+      REQUIRE(device_info[0].isPreview);
+      REQUIRE_FALSE(device_info[1].isPreview);
    }
 
    TEST_CASE("selector 2") {
@@ -76,10 +76,10 @@ namespace {
       auto [device_info, size] = selector::sorted_entries::find(dict2);
       REQUIRE(device_info != nullptr);
       REQUIRE(size == 2);
-      REQUIRE(device_info[0].device_id == 1);
-      REQUIRE(device_info[1].device_id == 2);
-      REQUIRE(device_info[0].is_preview);
-      REQUIRE_FALSE(device_info[1].is_preview);
+      REQUIRE(device_info[0].deviceId == 1);
+      REQUIRE(device_info[1].deviceId == 2);
+      REQUIRE(device_info[0].isPreview);
+      REQUIRE_FALSE(device_info[1].isPreview);
    }
 
    TEST_CASE("selector 3") {
@@ -89,16 +89,16 @@ namespace {
       auto [device_info, size] = selector::sorted_entries::find(dict2);
       REQUIRE(device_info != nullptr);
       REQUIRE(size == 2);
-      REQUIRE(device_info[0].device_id == 0);
-      REQUIRE(device_info[1].device_id == 1);
-      REQUIRE_FALSE(device_info[0].is_preview);
-      REQUIRE(device_info[1].is_preview);
+      REQUIRE(device_info[0].deviceId == 0);
+      REQUIRE(device_info[1].deviceId == 1);
+      REQUIRE_FALSE(device_info[0].isPreview);
+      REQUIRE(device_info[1].isPreview);
    }
 
    TEST_CASE("device eq") {
-      static_assert(GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{} == GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
-      static_assert(GRAPH_DSL_NS::device_state<device_2, __g_PREVIEW(device_1)>{} == GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
-      static_assert(GRAPH_DSL_NS::device_state<device_1, device_2>{} != GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
-      static_assert(GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1)>{} != GRAPH_DSL_NS::device_state<__g_PREVIEW(device_1), device_2>{});
+      static_assert(GRAPH_DSL_NS::DeviceState<__g_PREVIEW(device_1), device_2>{} == GRAPH_DSL_NS::DeviceState<__g_PREVIEW(device_1), device_2>{});
+      static_assert(GRAPH_DSL_NS::DeviceState<device_2, __g_PREVIEW(device_1)>{} == GRAPH_DSL_NS::DeviceState<__g_PREVIEW(device_1), device_2>{});
+      static_assert(GRAPH_DSL_NS::DeviceState<device_1, device_2>{} != GRAPH_DSL_NS::DeviceState<__g_PREVIEW(device_1), device_2>{});
+      static_assert(GRAPH_DSL_NS::DeviceState<__g_PREVIEW(device_1)>{} != GRAPH_DSL_NS::DeviceState<__g_PREVIEW(device_1), device_2>{});
    }
 }

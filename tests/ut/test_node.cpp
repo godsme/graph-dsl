@@ -5,7 +5,6 @@
 #include <catch.hpp>
 #include <graph/core/dsl/graph_node.h>
 #include <graph/core/dsl/sub_graph.h>
-#include <nano-caf/core/actor/behavior_based_actor.h>
 #include <map>
 #include <unordered_map>
 #include <graph/core/msgs/graph_msgs.h>
@@ -43,72 +42,72 @@ struct node_8 : graph_dsl::node_signature{
 };
 
 struct port_1 {
-   constexpr static graph_dsl::port_id_t root_port_id = 1;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId root_port_id = 1;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_2 {
-   constexpr static graph_dsl::port_id_t root_port_id = 2;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId root_port_id = 2;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_3 {
-   constexpr static graph_dsl::port_id_t root_port_id = 3;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId root_port_id = 3;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_4 {
-   constexpr static graph_dsl::port_id_t root_port_id = 4;
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortId root_port_id = 4;
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_5 {
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_6 {
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_7 {
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_8 {
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 struct port_9 {
-   constexpr static graph_dsl::port_format format{};
-   static auto get_port_format(GRAPH_DSL_NS::graph_context&) -> const graph_dsl::port_format& {
+   constexpr static graph_dsl::PortFormat format{};
+   static auto get_port_format(GRAPH_DSL_NS::GraphContext&) -> const graph_dsl::PortFormat& {
       return format;
    }
 };
 
 struct cond_1 {
-   auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
+   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
       return true;
    }
 };
 
 struct cond_2 {
-   auto operator()(GRAPH_DSL_NS::graph_context&) const -> GRAPH_DSL_NS::result_t<bool> {
+   auto operator()(GRAPH_DSL_NS::GraphContext&) const -> GRAPH_DSL_NS::result_t<bool> {
       return false;
    }
 };
@@ -146,11 +145,11 @@ namespace {
 
    TEST_CASE("graph_desc") {
       static_assert(holo::list_t<
-         GRAPH_DSL_NS::node_trait<node_5, GRAPH_DSL_NS::node_category::Intermediate>,
-         GRAPH_DSL_NS::node_trait<node_3, GRAPH_DSL_NS::node_category::Intermediate>,
-         GRAPH_DSL_NS::node_trait<node_8, GRAPH_DSL_NS::node_category::Leaf>,
-         GRAPH_DSL_NS::node_trait<node_4, GRAPH_DSL_NS::node_category::Leaf>,
-         GRAPH_DSL_NS::node_trait<node_6, GRAPH_DSL_NS::node_category::Leaf>,
-         GRAPH_DSL_NS::node_trait<node_7, GRAPH_DSL_NS::node_category::Leaf>> == grap_def::all_sorted_nodes);
+         GRAPH_DSL_NS::NodeTrait<node_5, GRAPH_DSL_NS::NodeCategory::INTERMEDIATE>,
+         GRAPH_DSL_NS::NodeTrait<node_3, GRAPH_DSL_NS::NodeCategory::INTERMEDIATE>,
+         GRAPH_DSL_NS::NodeTrait<node_8, GRAPH_DSL_NS::NodeCategory::LEAF>,
+         GRAPH_DSL_NS::NodeTrait<node_4, GRAPH_DSL_NS::NodeCategory::LEAF>,
+         GRAPH_DSL_NS::NodeTrait<node_6, GRAPH_DSL_NS::NodeCategory::LEAF>,
+         GRAPH_DSL_NS::NodeTrait<node_7, GRAPH_DSL_NS::NodeCategory::LEAF>> == grap_def::all_sorted_nodes);
    }
 }

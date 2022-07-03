@@ -8,55 +8,37 @@
 #include <graph/graph_ns.h>
 #include <graph/core/dsl/target_state_selector.h>
 #include <graph/core/dsl/state_transition.h>
-#include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
 
 template<typename STATE_SELECTOR, typename STATE_TRANSITION>
-struct multi_device {
+struct MultiDevice {
    template<typename ENV>
-   auto get_transitions(const ENV& env) -> state_path {
-      target_state_ = STATE_SELECTOR::find(env);
-      if(target_state_.size_ == 0) {
-         spdlog::error("no state selected");
-         return {};
-      }
-      if(state_.size_ == 0) {
-         return { .state = &target_state_, .size = 1 };
-      }
+   auto GetTransitions(const ENV& env) -> StatePath {
+       m_targetState = STATE_SELECTOR::find(env);
+       if(m_targetState.size == 0) {
+           return {};
+       }
+       if(m_state.size == 0) {
+         return { .state = &m_targetState, .size = 1 };
+       }
 
-      spdlog::critical("{} ({}-{}) -> {} ({}-{}) ",
-                    state_.size_,
-                           state_.device_info_[0].is_preview ?
-                           state_.device_info_[0].device_id :
-                           state_.device_info_[1].device_id,
-                           state_.device_info_[0].is_preview ?
-                           state_.device_info_[1].device_id :
-                           state_.device_info_[0].device_id,
-                    target_state_.size_,
-                    target_state_.device_info_[0].is_preview ?
-                    target_state_.device_info_[0].device_id :
-                    target_state_.device_info_[1].device_id,
-                    target_state_.device_info_[0].is_preview ?
-                    target_state_.device_info_[1].device_id :
-                    target_state_.device_info_[0].device_id);
-
-      if(state_ == target_state_) return {};
-      return STATE_TRANSITION::find(state_, target_state_);
+       if(m_state == m_targetState) return {};
+       return STATE_TRANSITION::find(m_state, m_targetState);
    }
 
-   auto update_state(root_state const& state) {
-      state_ = state;
+   auto UpdateState(RootState const& state) {
+       m_state = state;
    }
 
-   auto cleanup() {
-      state_.cleanup();
-      target_state_.cleanup();
+   auto CleanUp() {
+       m_state.CleanUp();
+       m_targetState.CleanUp();
    }
 
 private:
-   root_state state_{};
-   root_state target_state_{};
+   RootState m_state{};
+   RootState m_targetState{};
 };
 
 GRAPH_DSL_NS_END

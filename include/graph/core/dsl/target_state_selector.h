@@ -7,7 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <graph/util/interval.h>
-#include <graph/core/dsl/device_state.h>
+#include <graph/core/dsl/DeviceState.h>
 #include <maco/map.h>
 #include <holo/holo.h>
 
@@ -65,7 +65,7 @@ namespace detail {
       constexpr static size_t Num_Of_Conditions = COND::Num_Of_Conditions;
 
       template<typename ENV>
-      inline static auto return_if_matches(ENV const& env, root_state& result) -> bool {
+      inline static auto return_if_matches(ENV const& env, RootState& result) -> bool {
          if(!COND::matches(env)) return false;
          result = STATE::Root_State;
          return true;
@@ -90,7 +90,7 @@ public:
    struct entries_type {
       template<typename ENV>
       static auto find(const ENV& env) {
-         root_state result;
+         RootState result;
          (ALL_ENTRIES::return_if_matches(env, result) || ...);
          return result;
       }
@@ -99,7 +99,7 @@ public:
    using sorted_entries = holo::type_transform_t<decltype(Sorted_Entries), entries_type>;
 
    template<typename ENV>
-   inline static auto find(ENV const& env) -> root_state {
+   inline static auto find(ENV const& env) -> RootState {
       return sorted_entries::find(env);
    }
 };

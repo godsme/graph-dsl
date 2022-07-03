@@ -12,8 +12,8 @@
 GRAPH_DSL_NS_BEGIN
 
 template<typename T>
-class result_t : private either<T, status_t> {
-   using parent = either<T, status_t>;
+class result_t : private either<T, Status> {
+   using parent = either<T, Status>;
 public:
    constexpr result_t(T&& value) noexcept
       : parent{std::move(value)}
@@ -23,7 +23,7 @@ public:
       : parent{value}
    {}
 
-   constexpr result_t(status_t&& value) noexcept
+   constexpr result_t(Status&& value) noexcept
       : parent{std::move(value)}
    {}
 
@@ -61,8 +61,8 @@ public:
       return parent::left_match(std::forward<F>(f));
    }
 
-   inline constexpr auto failure() const -> status_t {
-      return parent::is_right() ? parent::right() : status_t::Ok;
+   inline constexpr auto failure() const -> Status {
+      return parent::is_right() ? parent::right() : Status::Ok;
    }
 
    template<typename F_VALUE, typename F_ERROR>

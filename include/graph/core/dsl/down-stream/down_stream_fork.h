@@ -7,7 +7,7 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 #include <graph/util/result_t.h>
 #include <graph/core/dsl/down-stream/down_stream_trait_decl.h>
 #include <graph/function/tuple_foreach.h>
@@ -23,21 +23,21 @@ struct down_stream_fork {
 
    template<typename TUPLE>
    struct instance_type {
-      auto build(graph_context& context) -> status_t {
-         return tuple_foreach(nodes_, [&](auto& node) { return node.build(context); });
+      auto Build(GraphContext& context) -> Status {
+         return tuple_foreach(nodes_, [&](auto& node) { return node.Build(context); });
       }
-      auto release(graph_context& context) {
-         tuple_foreach_void(nodes_, [&](auto& node) { node.release(context); });
+      auto Release(GraphContext& context) {
+         tuple_foreach_void(nodes_, [&](auto& node) { node.Release(context); });
       }
-      auto enabled() const -> bool {
-         return tuple_exists(nodes_, [](auto& node) { return node.enabled(); });
+      auto Enabled() const -> bool {
+         return tuple_exists(nodes_, [](auto& node) { return node.Enabled(); });
       }
-      auto collect_actor_handle(graph_context& context, actor_handle_set& actor_handles) -> status_t {
+      auto CollectActorHandle(GraphContext& context, ActorHandleSet& actor_handles) -> Status {
          return tuple_foreach(nodes_, [&](auto& node) {
-            if (node.enabled()) {
-               return node.collect_actor_handle(context, actor_handles);
+            if (node.Enabled()) {
+               return node.CollectActorHandle(context, actor_handles);
             }
-            return status_t::Ok;
+            return Status::Ok;
          });
       }
 

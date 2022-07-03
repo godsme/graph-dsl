@@ -7,9 +7,9 @@
 
 #include <graph/graph_ns.h>
 #include <graph/status.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 #include <graph/core/dsl/down-stream/down_stream_trait.h>
-#include <graph/core/actor_ports.h>
+#include <graph/core/ActorPorts.h>
 
 GRAPH_DSL_NS_BEGIN
 
@@ -23,32 +23,32 @@ struct graph_port<auto (PORT) -> NODE_LIKE> final {
 
    template<typename TUPLE>
    struct instance_type {
-      inline auto build(graph_context& context) -> status_t {
-         return down_stream_node_.build(context);
+      inline auto Build(GraphContext& context) -> Status {
+         return down_stream_node_.Build(context);
       }
 
-      inline auto release(graph_context& context) {
-         down_stream_node_.release(context);
+      inline auto Release(GraphContext& context) {
+         down_stream_node_.Release(context);
       }
 
       template<bool Is_Root>
-      auto collect_actor_port(graph_context& context, actor_ports& ports) -> status_t {
-         if(down_stream_node_.enabled()) {
+      auto CollectActorPort(GraphContext& context, ActorPorts& ports) -> Status {
+         if(down_stream_node_.Enabled()) {
             if constexpr (Is_Root) {
-               if(ports.find(PORT::port_id) == ports.end()) update_port_format(context, ports);
+               if(ports.find(PORT::port_id) == ports.end()) UpdatePortFormat(context, ports);
             } else {
-               update_port_format(context, ports);
+                UpdatePortFormat(context, ports);
             }
-            GRAPH_EXPECT_SUCC(down_stream_node_.collect_actor_handle(context, ports[PORT::port_id].actor_handles_));
+            GRAPH_EXPECT_SUCC(down_stream_node_.CollectActorHandle(context, ports[PORT::port_id].m_actorHandles));
          }
-         return status_t::Ok;
+         return Status::Ok;
       }
 
-      inline auto enabled() -> bool { return down_stream_node_.enabled(); }
+      inline auto Enabled() -> bool { return down_stream_node_.Enabled(); }
 
    private:
-      auto update_port_format(graph_context& context, actor_ports& ports) {
-         ports[PORT::port_id].format_ = PORT::get_port_format(context);
+      auto UpdatePortFormat(GraphContext& context, ActorPorts& ports) {
+         ports[PORT::port_id].m_format = PORT::GetPortFormat(context);
       }
    private:
       typename node_like_type::template instance_type<TUPLE>  down_stream_node_;

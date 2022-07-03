@@ -7,14 +7,14 @@
 
 #include <graph/graph_ns.h>
 #include <graph/util/tuple_element_by_type.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 
 GRAPH_DSL_NS_BEGIN
 
-enum class node_category {
-   Root,
-   Intermediate,
-   Leaf
+enum class NodeCategory {
+   ROOT,
+   INTERMEDIATE,
+   LEAF
 };
 
 GRAPH_DSL_NS_END

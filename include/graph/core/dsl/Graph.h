@@ -10,55 +10,54 @@
 #include <graph/util/assertion.h>
 #include <graph/function/tuple_foreach.h>
 #include <maco/map.h>
-#include <spdlog/spdlog.h>
 
 GRAPH_DSL_NS_BEGIN
 
 template<typename ROOTS, typename ... SUB_GRAPH_SELECTOR>
-struct graph {
-   auto refresh(graph_context& context) -> status_t {
-      GRAPH_EXPECT_SUCC(build(context));
-      GRAPH_EXPECT_SUCC(start(context));
-      return status_t::Ok;
+struct Graph {
+   auto Refresh(GraphContext& context) -> Status {
+      GRAPH_EXPECT_SUCC(Build(context));
+      GRAPH_EXPECT_SUCC(Start(context));
+      return Status::Ok;
    }
 
-   auto stop() {
-      roots_.stop();
-      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.stop(); });
+   auto Stop() {
+      roots_.Stop();
+      tuple_foreach_void(sub_graphs_, [](auto& sub){ sub.Stop(); });
    }
 
    template<size_t I>
-   inline auto get_root() -> decltype(auto) {
-      return (std::get<I>(roots_.roots_).get_handle());
+   inline auto GetRoot() -> decltype(auto) {
+      return (std::get<I>(roots_.roots_).GetHandle());
    }
 
 private:
-   inline auto build(graph_context& context) -> status_t {
-      GRAPH_EXPECT_SUCC(roots_.build(context));
+   inline auto Build(GraphContext& context) -> Status {
+      GRAPH_EXPECT_SUCC(roots_.Build(context));
       return tuple_foreach(sub_graphs_, [&](auto& sub) {
-         return sub.build(context);
+         return sub.Build(context);
       });
    }
 
-   auto start(graph_context& context) -> status_t {
-      roots_.cleanup();
+   auto Start(GraphContext& context) -> Status {
+       roots_.CleanUp();
       tuple_foreach_void(sub_graphs_, [](auto& sub){
-         sub.cleanup();
+          sub.CleanUp();
       });
       GRAPH_EXPECT_SUCC(tuple_foreach(sub_graphs_, [&](auto& sub) {
-         return sub.start(context);
+         return sub.Start(context);
       }));
       GRAPH_EXPECT_SUCC(tuple_foreach(roots_.roots_, [&](auto& root) {
-         if(!root.present()) return status_t::Ok;
-         auto ports = std::make_unique<actor_ports>();
+         if(!root.Present()) return Status::Ok;
+         auto ports = std::make_unique<ActorPorts>();
          auto status = tuple_foreach(sub_graphs_, [&](auto& sub) {
-            return sub.connect_root(context, root, *ports);
+            return sub.ConnectRoot(context, root, *ports);
          });
-         if(status != status_t::Ok) return status;
-         return root.update_ports(context, std::move(ports));
+         if(status != Status::Ok) return status;
+         return root.UpdatePorts(context, std::move(ports));
       }));
 
-      return status_t::Ok;
+      return Status::Ok;
    }
 
 private:
@@ -76,7 +75,7 @@ GRAPH_DSL_NS_END
 #define __sUb_gRaPh_conditions(roots, ...) \
 __g_ROOTS roots __MACO_map(__sUb_gRaPh_each_condition, __VA_ARGS__)
 
-#define __g_GRAPH(...) GRAPH_DSL_NS::graph<__sUb_gRaPh_conditions(__VA_ARGS__)>
+#define __g_GRAPH(...) GRAPH_DSL_NS::Graph<__sUb_gRaPh_conditions(__VA_ARGS__)>
 
 #endif //GRAPH_GRAPH_H
 

@@ -7,24 +7,24 @@
 
 #include <graph/graph_ns.h>
 #include <graph/util/tuple_element_by_type.h>
-#include <graph/core/graph_context.h>
+#include <graph/core/GraphContext.h>
 
 GRAPH_DSL_NS_BEGIN
 
 template <typename NODE, typename TUPLE>
-struct node_index {
+struct NodeIndex {
 private:
-   template<typename T> struct trait { using type = typename T::node_type; };
+   template<typename T> struct trait { using type = typename T::NodeType; };
    constexpr static int Index = tuple_element_index_v<NODE, TUPLE, trait>;
    static_assert(Index >= 0, "no type in tuple");
 
 public:
-   inline static auto get_node(graph_context& context) -> decltype(auto) {
-      return (context.get_node<TUPLE, Index>());
+   inline static auto GetNode(GraphContext& context) -> decltype(auto) {
+      return (context.GetNode<TUPLE, Index>());
    }
 
-   inline static auto get_root_node(graph_context& context) -> decltype(auto) {
-      return (context.get_root_node<TUPLE, Index>());
+   inline static auto GetRootNode(GraphContext& context) -> decltype(auto) {
+      return (context.GetRootNode<TUPLE, Index>());
    }
 };
 
